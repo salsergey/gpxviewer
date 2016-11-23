@@ -215,6 +215,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
         self.includefiltermodel.invalidateFilter()
         self.ui.gpxView.resizeColumnsToContents()
         self.setWindowTitle(TheDocument['GPXFile'] + ' — GPX Viewer')
+        TheConfig['MainWindow']['ProjectDirectory'] = path.dirname(self.projectFile)
       else:
         QtWidgets.QMessageBox.warning(self, 'File read error', 'This file in not a GPX Viewer project file.')
 

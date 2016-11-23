@@ -16,7 +16,7 @@
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
-from os import path
+import os
 import configparser
 
 
@@ -25,15 +25,15 @@ class ConfigStore(configparser.ConfigParser):
     super(ConfigStore, self).__init__()
     defaults = {'MainWindow': {'WindowWidth': '1024',
                                'WindowHeight': '768',
-                               'LoadGPXDirectory': path.expanduser('~'),
-                               'ProjectDirectory': path.expanduser('~'),
+                               'LoadGPXDirectory': os.path.expanduser('~'),
+                               'ProjectDirectory': os.path.expanduser('~'),
                                'ShowDefault': 'True',
                                'ShowSkipped': 'True',
                                'ShowMarked': 'True',
                                'ShowCaptioned': 'True'},
                 'PlotWindow': {'WindowWidth': '1024',
                                'WindowHeight': '768',
-                               'SaveProfileDirectory': path.expanduser('~'),
+                               'SaveProfileDirectory': os.path.expanduser('~'),
                                'SaveFileExtension': 'PNG images (*.png)',
                                'SaveProfileWidth': '1280',
                                'SaveProfileHeight': '1024'},
@@ -61,8 +61,11 @@ class ConfigStore(configparser.ConfigParser):
                                'CaptionSize': '12'}
                }
     self.read_dict(defaults)
-    self.configfile = path.expanduser('~/.config/gpxviewerrc')
-    if path.exists(self.configfile):
+    if os.name == 'nt':
+      self.configfile = os.path.expanduser('~/AppData/Local/gpxviewerrc')
+    else:
+      self.configfile = os.path.expanduser('~/.config/gpxviewerrc')
+    if os.path.exists(self.configfile):
       self.read(self.configfile)
 
   def optionxform(self, optionstr):
