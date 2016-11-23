@@ -1,2 +1,6 @@
 syntax: glob
 gpxviewer.kdev4
+build
+dist
+gpxviewer.egg-info
+__pycache__

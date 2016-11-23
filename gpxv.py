@@ -17,21 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import sys
-from PyQt5.QtCore import QCoreApplication, QLocale, QTranslator
-from PyQt5.QtWidgets import QApplication
+import gpxviewer
 
-
-app = QApplication(sys.argv)
-
-translator = QTranslator()
-if not translator.load(QLocale(), 'gpxviewer', '_', QCoreApplication.applicationDirPath() + '/../share/gpxviewer/translations'):
-  translator.load(QLocale(), 'gpxviewer', '_', '/'.join(sys.argv[0].split('/')[:-1]) + '/data')
-QCoreApplication.installTranslator(translator)
-
-# We need to install translator first
-from gpxviewer.gpxmainwindow import GpxMainWindow
-
-my_mainWindow = GpxMainWindow()
-my_mainWindow.show()
-sys.exit(app.exec_())
+gpxviewer.main()
