@@ -4,52 +4,52 @@
 <context>
     <name>GpxMainWindow</name>
     <message>
-        <location filename="gpxmainwindow.py" line="44"/>
+        <location filename="gpxmainwindow.py" line="54"/>
         <source>Filter by name:</source>
         <translation>Фильтр по названию:</translation>
     </message>
     <message>
-        <location filename="gpxmainwindow.py" line="47"/>
+        <location filename="gpxmainwindow.py" line="57"/>
         <source>Enter regular expression</source>
         <translation type="unfinished">Регулярное выражение</translation>
     </message>
     <message>
-        <location filename="gpxmainwindow.py" line="168"/>
+        <location filename="gpxmainwindow.py" line="178"/>
         <source>Skip</source>
         <translation>Пропустить</translation>
     </message>
     <message>
-        <location filename="gpxmainwindow.py" line="170"/>
+        <location filename="gpxmainwindow.py" line="180"/>
         <source>Add marker</source>
         <translation>Добавить маркер</translation>
     </message>
     <message>
-        <location filename="gpxmainwindow.py" line="172"/>
+        <location filename="gpxmainwindow.py" line="182"/>
         <source>Add caption</source>
         <translation>Добавить подпись</translation>
     </message>
     <message>
-        <location filename="gpxmainwindow.py" line="174"/>
+        <location filename="gpxmainwindow.py" line="184"/>
         <source>Add splitting line</source>
         <translation>Добавить разделительную линию</translation>
     </message>
     <message>
-        <location filename="gpxmainwindow.py" line="176"/>
+        <location filename="gpxmainwindow.py" line="186"/>
         <source>Neglect previous distance</source>
         <translation type="unfinished">Не учитывать предыдущее расстояние</translation>
     </message>
     <message>
-        <location filename="gpxmainwindow.py" line="178"/>
+        <location filename="gpxmainwindow.py" line="188"/>
         <source>Reset</source>
         <translation>Сброс</translation>
     </message>
     <message>
-        <location filename="gpxmainwindow.py" line="180"/>
+        <location filename="gpxmainwindow.py" line="190"/>
         <source>Point style</source>
         <translation type="unfinished">Стиль точек</translation>
     </message>
     <message>
-        <location filename="gpxmainwindow.py" line="269"/>
+        <location filename="gpxmainwindow.py" line="280"/>
         <source>Notation:&lt;br&gt;
                            &lt;font color=red&gt;Red&lt;/font&gt; - skipped points&lt;br&gt;
                            &lt;font color=blue&gt;Blue&lt;/font&gt; - marked points&lt;br&gt;
@@ -74,9 +74,39 @@
                            Ctrl+T - Показать профиль по времени </translation>
     </message>
     <message>
-        <location filename="gpxmainwindow.py" line="281"/>
+        <location filename="gpxmainwindow.py" line="292"/>
         <source>GPX Viewer Help</source>
         <translation type="unfinished">Справка GPX Viewer</translation>
+    </message>
+    <message>
+        <location filename="gpxmainwindow.py" line="302"/>
+        <source>Version</source>
+        <translation type="unfinished">Версия</translation>
+    </message>
+    <message>
+        <location filename="gpxmainwindow.py" line="303"/>
+        <source>Using</source>
+        <translation type="unfinished">Используется</translation>
+    </message>
+    <message>
+        <location filename="gpxmainwindow.py" line="307"/>
+        <source>License:</source>
+        <translation type="unfinished">Лицензия:</translation>
+    </message>
+    <message>
+        <location filename="gpxmainwindow.py" line="308"/>
+        <source>About GPX Viewer</source>
+        <translation type="unfinished">О GPX Viewer</translation>
+    </message>
+    <message>
+        <location filename="gpxmainwindow.py" line="312"/>
+        <source>Distance Profile</source>
+        <translation type="unfinished">Профиль по расстоянию</translation>
+    </message>
+    <message>
+        <location filename="gpxmainwindow.py" line="319"/>
+        <source>Time Profile</source>
+        <translation type="unfinished">Профиль по времени</translation>
     </message>
 </context>
 <context>
@@ -125,89 +155,109 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="ui_mainwindow.py" line="146"/>
+        <location filename="ui_mainwindow.py" line="142"/>
         <source>&amp;Help</source>
         <translation type="unfinished">&amp;Справка</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="148"/>
+        <location filename="ui_mainwindow.py" line="144"/>
         <source>&amp;Quit</source>
         <translation type="unfinished">&amp;Выход</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="149"/>
+        <location filename="ui_mainwindow.py" line="145"/>
         <source>&amp;Open project</source>
         <translation type="unfinished">&amp;Открыть проект</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="150"/>
+        <location filename="ui_mainwindow.py" line="146"/>
         <source>&amp;About Qt</source>
         <translation type="unfinished">&amp;О Qt</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="151"/>
+        <location filename="ui_mainwindow.py" line="147"/>
         <source>&amp;Save project</source>
         <translation type="unfinished">&amp;Сохранить проект</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="152"/>
+        <location filename="ui_mainwindow.py" line="148"/>
         <source>Save project &amp;as...</source>
         <translation type="unfinished">Сохранить проект &amp;как...</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="153"/>
+        <location filename="ui_mainwindow.py" line="149"/>
         <source>&amp;Load GPX file</source>
         <translation type="unfinished">&amp;Загрузить GPX файл</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="157"/>
+        <location filename="ui_mainwindow.py" line="156"/>
         <source>&amp;Show skipped</source>
         <translation type="unfinished">&amp;Показывать пропущенные</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="158"/>
+        <location filename="ui_mainwindow.py" line="157"/>
         <source>Show &amp;marked</source>
         <translation type="unfinished">Показывать &amp;маркированные</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="159"/>
+        <location filename="ui_mainwindow.py" line="158"/>
         <source>Show &amp;captioned</source>
         <translation type="unfinished">Показывать &amp;подписанные</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="160"/>
+        <location filename="ui_mainwindow.py" line="159"/>
         <source>Show &amp;other</source>
         <translation type="unfinished">Показывать &amp;остальные</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="145"/>
+        <location filename="ui_mainwindow.py" line="141"/>
         <source>&amp;File</source>
         <translation type="unfinished">&amp;Файл</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="147"/>
+        <location filename="ui_mainwindow.py" line="143"/>
         <source>F&amp;ilter</source>
         <translation type="unfinished">Ф&amp;ильтр</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="154"/>
+        <location filename="ui_mainwindow.py" line="151"/>
         <source>&amp;Distance profile</source>
         <translation type="unfinished">&amp;Профиль по расстоянию</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="155"/>
+        <location filename="ui_mainwindow.py" line="153"/>
         <source>&amp;Time profile</source>
         <translation type="unfinished">Профиль по &amp;времени</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="156"/>
+        <location filename="ui_mainwindow.py" line="155"/>
         <source>Profile &amp;style</source>
         <translation type="unfinished">&amp;Стиль профиля</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="161"/>
+        <location filename="ui_mainwindow.py" line="160"/>
         <source>GPX Viewer &amp;Help</source>
         <translation type="unfinished">&amp;Справка GPX Viewer</translation>
+    </message>
+    <message>
+        <location filename="ui_mainwindow.py" line="150"/>
+        <source>Ctrl+L</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ui_mainwindow.py" line="152"/>
+        <source>Ctrl+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ui_mainwindow.py" line="154"/>
+        <source>Ctrl+T</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ui_mainwindow.py" line="161"/>
+        <source>About &amp;GPX Viewer</source>
+        <translation type="unfinished">О &amp;GPX Viewer</translation>
     </message>
 </context>
 <context>

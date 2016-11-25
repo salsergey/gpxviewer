@@ -4,3 +4,4 @@ build
 dist
 gpxviewer.egg-info
 __pycache__
+gpxviewer/*.pyc

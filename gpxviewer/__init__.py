@@ -19,6 +19,7 @@ import sys
 from os import path
 from PyQt5.QtCore import QCoreApplication, QLocale, QTranslator
 from PyQt5.QtWidgets import QApplication
+import gpxviewer.rc_gpxviewer
 
 
 app = None
@@ -26,12 +27,10 @@ app = None
 def main():
   global app
   app = QApplication(sys.argv)
+  QCoreApplication.setApplicationVersion('0.1')
 
   translator = QTranslator(app)
-  # TODO: rework paths
-  if not translator.load(QLocale(), 'gpxviewer', '_', path.join(path.dirname(sys.argv[0]), 'data')):
-    translator.load(QLocale(), 'gpxviewer', '_', path.join(path.dirname(sys.argv[0]), '../share/gpxviewer/translations'))
-    #translator.load(QLocale(), 'gpxviewer', '_', path.join(sys.prefix, 'share/gpxviewer/translations'))
+  translator.load(QLocale(), 'gpxviewer', '_', ':/translations')
   QCoreApplication.installTranslator(translator)
 
   # We need to install translator first

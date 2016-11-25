@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 from os import path
 from PyQt5 import QtCore, QtWidgets, QtGui
 import gpxviewer.plotviewer as plt
@@ -23,6 +24,7 @@ from gpxviewer.gpxdocument import TheDocument
 import gpxviewer.ui_mainwindow
 import gpxviewer.profileconfigdialog
 import gpxviewer.pointconfigdialog
+import gpxviewer.rc_gpxviewer
 
 
 class GpxMainWindow(QtWidgets.QMainWindow):
@@ -30,8 +32,18 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     super(GpxMainWindow, self).__init__()
     self.ui = gpxviewer.ui_mainwindow.Ui_MainWindow()
     self.ui.setupUi(self)
-    self.setWindowIcon(QtGui.QIcon.fromTheme('text-xml'))
     self.ui.gpxView.setFocus()
+
+    self.setWindowIcon(QtGui.QIcon(':/icons/gpxviewer.svg'))
+    self.ui.actionLoadGPXfile.setIcon(QtGui.QIcon.fromTheme('text-xml', QtGui.QIcon(':/icons/text-xml.svg')))
+    self.ui.actionOpen.setIcon(QtGui.QIcon.fromTheme('document-open', QtGui.QIcon(':/icons/document-open.svg')))
+    self.ui.actionSave.setIcon(QtGui.QIcon.fromTheme('document-save', QtGui.QIcon(':/icons/document-save.svg')))
+    self.ui.actionSaveAs.setIcon(QtGui.QIcon.fromTheme('document-save-as', QtGui.QIcon(':/icons/document-save-as.svg')))
+    self.ui.actionQuit.setIcon(QtGui.QIcon.fromTheme('application-exit', QtGui.QIcon(':/icons/application-exit.svg')))
+    self.ui.actionProfileStyle.setIcon(QtGui.QIcon.fromTheme('configure', QtGui.QIcon(':/icons/configure.svg')))
+    self.ui.actionDistanceProfile.setIcon(QtGui.QIcon(':/icons/distanceprofile.svg'))
+    self.ui.actionTimeProfile.setIcon(QtGui.QIcon(':/icons/timeprofile.svg'))
+    self.ui.actionAboutGPXViewer.setIcon(QtGui.QIcon(':/icons/gpxviewer.svg'))
 
     self.ui.actionOpen.setShortcut(QtGui.QKeySequence.Open)
     self.ui.actionSave.setShortcut(QtGui.QKeySequence.Save)
@@ -288,16 +300,25 @@ class GpxMainWindow(QtWidgets.QMainWindow):
   def aboutQt(self):
     QtWidgets.QApplication.aboutQt()
 
+  def aboutGPXViewer(self):
+    aboutText = '<h3>GPX Viewer</h3><b>' + self.tr('Version') + ' ' + QtCore.QCoreApplication.applicationVersion() + '</b><br><br>' + \
+                self.tr('Using') + ' Python ' + str(sys.version_info.major) + '.' + str(sys.version_info.minor) + '.' + str(sys.version_info.micro) + ', ' + \
+                'PyQt5 ' + QtCore.PYQT_VERSION_STR + ', ' + \
+                'Qt ' + QtCore.QT_VERSION_STR + '<br><br>' + \
+                'Copyright 2016 Sergey Salnikov<br><br>' + \
+                self.tr('License:') + ' <a href=http://www.gnu.org/licenses/gpl.html>GNU General Public License, version 3</a>'
+    QtWidgets.QMessageBox.about(self, self.tr('About GPX Viewer'), aboutText)
+
   def plotDistanceProfile(self):
     if len(TheDocument.gpxmodel.getIndexesWithIncludeState(gpx.INC_SKIP)) < TheDocument.gpxmodel.rowCount():
-      self.plot.setWindowTitle('Distance Profile')
+      self.plot.setWindowTitle(self.tr('Distance Profile'))
       self.plot.plotProfile(gpx.DIST)
       self.plot.show()
       self.plot.activateWindow()
 
   def plotTimeProfile(self):
     if len(TheDocument.gpxmodel.getIndexesWithIncludeState(gpx.INC_SKIP)) < TheDocument.gpxmodel.rowCount():
-      self.plot.setWindowTitle('Time Profile')
+      self.plot.setWindowTitle(self.tr('Time Profile'))
       self.plot.plotProfile(gpx.TIME_DAYS)
       self.plot.show()
       self.plot.activateWindow()

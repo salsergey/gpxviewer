@@ -55,6 +55,7 @@
     <addaction name="actionGpxViewerHelp"/>
     <addaction name="separator"/>
     <addaction name="actionAboutQt"/>
+    <addaction name="actionAboutGPXViewer"/>
    </widget>
    <widget class="QMenu" name="menuFilter">
     <property name="title">
@@ -106,7 +107,7 @@
   </widget>
   <action name="actionQuit">
    <property name="icon">
-    <iconset theme="application-exit">
+    <iconset>
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -115,7 +116,7 @@
   </action>
   <action name="actionOpen">
    <property name="icon">
-    <iconset theme="document-open">
+    <iconset>
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -129,7 +130,7 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset theme="document-save">
+    <iconset>
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -138,7 +139,7 @@
   </action>
   <action name="actionSaveAs">
    <property name="icon">
-    <iconset theme="document-save-as">
+    <iconset>
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -147,43 +148,43 @@
   </action>
   <action name="actionLoadGPXfile">
    <property name="icon">
-    <iconset theme="text-xml">
+    <iconset>
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Load GPX file</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+L</string>
+    <string>Ctrl+L</string>
    </property>
   </action>
   <action name="actionDistanceProfile">
    <property name="icon">
-    <iconset theme="x-shape-image">
+    <iconset>
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Distance profile</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+P</string>
+    <string>Ctrl+P</string>
    </property>
   </action>
   <action name="actionTimeProfile">
    <property name="icon">
-    <iconset theme="x-shape-image">
+    <iconset>
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Time profile</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+T</string>
+    <string>Ctrl+T</string>
    </property>
   </action>
   <action name="actionProfileStyle">
    <property name="icon">
-    <iconset theme="configure">
+    <iconset>
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -225,6 +226,11 @@
   <action name="actionGpxViewerHelp">
    <property name="text">
     <string>GPX Viewer &amp;Help</string>
+   </property>
+  </action>
+  <action name="actionAboutGPXViewer">
+   <property name="text">
+    <string>About &amp;GPX Viewer</string>
    </property>
   </action>
  </widget>
@@ -454,6 +460,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionAboutGPXViewer</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>aboutGPXViewer()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>fileOpen()</slot>
@@ -469,5 +491,6 @@
   <slot>showCaptioned(bool)</slot>
   <slot>showOther(bool)</slot>
   <slot>gpxViewerHelp()</slot>
+  <slot>aboutGPXViewer()</slot>
  </slots>
 </ui>

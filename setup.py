@@ -16,8 +16,6 @@ setup(
   packages=['gpxviewer'],
   # TODO: dependencies
   install_requires=['matplotlib'],
-  data_files=[(path.join(sys.prefix, 'share/gpxviewer/translations'), ['data/gpxviewer_ru.qm'])],
-  #scripts=['gpxv']
   entry_points={
     'gui_scripts': ['gpxv = gpxviewer:main']
   }

@@ -5,7 +5,6 @@ GPX Viewer is an application for viewing GPX files as a list of points. It also 
 ### Dependencies ###
 
 * Python3
-* Qt5
 * PyQt5
 * Matplotlib
 * ElementTree
