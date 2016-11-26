@@ -27,6 +27,9 @@ class PlotWindow(QtWidgets.QMainWindow):
     self.ui = gpxviewer.ui_plotwindow.Ui_PlotWindow()
     self.ui.setupUi(self)
 
+    self.ui.actExportCurrentSize.setIcon(QtGui.QIcon.fromTheme('document-save', QtGui.QIcon(':/icons/document-save.svg')))
+    self.ui.actExportSelectedSize.setIcon(QtGui.QIcon.fromTheme('document-save-as', QtGui.QIcon(':/icons/document-save-as.svg')))
+
     self.ui.actExportCurrentSize.setShortcut(QtGui.QKeySequence.Save)
     self.ui.actExportSelectedSize.setShortcut(QtGui.QKeySequence.SaveAs)
 

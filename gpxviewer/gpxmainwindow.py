@@ -24,7 +24,6 @@ from gpxviewer.gpxdocument import TheDocument
 import gpxviewer.ui_mainwindow
 import gpxviewer.profileconfigdialog
 import gpxviewer.pointconfigdialog
-import gpxviewer.rc_gpxviewer
 
 
 class GpxMainWindow(QtWidgets.QMainWindow):

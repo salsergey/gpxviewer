@@ -32,8 +32,11 @@ class ColorChooser(QtWidgets.QPushButton):
     optBtn.initFrom(self)
     optBtn.state = QtWidgets.QStyle.State_Sunken if self.isDown() else QtWidgets.QStyle.State_Raised
     optBtn.rect.setLeft(optBtn.rect.right() - self.buttonWidth)
-    optBtn.palette = QtGui.QPalette(self.color) if self.isEnabled() else QtGui.QPalette(self.color.darker())
     label = self.text()[1:] if self.text().startswith('&') else self.text()
+    self.setStyleSheet('QPushButton { background-color: rgba(' + str(self.color.red()) + ',' +
+                                                                 str(self.color.green()) + ',' +
+                                                                 str(self.color.blue()) + ',' +
+                                                                 str(self.color.alpha()) + ')}')
 
     p = QtGui.QPainter(self)
     p.drawText(QtCore.QRect(0, 0, self.width() - self.buttonWidth, self.height()), QtCore.Qt.AlignVCenter, label)

@@ -35,7 +35,7 @@
   </widget>
   <action name="actExportCurrentSize">
    <property name="icon">
-    <iconset theme="document-save">
+    <iconset>
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -47,7 +47,7 @@
   </action>
   <action name="actExportSelectedSize">
    <property name="icon">
-    <iconset theme="document-save-as">
+    <iconset>
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
