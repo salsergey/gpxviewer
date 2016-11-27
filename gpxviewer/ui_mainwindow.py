@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '../ui/mainwindow.ui'
+# Form implementation generated from reading ui file 'ui/mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.7
 #
@@ -49,6 +49,7 @@ class Ui_MainWindow(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("."), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionQuit.setIcon(icon)
+        self.actionQuit.setShortcutContext(QtCore.Qt.ApplicationShortcut)
         self.actionQuit.setObjectName("actionQuit")
         self.actionOpen = QtWidgets.QAction(MainWindow)
         self.actionOpen.setIcon(icon)
@@ -63,12 +64,15 @@ class Ui_MainWindow(object):
         self.actionSaveAs.setObjectName("actionSaveAs")
         self.actionLoadGPXfile = QtWidgets.QAction(MainWindow)
         self.actionLoadGPXfile.setIcon(icon)
+        self.actionLoadGPXfile.setShortcut("Ctrl+L")
         self.actionLoadGPXfile.setObjectName("actionLoadGPXfile")
         self.actionDistanceProfile = QtWidgets.QAction(MainWindow)
         self.actionDistanceProfile.setIcon(icon)
+        self.actionDistanceProfile.setShortcut("Ctrl+P")
         self.actionDistanceProfile.setObjectName("actionDistanceProfile")
         self.actionTimeProfile = QtWidgets.QAction(MainWindow)
         self.actionTimeProfile.setIcon(icon)
+        self.actionTimeProfile.setShortcut("Ctrl+T")
         self.actionTimeProfile.setObjectName("actionTimeProfile")
         self.actionProfileStyle = QtWidgets.QAction(MainWindow)
         self.actionProfileStyle.setIcon(icon)
@@ -146,11 +150,8 @@ class Ui_MainWindow(object):
         self.actionSave.setText(_translate("MainWindow", "&Save project"))
         self.actionSaveAs.setText(_translate("MainWindow", "Save project &as..."))
         self.actionLoadGPXfile.setText(_translate("MainWindow", "&Load GPX file"))
-        self.actionLoadGPXfile.setShortcut(_translate("MainWindow", "Ctrl+L"))
         self.actionDistanceProfile.setText(_translate("MainWindow", "&Distance profile"))
-        self.actionDistanceProfile.setShortcut(_translate("MainWindow", "Ctrl+P"))
         self.actionTimeProfile.setText(_translate("MainWindow", "&Time profile"))
-        self.actionTimeProfile.setShortcut(_translate("MainWindow", "Ctrl+T"))
         self.actionProfileStyle.setText(_translate("MainWindow", "Profile &style"))
         self.actionShowSkipped.setText(_translate("MainWindow", "&Show skipped"))
         self.actionShowMarked.setText(_translate("MainWindow", "Show &marked"))

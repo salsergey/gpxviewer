@@ -40,9 +40,9 @@ class GpxModel(QtCore.QAbstractTableModel):
   def __init__(self, parent = None):
     super(GpxModel, self).__init__(parent)
     self.fields = [self.tr('Name'), self.tr('Latitude'), self.tr('Longitude'), self.tr('Altitude'), self.tr('Distance'), self.tr('Time'), self.tr('Time difference'), self.tr('Time in days')]
-    self.initModel()
+    self.resetModel()
 
-  def initModel(self):
+  def resetModel(self):
     self.beginResetModel()
     self.points = []
     self.includeStates = []
@@ -141,7 +141,7 @@ class GpxModel(QtCore.QAbstractTableModel):
     QGuiApplication.clipboard().setText(text)
 
   def parse(self, filename):
-    self.initModel()
+    self.resetModel()
 
     namespaces = {'ns0' : 'http://www.topografix.com/GPX/1/0',
                   'ns1' : 'http://www.topografix.com/GPX/1/1'}
@@ -149,7 +149,7 @@ class GpxModel(QtCore.QAbstractTableModel):
       #ET.register_namespace('', ns['ns0'])
       doc = ET.parse(filename)
     except:
-      raise GpxWarning(filename + ' is an invalid GPX file.')
+      raise GpxWarning(filename + self.tr(' is an invalid GPX file.'))
 
     ns = {'ns': namespaces['ns1']}
     data = doc.findall('.//{%(ns)s}wpt' % ns)
@@ -157,15 +157,19 @@ class GpxModel(QtCore.QAbstractTableModel):
       ns = {'ns': namespaces['ns0']}
       data = doc.findall('.//{%(ns)s}wpt' % ns)
     if len(data) == 0:
-      raise GpxWarning('GPX file is empty.')
+      raise GpxWarning(self.tr('GPX file is empty.'))
 
-    n = 0
+    id = 0
     minalt = 10000
     maxalt = 0
-    start = doc.find('.//{%(ns)s}wpt' % ns)
+    while data[0].findtext('{%(ns)s}time' % ns) == None:
+      del data[0]
+    start = data[0]
     start_t = start.findtext('{%(ns)s}time' % ns).strip()
-    start_dt = datetime.strptime(start_t, '%Y-%m-%dT%H:%M:%SZ')
-    self.beginInsertRows(QtCore.QModelIndex(), 0, len(data) - 1)
+    try:
+      start_dt = datetime.strptime(start_t, '%Y-%m-%dT%H:%M:%SZ')
+    except ValueError as e:
+      raise GpxWarning(self.tr('Waypoint time format is invalid.'))
 
     defaultStyle = {MARKER_COLOR: int(TheConfig['PointStyle']['MarkerColor']),
                     MARKER_STYLE: TheConfig['PointStyle']['MarkerStyle'],
@@ -180,37 +184,32 @@ class GpxModel(QtCore.QAbstractTableModel):
     for p in data:
       try:
         point = {}
-        name = p.findtext('{%(ns)s}name' % ns).strip()
-        point[NAME] = p.findtext('{%(ns)s}name' % ns).strip()
-        t = p.findtext('{%(ns)s}time' % ns).strip()
-        point[LAT] = lat = float(p.get('lat'))
-        point[LON] = lon = float(p.get('lon'))
+        name = p.findtext('{%(ns)s}name' % ns)
+        point[NAME] = name.strip() if name != None else ''
+        point[LAT] = float(p.get('lat'))
+        point[LON] = float(p.get('lon'))
         point[ALT] = int(round(float(p.findtext('{%(ns)s}ele' % ns))))
         minalt = min(minalt, point[ALT])
         maxalt = max(maxalt, point[ALT])
-        dt = datetime.strptime(t, '%Y-%m-%dT%H:%M:%SZ')
+        dt = datetime.strptime(p.findtext('{%(ns)s}time' % ns).strip(), '%Y-%m-%dT%H:%M:%SZ')
         point[TIME] = dt
         time_delta = dt - start_dt
         point[TIMEDELTA] = time_delta
         point[TIME_DAYS] = round(time_delta.days + time_delta.seconds / 60.0 / 60.0 / 24.0, 3)
-        point['ID'] = n
-        n += 1
+        point['ID'] = id
 
-      except:
-        # TODO: work with exceptions carefuly
-        if p.findtext('{%(ns)s}name' % ns) == None:
-          print('Point is invalid and will be skipped.')
-        else:
-          print(point[NAME] + ' is invalid and will be skipped.')
-        doc.getroot().remove(p)
+        self.beginInsertRows(QtCore.QModelIndex(), id, id)
+        self.points += [point]
+        self.includeStates += [INC_DEFAULT]
+        self.splitStates += [False]
+        self.neglectStates += [False]
+        self.pointStyles += [defaultStyle.copy()]
+        self.endInsertRows()
+        id += 1
 
-      self.points += [point]
-      self.includeStates += [INC_DEFAULT]
-      self.splitStates += [False]
-      self.neglectStates += [False]
-      self.pointStyles += [defaultStyle.copy()]
+      except (TypeError, ValueError):
+        print(self.tr('Waypoint ') + (point[NAME] + ' ' if point[NAME] != '' else '') + self.tr('is invalid and will be skipped.'))
 
-    self.endInsertRows()
     self.updateDistance()
     self.layoutChanged.emit()
 

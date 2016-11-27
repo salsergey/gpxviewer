@@ -17,6 +17,7 @@
 import os
 import configparser
 import gpxviewer.gpxmodel as gpx
+from gpxviewer.configstore import TheConfig
 
 
 GPXMAGICK = '9e27ea8e'
@@ -44,11 +45,14 @@ class GpxDocument(dict):
 
   def saveFile(self, filename):
     with open(filename, 'w') as file:
+      self['NumberOfPoints'] = self.gpxmodel.rowCount()
       self['SkipPoints'] = self.gpxmodel.getIndexesWithIncludeState(gpx.INC_SKIP)
       self['MarkerPoints'] = self.gpxmodel.getIndexesWithIncludeState(gpx.INC_MARKER)
       self['CaptionPoints'] = self.gpxmodel.getIndexesWithIncludeState(gpx.INC_CAPTION)
       self['SplitLines'] = self.gpxmodel.getSplitLines()
       self['NeglectDistances'] = self.gpxmodel.getNeglectStates()
+
+      self.update(TheConfig['ProfileStyle'])
 
       self['MarkerColors'] = self.gpxmodel.getPointStyles(gpx.MARKER_COLOR)
       self['MarkerStyles'] = self.gpxmodel.getPointStyles(gpx.MARKER_STYLE)
@@ -73,6 +77,9 @@ class GpxDocument(dict):
       self.update(cfg.items(GPXMAGICK))
       if os.path.exists(self['GPXFile']):
         self.gpxmodel.parse(self['GPXFile'])
+        if self.gpxmodel.rowCount() != int(self['NumberOfPoints']):
+          self.gpxmodel.resetModel()
+          raise gpx.GpxWarning(self.tr('The file ') + self['GPXFile'] + self.tr(' has wrong number of valid waypoints. This file is likely to be damaged.'))
 
         self.gpxmodel.setIncludeStates(self['SkipPoints'], gpx.INC_SKIP)
         self.gpxmodel.setIncludeStates(self['MarkerPoints'], gpx.INC_MARKER)
@@ -80,6 +87,12 @@ class GpxDocument(dict):
         self.gpxmodel.setSplitLines(self['SplitLines'], True)
         self.gpxmodel.setNeglectStates(self['NeglectDistances'], True)
         self.gpxmodel.updateDistance()
+
+        TheConfig['ProfileStyle']['ProfileColor'] = self['ProfileColor']
+        TheConfig['ProfileStyle']['FillColor'] = self['FillColor']
+        TheConfig['ProfileStyle']['ProfileWidth'] = self['ProfileWidth']
+        TheConfig['ProfileStyle']['MinimumAltitude'] = self['MinimumAltitude']
+        TheConfig['ProfileStyle']['MaximumAltitude'] = self['MaximumAltitude']
 
         for i,m in zip(sorted(self['MarkerPoints'] + self['CaptionPoints']), self['MarkerColors']):
           self.gpxmodel.setPointStyle([i], gpx.MARKER_COLOR, m)
@@ -101,9 +114,9 @@ class GpxDocument(dict):
           self.gpxmodel.setPointStyle([i], gpx.CAPTION_POSY, m)
         for i,m in zip(self['CaptionPoints'], self['CaptionSizes']):
           self.gpxmodel.setPointStyle([i], gpx.CAPTION_SIZE, m)
-      return True
-    else:
-      return False
-
+      else: # GPXFile doesn't exist
+        raise gpx.GpxWarning(self.tr('The file ') + self['GPXFile'] + self.tr(' doesn\'t exist.'))
+    else: # GPXMAGICK not in cfg
+      raise gpx.GpxWarning(self.tr('This file in not a valid GPX Viewer project file.'))
 
 TheDocument = GpxDocument()

@@ -1,9 +1,36 @@
 # setup.py
 # A distutils setup script.
 
-import sys
-from os import path
-from setuptools import setup
+from setuptools import setup, Command
+import os, subprocess
+
+
+class build_dep(Command):
+  '''
+  Compile all Qt-specific files including UIs, translations and resources.
+  '''
+  user_options = []
+
+  def initialize_options(self):
+    pass
+
+  def finalize_options(self):
+    pass
+
+  def run(self):
+    for ui_file in os.listdir('ui'):
+      print('converting ' + os.path.join('ui', ui_file) + ' -> ' + os.path.join('gpxviewer', 'ui_' + ui_file[:-2] + 'py'))
+      subprocess.call('pyuic5 ' + os.path.join('ui', ui_file) + '>' + os.path.join('gpxviewer', 'ui_' + ui_file[:-2] + 'py'), shell=True)
+
+    for ts_file in os.listdir('data/translations'):
+      if ts_file.endswith('.ts'):
+        print('updating ' + os.path.join('data/translations', ts_file))
+        subprocess.call('pylupdate5 gpxviewer/*.py -ts ' + os.path.join('data/translations', ts_file), shell=True)
+        subprocess.call('lrelease-qt5 ' + os.path.join('data/translations', ts_file), shell=True)
+
+    print('compiling data/gpxviewer.qrc')
+    subprocess.call('pyrcc5 data/gpxviewer.qrc > gpxviewer/rc_gpxviewer.py', shell=True)
+
 
 setup(
   name='gpxviewer',
@@ -15,8 +42,11 @@ setup(
   license='GNU GPL3',
   packages=['gpxviewer'],
   # TODO: dependencies
-  install_requires=['matplotlib'],
+  install_requires=['pyqt5', 'matplotlib'],
   entry_points={
     'gui_scripts': ['gpxv = gpxviewer:main']
+  },
+  cmdclass={
+    'build_dep': build_dep
   }
 )

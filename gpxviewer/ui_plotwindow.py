@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '../ui/plotwindow.ui'
+# Form implementation generated from reading ui file 'ui/plotwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.7
 #
@@ -26,11 +26,11 @@ class Ui_PlotWindow(object):
         self.toolBar.setObjectName("toolBar")
         PlotWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
         self.actExportCurrentSize = QtWidgets.QAction(PlotWindow)
-        icon = QtGui.QIcon.fromTheme("document-save")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("."), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actExportCurrentSize.setIcon(icon)
         self.actExportCurrentSize.setObjectName("actExportCurrentSize")
         self.actExportSelectedSize = QtWidgets.QAction(PlotWindow)
-        icon = QtGui.QIcon.fromTheme("document-save-as")
         self.actExportSelectedSize.setIcon(icon)
         self.actExportSelectedSize.setObjectName("actExportSelectedSize")
         self.toolBar.addAction(self.actExportCurrentSize)

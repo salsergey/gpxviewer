@@ -113,6 +113,9 @@
    <property name="text">
     <string>&amp;Quit</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="actionOpen">
    <property name="icon">
@@ -155,7 +158,7 @@
     <string>&amp;Load GPX file</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+L</string>
+    <string notr="true">Ctrl+L</string>
    </property>
   </action>
   <action name="actionDistanceProfile">
@@ -167,7 +170,7 @@
     <string>&amp;Distance profile</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+P</string>
+    <string notr="true">Ctrl+P</string>
    </property>
   </action>
   <action name="actionTimeProfile">
@@ -179,7 +182,7 @@
     <string>&amp;Time profile</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+T</string>
+    <string notr="true">Ctrl+T</string>
    </property>
   </action>
   <action name="actionProfileStyle">

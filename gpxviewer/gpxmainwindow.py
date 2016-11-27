@@ -71,7 +71,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.ui.gpxView.setModel(self.namefiltermodel)
 
     self.ui.gpxView.setSortingEnabled(True)
-    self.ui.gpxView.sortByColumn(gpx.TIME_DAYS, QtCore.Qt.AscendingOrder)
+    self.ui.gpxView.sortByColumn(gpx.TIME, QtCore.Qt.AscendingOrder)
     self.namefiltermodel.setSortRole(gpx.ValueRole)
     self.namefiltermodel.setFilterKeyColumn(gpx.NAME)
     self.filterLineEdit.textChanged.connect(self.namefiltermodel.setFilterRegExp)
@@ -82,28 +82,45 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.ui.actionShowOther.setChecked(TheConfig['MainWindow'].getboolean('ShowDefault'))
     self.resize(TheConfig['MainWindow'].getint('WindowWidth'), TheConfig['MainWindow'].getint('WindowHeight'))
 
+    # TODO: Do we need both?
     self.projectSaved = False
+    self.projectChanged = False
+    self.titleFilename = None
     self.plot = plt.PlotWindow()
-    # TODO: ask before closing window
+
+  def updateTitleFilename(self, title = None):
+    if title != None:
+      self.titleFilename = title
+    if self.titleFilename != None:
+      self.setWindowTitle(self.titleFilename + ('*' if self.projectChanged else '') + ' — GPX Viewer')
+
+  def setProjectChanged(self, value):
+    self.projectChanged = value
+    self.updateTitleFilename()
 
   def skipPoints(self):
     TheDocument.gpxmodel.setIncludeStates([i.data(gpx.IDRole) for i in self.ui.gpxView.selectionModel().selection().indexes() if i.column() == gpx.NAME], gpx.INC_SKIP)
     self.includefiltermodel.invalidateFilter()
+    self.setProjectChanged(True)
 
   def markerPoints(self):
     TheDocument.gpxmodel.setIncludeStates([i.data(gpx.IDRole) for i in self.ui.gpxView.selectionModel().selection().indexes() if i.column() == gpx.NAME], gpx.INC_MARKER)
     self.includefiltermodel.invalidateFilter()
+    self.setProjectChanged(True)
 
   def captionPoints(self):
     TheDocument.gpxmodel.setIncludeStates([i.data(gpx.IDRole) for i in self.ui.gpxView.selectionModel().selection().indexes() if i.column() == gpx.NAME], gpx.INC_CAPTION)
     self.includefiltermodel.invalidateFilter()
+    self.setProjectChanged(True)
 
   def splitLines(self):
     TheDocument.gpxmodel.setSplitLines([i.data(gpx.IDRole) for i in self.ui.gpxView.selectionModel().selection().indexes() if i.column() == gpx.NAME], True)
     self.includefiltermodel.invalidateFilter()
+    self.setProjectChanged(True)
 
   def neglectDistance(self):
     TheDocument.gpxmodel.setNeglectStates([i.data(gpx.IDRole) for i in self.ui.gpxView.selectionModel().selection().indexes() if i.column() == gpx.NAME], True)
+    self.setProjectChanged(True)
 
   def resetPoints(self):
     indexes = [i.data(gpx.IDRole) for i in self.ui.gpxView.selectionModel().selection().indexes() if i.column() == gpx.NAME]
@@ -111,6 +128,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     TheDocument.gpxmodel.setSplitLines(indexes, False)
     TheDocument.gpxmodel.setNeglectStates(indexes, False)
     self.includefiltermodel.invalidateFilter()
+    self.setProjectChanged(True)
 
   def pointStyle(self):
     style = {}
@@ -119,6 +137,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     style.update(self.ui.gpxView.selectionModel().selection().indexes()[0].data(gpx.CaptionRole))
     dlg = gpxviewer.pointconfigdialog.PointConfigDialog(self, style)
     if dlg.exec_() == QtWidgets.QDialog.Accepted:
+      self.setProjectChanged(True)
       TheConfig['PointStyle']['MarkerColor'] = str(dlg.style[gpx.MARKER_COLOR])
       TheConfig['PointStyle']['MarkerStyle'] = dlg.style[gpx.MARKER_STYLE]
       TheConfig['PointStyle']['MarkerSize'] = str(dlg.style[gpx.MARKER_SIZE])
@@ -159,6 +178,19 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     TheConfig['MainWindow']['WindowHeight'] = str(event.size().height())
 
   def closeEvent(self, event):
+    if self.projectChanged:
+      result = QtWidgets.QMessageBox.information(self, self.tr('Close GPX Viewer'),
+                                                 self.tr('There are unsaved changes. Do you want to save the project?'),
+                                                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel,
+                                                 QtWidgets.QMessageBox.Yes)
+      if result == QtWidgets.QMessageBox.Yes:
+        if not self.fileSave():
+          event.ignore()
+          return
+      if result == QtWidgets.QMessageBox.Cancel:
+        event.ignore()
+        return
+
     self.plot.close()
     TheConfig.save()
     super(GpxMainWindow, self).closeEvent(event)
@@ -175,36 +207,48 @@ class GpxMainWindow(QtWidgets.QMainWindow):
 
   def contextMenuEvent(self, event):
     if self.ui.gpxView.selectionModel().hasSelection():
-      # TODO: adjust menu
-      actSkip = QtWidgets.QAction(self.tr('Skip'), self)
+      actSkip = QtWidgets.QAction(self.tr('Skip points'), self)
       actSkip.triggered.connect(self.skipPoints)
-      actMarker = QtWidgets.QAction(self.tr('Add marker'), self)
+      actMarker = QtWidgets.QAction(self.tr('Points with markers'), self)
       actMarker.triggered.connect(self.markerPoints)
-      actCaption = QtWidgets.QAction(self.tr('Add caption'), self)
+      actCaption = QtWidgets.QAction(self.tr('Points with captions and markers'), self)
       actCaption.triggered.connect(self.captionPoints)
-      actSplit = QtWidgets.QAction(self.tr('Add splitting line'), self)
+      actSplit = QtWidgets.QAction(self.tr('Points with splitting lines'), self)
       actSplit.triggered.connect(self.splitLines)
       actNeglect = QtWidgets.QAction(self.tr('Neglect previous distance'), self)
       actNeglect.triggered.connect(self.neglectDistance)
       actReset = QtWidgets.QAction(self.tr('Reset'), self)
       actReset.triggered.connect(self.resetPoints)
-      actStyle = QtWidgets.QAction(QtGui.QIcon.fromTheme('configure'), self.tr('Point style'), self)
+      actStyle = QtWidgets.QAction(QtGui.QIcon.fromTheme('configure', QtGui.QIcon(':/icons/configure.svg')), self.tr('Point style'), self)
       actStyle.triggered.connect(self.pointStyle)
 
       menu = QtWidgets.QMenu(self)
       menu.addAction(actSkip)
       menu.addAction(actMarker)
       menu.addAction(actCaption)
+      menu.addSeparator()
       menu.addAction(actSplit)
       menu.addAction(actNeglect)
+      menu.addSeparator()
       menu.addAction(actReset)
       menu.addSeparator()
       menu.addAction(actStyle)
       menu.popup(event.globalPos())
 
   def loadGPXFile(self):
-    filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open GPX file', TheConfig['MainWindow']['LoadGPXDirectory'],
-                                                     'GPX XML (*.gpx);;All files (*.*)')[0]
+    if self.projectChanged:
+      result = QtWidgets.QMessageBox.information(self, self.tr('Load GPX file'),
+                                                 self.tr('There are unsaved changes. Do you want to save the project?'),
+                                                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel,
+                                                 QtWidgets.QMessageBox.Yes)
+      if result == QtWidgets.QMessageBox.Yes:
+        if not self.fileSave():
+          return
+      if result == QtWidgets.QMessageBox.Cancel:
+        return
+
+    filename = QtWidgets.QFileDialog.getOpenFileName(self, self.tr('Open GPX file'), TheConfig['MainWindow']['LoadGPXDirectory'],
+                                                     self.tr('GPX XML (*.gpx);;All files (*.*)'))[0]
     if filename != '':
       TheConfig['MainWindow']['LoadGPXDirectory'] = path.dirname(filename)
       TheDocument['GPXFile'] = filename
@@ -212,39 +256,61 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       try:
         TheDocument.gpxmodel.parse(filename)
         self.ui.gpxView.resizeColumnsToContents()
-        self.setWindowTitle(filename + ' — GPX Viewer')
+        self.setProjectChanged(False)
+        self.updateTitleFilename(filename)
       except gpx.GpxWarning as e:
-        QtWidgets.QMessageBox.warning(self, 'Error', e.args[0])
+        QtWidgets.QMessageBox.warning(self, 'File read error', e.args[0])
 
   def fileOpen(self):
-    filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open project file', TheConfig['MainWindow']['ProjectDirectory'],
-                                                     'GPX Viewer Projects (*.gpxv);;All files (*.*)')[0]
+    if self.projectChanged:
+      result = QtWidgets.QMessageBox.information(self, self.tr('Open GPX Viewer project'),
+                                                 self.tr('There are unsaved changes. Do you want to save the project?'),
+                                                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel,
+                                                 QtWidgets.QMessageBox.Yes)
+      if result == QtWidgets.QMessageBox.Yes:
+        if not self.fileSave():
+          return
+      if result == QtWidgets.QMessageBox.Cancel:
+        return
+
+    filename = QtWidgets.QFileDialog.getOpenFileName(self, self.tr('Open project file'), TheConfig['MainWindow']['ProjectDirectory'],
+                                                     self.tr('GPX Viewer Projects (*.gpxv);;All files (*.*)'))[0]
     if filename != '':
       self.projectFile = filename
       self.projectSaved = True
-      if TheDocument.openFile(filename):
+      try:
+        TheDocument.openFile(filename)
         self.includefiltermodel.invalidateFilter()
         self.ui.gpxView.resizeColumnsToContents()
-        self.setWindowTitle(TheDocument['GPXFile'] + ' — GPX Viewer')
+        self.setProjectChanged(False)
+        self.updateTitleFilename(self.projectFile)
         TheConfig['MainWindow']['ProjectDirectory'] = path.dirname(self.projectFile)
-      else:
-        QtWidgets.QMessageBox.warning(self, 'File read error', 'This file in not a GPX Viewer project file.')
+      except gpx.GpxWarning as e:
+        QtWidgets.QMessageBox.warning(self, 'File read error', e.args[0])
 
   def fileSave(self):
     if not self.projectSaved:
-      self.fileSaveAs()
+      return self.fileSaveAs()
     else:
       TheDocument.saveFile(self.projectFile)
+    self.setProjectChanged(False)
+    self.updateTitleFilename()
+    return True
 
   def fileSaveAs(self):
     if 'GPXFile' in TheDocument:
-      filename = QtWidgets.QFileDialog.getSaveFileName(self, 'Save project file', TheConfig['MainWindow']['ProjectDirectory'],
-                                                       'GPX Viewer Projects (*.gpxv);;All files (*.*)')[0]
+      filename = QtWidgets.QFileDialog.getSaveFileName(self, self.tr('Save project file as'), TheConfig['MainWindow']['ProjectDirectory'],
+                                                       self.tr('GPX Viewer Projects (*.gpxv);;All files (*.*)'))[0]
       if filename != '':
         self.projectFile = filename
         self.projectSaved = True
         TheConfig['MainWindow']['ProjectDirectory'] = path.dirname(self.projectFile)
         TheDocument.saveFile(self.projectFile)
+        self.setProjectChanged(False)
+        self.updateTitleFilename(self.projectFile)
+        return True
+
+    return False
 
   def showSkipped(self, show):
     TheConfig['MainWindow']['ShowSkipped'] = str(show)
@@ -271,6 +337,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
   def showProfileStyleOptions(self):
     dlg = gpxviewer.profileconfigdialog.ProfileConfigDialog(self)
     if dlg.exec_() == QtWidgets.QDialog.Accepted:
+      self.setProjectChanged(True)
       TheConfig['ProfileStyle']['ProfileColor'] = str(dlg.style['ProfileColor'])
       TheConfig['ProfileStyle']['FillColor'] = str(dlg.style['FillColor'])
       TheConfig['ProfileStyle']['ProfileWidth'] = str(dlg.style['ProfileWidth'])

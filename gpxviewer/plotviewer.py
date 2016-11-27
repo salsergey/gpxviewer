@@ -15,8 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from os import path
-from PyQt5 import QtWidgets
-from PyQt5 import QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 from gpxviewer.configstore import TheConfig
 import gpxviewer.ui_plotwindow
 
@@ -58,11 +57,16 @@ class PlotWindow(QtWidgets.QMainWindow):
     TheConfig['PlotWindow']['WindowWidth'] = str(event.size().width())
     TheConfig['PlotWindow']['WindowHeight'] = str(event.size().height())
 
+  def keyPressEvent(self, event):
+    if event.key() == QtCore.Qt.Key_Escape:
+      self.hide()
+    super(PlotWindow, self).keyPressEvent(event)
+
   def plotProfile(self, column):
     self.ui.canvasWidget.plotProfile(column)
 
-  def getExportFileName(self):
-    filename, filter = QtWidgets.QFileDialog.getSaveFileName(self, 'Save profile as', TheConfig['PlotWindow']['SaveProfileDirectory'], 'EPS images (*.eps);;PDF images (*.pdf);;PGF images (*.pgf);;PNG images (*.png);;PS images (*.ps);;SVG images (*.svg);;SVGZ images (*.svgz);;All files (*.*)', TheConfig['PlotWindow']['SaveFileExtension'])
+  def getExportFileName(self, dialogTitle):
+    filename, filter = QtWidgets.QFileDialog.getSaveFileName(self, dialogTitle, TheConfig['PlotWindow']['SaveProfileDirectory'], self.tr('Encapsulated Postscript (*.eps);;Portable Document Format (*.pdf);;PGF files (*.pgf);;PNG images (*.png);;Postscript files (*.ps);;SVG files (*.svg);;SVGZ files (*.svgz);;All files (*.*)'), TheConfig['PlotWindow']['SaveFileExtension'])
 
     if filename != '':
       TheConfig['PlotWindow']['SaveProfileDirectory'] = path.dirname(filename)
@@ -71,13 +75,13 @@ class PlotWindow(QtWidgets.QMainWindow):
     return filename
 
   def saveCurrentSize(self):
-    filename = self.getExportFileName()
+    filename = self.getExportFileName(self.tr('Export profile of the current size'))
 
     if filename != '':
       self.ui.canvasWidget.saveProfile(filename)
 
   def saveSelectedSize(self):
-    filename = self.getExportFileName()
+    filename = self.getExportFileName(self.tr('Export profile of the selected size'))
 
     if filename != '':
       self.ui.canvasWidget.saveProfile(filename, figsize=(self.widthSpinBox.value(), self.heightSpinBox.value()))

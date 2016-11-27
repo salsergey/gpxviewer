@@ -1,0 +1,11 @@
+== Major ==
+
+* Handle tracks.
+
+== Minor ==
+
+* Ask about the GPX file loaction if not found.
+* Memory leaks.
+* Draw icons.
+* Adjust context menu.
+* Add tooltips.
