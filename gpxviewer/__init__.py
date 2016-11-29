@@ -36,8 +36,13 @@ def main():
   # We need to install translator first
   from gpxviewer.gpxmainwindow import GpxMainWindow
 
-  my_mainWindow = GpxMainWindow()
-  my_mainWindow.show()
+  gpxMainWindow = GpxMainWindow()
+  gpxMainWindow.show()
+  if len(sys.argv) == 2:
+    if sys.argv[1].endswith('.gpx'):
+      gpxMainWindow.openGPXFile(sys.argv[1])
+    if sys.argv[1].endswith('.gpxv'):
+      gpxMainWindow.openGPXProject(sys.argv[1])
   sys.exit(app.exec_())
 
 if __name__ == '__main__':

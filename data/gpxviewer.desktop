@@ -1,0 +1,18 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Name=GPX Viewer
+GenericName=GPX Viewer
+Comment=View GPX files and draw elevation profiles
+
+Type=Application
+Categories=Other;
+
+Exec=gpxv %F
+TryExec=gpxv
+Icon=gpxviewer
+
+Terminal=false
+StartupNotify=true
+
+MimeType=application/gpx+xml;text/plain;

@@ -2,7 +2,7 @@
 # A distutils setup script.
 
 from setuptools import setup, Command
-import os, subprocess
+import sys, os, subprocess
 
 
 class build_dep(Command):
@@ -32,6 +32,15 @@ class build_dep(Command):
     subprocess.call('pyrcc5 data/gpxviewer.qrc > gpxviewer/rc_gpxviewer.py', shell=True)
 
 
+if os.name == 'nt':
+  datafiles = []
+else:
+  datafiles = [
+    (os.path.join(sys.prefix, 'share/applications'), ['data/gpxviewer.desktop']),
+    (os.path.join(sys.prefix, 'share/pixmaps'), ['data/icons/gpxviewer.png'])
+  ]
+
+
 setup(
   name='gpxviewer',
   version='0.1',
@@ -42,7 +51,8 @@ setup(
   license='GNU GPL3',
   packages=['gpxviewer'],
   # TODO: dependencies
-  install_requires=['pyqt5', 'matplotlib'],
+  install_requires=['matplotlib'],
+  data_files=datafiles,
   entry_points={
     'gui_scripts': ['gpxv = gpxviewer:main']
   },

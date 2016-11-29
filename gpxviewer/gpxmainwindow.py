@@ -248,18 +248,21 @@ class GpxMainWindow(QtWidgets.QMainWindow):
         return
 
     filename = QtWidgets.QFileDialog.getOpenFileName(self, self.tr('Open GPX file'), TheConfig['MainWindow']['LoadGPXDirectory'],
-                                                     self.tr('GPX XML (*.gpx);;All files (*.*)'))[0]
+                                                     self.tr('GPX XML (*.gpx);;All files (*)'))[0]
     if filename != '':
-      TheConfig['MainWindow']['LoadGPXDirectory'] = path.dirname(filename)
-      TheDocument['GPXFile'] = filename
-      self.projectSaved = False
-      try:
-        TheDocument.gpxmodel.parse(filename)
-        self.ui.gpxView.resizeColumnsToContents()
-        self.setProjectChanged(False)
-        self.updateTitleFilename(filename)
-      except gpx.GpxWarning as e:
-        QtWidgets.QMessageBox.warning(self, 'File read error', e.args[0])
+      self.openGPXFile(filename)
+
+  def openGPXFile(self, filename):
+    TheConfig['MainWindow']['LoadGPXDirectory'] = path.dirname(filename)
+    TheDocument['GPXFile'] = filename
+    self.projectSaved = False
+    try:
+      TheDocument.gpxmodel.parse(filename)
+      self.ui.gpxView.resizeColumnsToContents()
+      self.setProjectChanged(False)
+      self.updateTitleFilename(filename)
+    except gpx.GpxWarning as e:
+      QtWidgets.QMessageBox.warning(self, self.tr('File read error'), e.args[0])
 
   def fileOpen(self):
     if self.projectChanged:
@@ -274,19 +277,22 @@ class GpxMainWindow(QtWidgets.QMainWindow):
         return
 
     filename = QtWidgets.QFileDialog.getOpenFileName(self, self.tr('Open project file'), TheConfig['MainWindow']['ProjectDirectory'],
-                                                     self.tr('GPX Viewer Projects (*.gpxv);;All files (*.*)'))[0]
+                                                     self.tr('GPX Viewer Projects (*.gpxv);;All files (*)'))[0]
     if filename != '':
-      self.projectFile = filename
-      self.projectSaved = True
-      try:
-        TheDocument.openFile(filename)
-        self.includefiltermodel.invalidateFilter()
-        self.ui.gpxView.resizeColumnsToContents()
-        self.setProjectChanged(False)
-        self.updateTitleFilename(self.projectFile)
-        TheConfig['MainWindow']['ProjectDirectory'] = path.dirname(self.projectFile)
-      except gpx.GpxWarning as e:
-        QtWidgets.QMessageBox.warning(self, 'File read error', e.args[0])
+      self.openGPXProject(filename)
+
+  def openGPXProject(self, filename):
+    self.projectFile = filename
+    self.projectSaved = True
+    try:
+      TheDocument.openFile(filename)
+      self.includefiltermodel.invalidateFilter()
+      self.ui.gpxView.resizeColumnsToContents()
+      self.setProjectChanged(False)
+      self.updateTitleFilename(self.projectFile)
+      TheConfig['MainWindow']['ProjectDirectory'] = path.dirname(self.projectFile)
+    except gpx.GpxWarning as e:
+      QtWidgets.QMessageBox.warning(self, self.tr('File read error'), e.args[0])
 
   def fileSave(self):
     if not self.projectSaved:
@@ -300,7 +306,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
   def fileSaveAs(self):
     if 'GPXFile' in TheDocument:
       filename = QtWidgets.QFileDialog.getSaveFileName(self, self.tr('Save project file as'), TheConfig['MainWindow']['ProjectDirectory'],
-                                                       self.tr('GPX Viewer Projects (*.gpxv);;All files (*.*)'))[0]
+                                                       self.tr('GPX Viewer Projects (*.gpxv);;All files (*)'))[0]
       if filename != '':
         self.projectFile = filename
         self.projectSaved = True

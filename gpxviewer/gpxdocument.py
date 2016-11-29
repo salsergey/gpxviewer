@@ -16,6 +16,7 @@
 
 import os
 import configparser
+from PyQt5.QtCore import QCoreApplication
 import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import TheConfig
 
@@ -72,14 +73,18 @@ class GpxDocument(dict):
 
   def openFile(self, filename):
     cfg = GpxConfigParser()
-    cfg.read(filename)
+    try:
+      cfg.read(filename)
+    except:
+      raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'This file in not a valid GPX Viewer project file.'))
+
     if GPXMAGICK in cfg:
       self.update(cfg.items(GPXMAGICK))
       if os.path.exists(self['GPXFile']):
         self.gpxmodel.parse(self['GPXFile'])
         if self.gpxmodel.rowCount() != int(self['NumberOfPoints']):
           self.gpxmodel.resetModel()
-          raise gpx.GpxWarning(self.tr('The file ') + self['GPXFile'] + self.tr(' has wrong number of valid waypoints. This file is likely to be damaged.'))
+          raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'The file ') + self['GPXFile'] + QCoreApplication.translate('GpxDocument', ' has wrong number of valid waypoints. This file is likely to be damaged.'))
 
         self.gpxmodel.setIncludeStates(self['SkipPoints'], gpx.INC_SKIP)
         self.gpxmodel.setIncludeStates(self['MarkerPoints'], gpx.INC_MARKER)
@@ -115,8 +120,8 @@ class GpxDocument(dict):
         for i,m in zip(self['CaptionPoints'], self['CaptionSizes']):
           self.gpxmodel.setPointStyle([i], gpx.CAPTION_SIZE, m)
       else: # GPXFile doesn't exist
-        raise gpx.GpxWarning(self.tr('The file ') + self['GPXFile'] + self.tr(' doesn\'t exist.'))
+        raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'The file ') + self['GPXFile'] + QCoreApplication.translate('GpxDocument', ' doesn\'t exist.'))
     else: # GPXMAGICK not in cfg
-      raise gpx.GpxWarning(self.tr('This file in not a valid GPX Viewer project file.'))
+      raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'This file in not a valid GPX Viewer project file.'))
 
 TheDocument = GpxDocument()
