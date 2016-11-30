@@ -6,7 +6,7 @@ GenericName=GPX Viewer
 Comment=View GPX files and draw elevation profiles
 
 Type=Application
-Categories=Utility;Maps;
+Categories=Graphics;Maps;
 
 Exec=gpxv %F
 TryExec=gpxv
