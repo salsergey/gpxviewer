@@ -53,10 +53,10 @@ class PlotCanvas(FigureCanvas):
     self.axes.clear()
     self.axes.grid(axis='y')
     if column == gpx.DIST:
-      self.axes.set_xlabel('Расстояние с горным коэффициентом (км)')
+      self.axes.set_xlabel(self.tr('Distance with coefficient 1.2 (km)'))
     else:
-      self.axes.set_xlabel('Время (дни)')
-    self.axes.set_ylabel('Высота (м)')
+      self.axes.set_xlabel(self.tr('Time (days)'))
+    self.axes.set_ylabel(self.tr('Altitude (m)'))
 
     xx = []
     yy = []

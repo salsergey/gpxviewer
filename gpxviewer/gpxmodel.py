@@ -42,15 +42,6 @@ class GpxModel(QtCore.QAbstractTableModel):
     self.fields = [self.tr('Name'), self.tr('Latitude'), self.tr('Longitude'), self.tr('Altitude'), self.tr('Distance'), self.tr('Time'), self.tr('Time difference'), self.tr('Time in days')]
     self.resetModel()
 
-  def resetModel(self):
-    self.beginResetModel()
-    self.points = []
-    self.includeStates = []
-    self.splitStates = []
-    self.neglectStates = []
-    self.pointStyles = []
-    self.endResetModel()
-
   def rowCount(self, parent = None):
     return len(self.points)
 
@@ -62,7 +53,7 @@ class GpxModel(QtCore.QAbstractTableModel):
       return str(self.points[index.row()][index.column()])
     elif role == QtCore.Qt.DecorationRole and index.column() == NAME:
       if index.data(IncludeRole) in {INC_MARKER, INC_CAPTION}:
-        return self.markerIcon(index.data(MarkerRole)[MARKER_STYLE], index.data(MarkerRole)[MARKER_COLOR])
+        return _markerIcon(index.data(MarkerRole)[MARKER_STYLE], index.data(MarkerRole)[MARKER_COLOR])
       else:
         pix = QPixmap(16, 16)
         pix.fill(QtCore.Qt.transparent)
@@ -99,28 +90,17 @@ class GpxModel(QtCore.QAbstractTableModel):
       return self.fields[section] if orientation == QtCore.Qt.Horizontal else section + 1
     return None
 
+  def copyToClipboard(self, IDs):
+    text = ''
+    for i in IDs:
+      text += '\t'.join([self.index(i, f).data() for f in GPXFIELDS]) + '\n'
+    QGuiApplication.clipboard().setText(text)
+
   def getIndexesWithIncludeState(self, state):
     return [i for i,s in enumerate(self.includeStates) if s == state]
 
-  def setIncludeStates(self, IDs, state):
-    for i in IDs:
-      self.includeStates[i] = state
-    self.updateDistance()
-
-  def getSplitLines(self):
-    return [i for i,s in enumerate(self.splitStates) if s]
-
-  def setSplitLines(self, IDs, state):
-    for i in IDs:
-      self.splitStates[i] = state
-
   def getNeglectStates(self):
     return [i for i,s in enumerate(self.neglectStates) if s]
-
-  def setNeglectStates(self, IDs, state):
-    for i in IDs:
-      self.neglectStates[i] = state
-    self.updateDistance()
 
   def getPointStyles(self, key):
     if key in {MARKER_COLOR, MARKER_STYLE, MARKER_SIZE}:
@@ -130,15 +110,35 @@ class GpxModel(QtCore.QAbstractTableModel):
     if key in {CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE}:
       return [p[key] for i,p in enumerate(self.pointStyles) if self.includeStates[i] == INC_CAPTION]
 
+  def getSplitLines(self):
+    return [i for i,s in enumerate(self.splitStates) if s]
+
+  def resetModel(self):
+    self.beginResetModel()
+    self.points = []
+    self.includeStates = []
+    self.splitStates = []
+    self.neglectStates = []
+    self.pointStyles = []
+    self.endResetModel()
+
+  def setIncludeStates(self, IDs, state):
+    for i in IDs:
+      self.includeStates[i] = state
+    self.updateDistance()
+
+  def setNeglectStates(self, IDs, state):
+    for i in IDs:
+      self.neglectStates[i] = state
+    self.updateDistance()
+
   def setPointStyle(self, IDs, key, value):
     for i in IDs:
       self.pointStyles[i][key] = value
 
-  def copyToClipboard(self, IDs):
-    text = ''
+  def setSplitLines(self, IDs, state):
     for i in IDs:
-      text += '\t'.join([self.index(i, f).data() for f in GPXFIELDS]) + '\n'
-    QGuiApplication.clipboard().setText(text)
+      self.splitStates[i] = state
 
   def parse(self, filename):
     self.resetModel()
@@ -240,75 +240,6 @@ class GpxModel(QtCore.QAbstractTableModel):
       else:
         self.points[i][DIST] = ''
 
-  def markerIcon(self, style, color):
-    size = 16
-    r = 2 * size / 5
-    pix = QPixmap(size, size)
-    pix.fill(QtCore.Qt.transparent)
-    p = QPainter(pix)
-    p.setRenderHint(QPainter.Antialiasing)
-    p.setPen(QColor(color))
-    p.setBrush(QColor(color))
-    center = QtCore.QPoint(size/2, size/2)
-
-    if style == '.':
-      p.drawEllipse(QtCore.QPoint(size/2, size/2), 3, 3)
-    elif style == ',':
-      #p.drawPoint(QtCore.QPoint(size/2, size/2))
-      p.drawEllipse(QtCore.QPoint(size/2, size/2), 1, 1)
-    elif style == 'o':
-      p.drawEllipse(QtCore.QPoint(size/2, size/2), size/3, size/3)
-    elif style == 'v':
-      p.drawPolygon(center + r * QtCore.QPointF(cos(pi/2), sin(pi/2)), center + r * QtCore.QPointF(cos(7*pi/6), sin(7*pi/6)), center + r * QtCore.QPointF(cos(11*pi/6), sin(11*pi/6)))
-    elif style == '^':
-      p.drawPolygon(center + r * QtCore.QPointF(cos(3*pi/2), sin(3*pi/2)), center + r * QtCore.QPointF(cos(pi/6), sin(pi/6)), center + r * QtCore.QPointF(cos(5*pi/6), sin(5*pi/6)))
-    elif style == '<':
-      p.drawPolygon(center + r * QtCore.QPointF(cos(pi), sin(pi)), center + r * QtCore.QPointF(cos(5*pi/3), sin(5*pi/3)), center + r * QtCore.QPointF(cos(pi/3), sin(pi/3)))
-    elif style == '>':
-      p.drawPolygon(center + r * QtCore.QPointF(cos(0), sin(0)), center + r * QtCore.QPointF(cos(2*pi/3), sin(2*pi/3)), center + r * QtCore.QPointF(cos(4*pi/3), sin(4*pi/3)))
-    elif style == '1':
-      p.drawLine(center, center + r * QtCore.QPointF(cos(pi/2), sin(pi/2)))
-      p.drawLine(center, center + r * QtCore.QPointF(cos(7*pi/6), sin(7*pi/6)))
-      p.drawLine(center, center + r * QtCore.QPointF(cos(11*pi/6), sin(11*pi/6)))
-    elif style == '2':
-      p.drawLine(center, center - r * QtCore.QPointF(cos(pi/2), sin(pi/2)))
-      p.drawLine(center, center - r * QtCore.QPointF(cos(7*pi/6), sin(7*pi/6)))
-      p.drawLine(center, center - r * QtCore.QPointF(cos(11*pi/6), sin(11*pi/6)))
-    elif style == '3':
-      p.drawLine(center, center + r * QtCore.QPointF(cos(pi), sin(pi)))
-      p.drawLine(center, center + r * QtCore.QPointF(cos(pi/3), sin(pi/3)))
-      p.drawLine(center, center + r * QtCore.QPointF(cos(5*pi/3), sin(5*pi/3)))
-    elif style == '4':
-      p.drawLine(center, center + r * QtCore.QPointF(cos(0), sin(0)))
-      p.drawLine(center, center + r * QtCore.QPointF(cos(2*pi/3), sin(2*pi/3)))
-      p.drawLine(center, center + r * QtCore.QPointF(cos(4*pi/3), sin(4*pi/3)))
-    elif style == 's':
-      p.drawPolygon(center + QtCore.QPointF(r, r), center + QtCore.QPointF(-r, r), center - QtCore.QPointF(r, r), center + QtCore.QPointF(r, -r))
-    elif style == 'p':
-      p.drawPolygon(center + r * QtCore.QPointF(cos(3*pi/2), sin(3*pi/2)), center + r * QtCore.QPointF(cos(19*pi/10), sin(19*pi/10)), center + r * QtCore.QPointF(cos(3*pi/10), sin(3*pi/10)), center + r * QtCore.QPointF(cos(7*pi/10), sin(7*pi/10)), center + r * QtCore.QPointF(cos(11*pi/10), sin(11*pi/10)))
-    elif style == '*':
-      p.drawPolygon(center + r * QtCore.QPointF(cos(3*pi/2), sin(3*pi/2)), center + r/2 * QtCore.QPointF(cos(17*pi/10), sin(17*pi/10)), center + r * QtCore.QPointF(cos(19*pi/10), sin(19*pi/10)), center + r/2 * QtCore.QPointF(cos(pi/10), sin(pi/10)), center + r * QtCore.QPointF(cos(3*pi/10), sin(3*pi/10)), center + r/2 * QtCore.QPointF(cos(pi/2), sin(pi/2)), center + r * QtCore.QPointF(cos(7*pi/10), sin(7*pi/10)), center + r/2 * QtCore.QPointF(cos(9*pi/10), sin(9*pi/10)), center + r * QtCore.QPointF(cos(11*pi/10), sin(11*pi/10)), center + r/2 * QtCore.QPointF(cos(13*pi/10), sin(13*pi/10)))
-    elif style == 'h':
-      p.drawPolygon(center + r * QtCore.QPointF(cos(pi/6), sin(pi/6)), center + r * QtCore.QPointF(cos(pi/2), sin(pi/2)), center + r * QtCore.QPointF(cos(5*pi/6), sin(5*pi/6)), center + r * QtCore.QPointF(cos(7*pi/6), sin(7*pi/6)), center + r * QtCore.QPointF(cos(3*pi/2), sin(3*pi/2)), center + r * QtCore.QPointF(cos(11*pi/6), sin(11*pi/6)))
-    elif style == 'H':
-      p.drawPolygon(center + r * QtCore.QPointF(cos(0), sin(0)), center + r * QtCore.QPointF(cos(pi/3), sin(pi/3)), center + r * QtCore.QPointF(cos(2*pi/3), sin(2*pi/3)), center + r * QtCore.QPointF(cos(pi), sin(pi)), center + r * QtCore.QPointF(cos(4*pi/3), sin(4*pi/3)), center + r * QtCore.QPointF(cos(5*pi/3), sin(5*pi/3)))
-    elif style == '+':
-      p.drawLine(center + QtCore.QPointF(0, r), center - QtCore.QPointF(0, r))
-      p.drawLine(center + QtCore.QPointF(r, 0), center - QtCore.QPointF(r, 0))
-    elif style == 'x':
-      p.drawLine(center + QtCore.QPointF(r, r), center - QtCore.QPointF(r, r))
-      p.drawLine(center + QtCore.QPointF(r, -r), center + QtCore.QPointF(-r, r))
-    elif style == 'D':
-      p.drawPolygon(center + QtCore.QPointF(r, 0), center + QtCore.QPointF(0, r), center - QtCore.QPointF(r, 0), center - QtCore.QPointF(0, r))
-    elif style == 'd':
-      p.drawPolygon(center + QtCore.QPointF(r/2, 0), center + QtCore.QPointF(0, r), center - QtCore.QPointF(r/2, 0), center - QtCore.QPointF(0, r))
-    elif style == '|':
-      p.drawLine(center + QtCore.QPointF(0, r), center - QtCore.QPointF(0, r))
-    elif style == '_':
-      p.drawLine(center + QtCore.QPointF(r, 0), center - QtCore.QPointF(r, 0))
-
-    return pix
-
 
 class GpxSortFilterModel(QtCore.QSortFilterProxyModel):
   def __init__(self, parent):
@@ -331,3 +262,72 @@ def _distance(lat1, lon1, lat2, lon2):
   dist = r * angle
 
   return dist
+
+def _markerIcon(style, color):
+  size = 16
+  r = 2 * size / 5
+  pix = QPixmap(size, size)
+  pix.fill(QtCore.Qt.transparent)
+  p = QPainter(pix)
+  p.setRenderHint(QPainter.Antialiasing)
+  p.setPen(QColor(color))
+  p.setBrush(QColor(color))
+  center = QtCore.QPoint(size/2, size/2)
+
+  if style == '.':
+    p.drawEllipse(QtCore.QPoint(size/2, size/2), 3, 3)
+  elif style == ',':
+    #p.drawPoint(QtCore.QPoint(size/2, size/2))
+    p.drawEllipse(QtCore.QPoint(size/2, size/2), 1, 1)
+  elif style == 'o':
+    p.drawEllipse(QtCore.QPoint(size/2, size/2), size/3, size/3)
+  elif style == 'v':
+    p.drawPolygon(center + r * QtCore.QPointF(cos(pi/2), sin(pi/2)), center + r * QtCore.QPointF(cos(7*pi/6), sin(7*pi/6)), center + r * QtCore.QPointF(cos(11*pi/6), sin(11*pi/6)))
+  elif style == '^':
+    p.drawPolygon(center + r * QtCore.QPointF(cos(3*pi/2), sin(3*pi/2)), center + r * QtCore.QPointF(cos(pi/6), sin(pi/6)), center + r * QtCore.QPointF(cos(5*pi/6), sin(5*pi/6)))
+  elif style == '<':
+    p.drawPolygon(center + r * QtCore.QPointF(cos(pi), sin(pi)), center + r * QtCore.QPointF(cos(5*pi/3), sin(5*pi/3)), center + r * QtCore.QPointF(cos(pi/3), sin(pi/3)))
+  elif style == '>':
+    p.drawPolygon(center + r * QtCore.QPointF(cos(0), sin(0)), center + r * QtCore.QPointF(cos(2*pi/3), sin(2*pi/3)), center + r * QtCore.QPointF(cos(4*pi/3), sin(4*pi/3)))
+  elif style == '1':
+    p.drawLine(center, center + r * QtCore.QPointF(cos(pi/2), sin(pi/2)))
+    p.drawLine(center, center + r * QtCore.QPointF(cos(7*pi/6), sin(7*pi/6)))
+    p.drawLine(center, center + r * QtCore.QPointF(cos(11*pi/6), sin(11*pi/6)))
+  elif style == '2':
+    p.drawLine(center, center - r * QtCore.QPointF(cos(pi/2), sin(pi/2)))
+    p.drawLine(center, center - r * QtCore.QPointF(cos(7*pi/6), sin(7*pi/6)))
+    p.drawLine(center, center - r * QtCore.QPointF(cos(11*pi/6), sin(11*pi/6)))
+  elif style == '3':
+    p.drawLine(center, center + r * QtCore.QPointF(cos(pi), sin(pi)))
+    p.drawLine(center, center + r * QtCore.QPointF(cos(pi/3), sin(pi/3)))
+    p.drawLine(center, center + r * QtCore.QPointF(cos(5*pi/3), sin(5*pi/3)))
+  elif style == '4':
+    p.drawLine(center, center + r * QtCore.QPointF(cos(0), sin(0)))
+    p.drawLine(center, center + r * QtCore.QPointF(cos(2*pi/3), sin(2*pi/3)))
+    p.drawLine(center, center + r * QtCore.QPointF(cos(4*pi/3), sin(4*pi/3)))
+  elif style == 's':
+    p.drawPolygon(center + QtCore.QPointF(r, r), center + QtCore.QPointF(-r, r), center - QtCore.QPointF(r, r), center + QtCore.QPointF(r, -r))
+  elif style == 'p':
+    p.drawPolygon(center + r * QtCore.QPointF(cos(3*pi/2), sin(3*pi/2)), center + r * QtCore.QPointF(cos(19*pi/10), sin(19*pi/10)), center + r * QtCore.QPointF(cos(3*pi/10), sin(3*pi/10)), center + r * QtCore.QPointF(cos(7*pi/10), sin(7*pi/10)), center + r * QtCore.QPointF(cos(11*pi/10), sin(11*pi/10)))
+  elif style == '*':
+    p.drawPolygon(center + r * QtCore.QPointF(cos(3*pi/2), sin(3*pi/2)), center + r/2 * QtCore.QPointF(cos(17*pi/10), sin(17*pi/10)), center + r * QtCore.QPointF(cos(19*pi/10), sin(19*pi/10)), center + r/2 * QtCore.QPointF(cos(pi/10), sin(pi/10)), center + r * QtCore.QPointF(cos(3*pi/10), sin(3*pi/10)), center + r/2 * QtCore.QPointF(cos(pi/2), sin(pi/2)), center + r * QtCore.QPointF(cos(7*pi/10), sin(7*pi/10)), center + r/2 * QtCore.QPointF(cos(9*pi/10), sin(9*pi/10)), center + r * QtCore.QPointF(cos(11*pi/10), sin(11*pi/10)), center + r/2 * QtCore.QPointF(cos(13*pi/10), sin(13*pi/10)))
+  elif style == 'h':
+    p.drawPolygon(center + r * QtCore.QPointF(cos(pi/6), sin(pi/6)), center + r * QtCore.QPointF(cos(pi/2), sin(pi/2)), center + r * QtCore.QPointF(cos(5*pi/6), sin(5*pi/6)), center + r * QtCore.QPointF(cos(7*pi/6), sin(7*pi/6)), center + r * QtCore.QPointF(cos(3*pi/2), sin(3*pi/2)), center + r * QtCore.QPointF(cos(11*pi/6), sin(11*pi/6)))
+  elif style == 'H':
+    p.drawPolygon(center + r * QtCore.QPointF(cos(0), sin(0)), center + r * QtCore.QPointF(cos(pi/3), sin(pi/3)), center + r * QtCore.QPointF(cos(2*pi/3), sin(2*pi/3)), center + r * QtCore.QPointF(cos(pi), sin(pi)), center + r * QtCore.QPointF(cos(4*pi/3), sin(4*pi/3)), center + r * QtCore.QPointF(cos(5*pi/3), sin(5*pi/3)))
+  elif style == '+':
+    p.drawLine(center + QtCore.QPointF(0, r), center - QtCore.QPointF(0, r))
+    p.drawLine(center + QtCore.QPointF(r, 0), center - QtCore.QPointF(r, 0))
+  elif style == 'x':
+    p.drawLine(center + QtCore.QPointF(r, r), center - QtCore.QPointF(r, r))
+    p.drawLine(center + QtCore.QPointF(r, -r), center + QtCore.QPointF(-r, r))
+  elif style == 'D':
+    p.drawPolygon(center + QtCore.QPointF(r, 0), center + QtCore.QPointF(0, r), center - QtCore.QPointF(r, 0), center - QtCore.QPointF(0, r))
+  elif style == 'd':
+    p.drawPolygon(center + QtCore.QPointF(r/2, 0), center + QtCore.QPointF(0, r), center - QtCore.QPointF(r/2, 0), center - QtCore.QPointF(0, r))
+  elif style == '|':
+    p.drawLine(center + QtCore.QPointF(0, r), center - QtCore.QPointF(0, r))
+  elif style == '_':
+    p.drawLine(center + QtCore.QPointF(r, 0), center - QtCore.QPointF(r, 0))
+
+  return pix

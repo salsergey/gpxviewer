@@ -129,7 +129,7 @@ class Ui_MainWindow(object):
         self.actionTimeProfile.triggered.connect(MainWindow.plotTimeProfile)
         self.actionSave.triggered.connect(MainWindow.fileSave)
         self.actionSaveAs.triggered.connect(MainWindow.fileSaveAs)
-        self.actionLoadGPXfile.triggered.connect(MainWindow.loadGPXFile)
+        self.actionLoadGPXfile.triggered.connect(MainWindow.fileLoadGPXFile)
         self.actionProfileStyle.triggered.connect(MainWindow.showProfileStyleOptions)
         self.actionShowSkipped.triggered['bool'].connect(MainWindow.showSkipped)
         self.actionShowMarked.triggered['bool'].connect(MainWindow.showMarked)

@@ -53,27 +53,29 @@ class PlotWindow(QtWidgets.QMainWindow):
 
     self.resize(TheConfig['PlotWindow'].getint('WindowWidth'), TheConfig['PlotWindow'].getint('WindowHeight'))
 
-  def resizeEvent(self, event):
-    super(PlotWindow, self).resizeEvent(event)
-    TheConfig['PlotWindow']['WindowWidth'] = str(event.size().width())
-    TheConfig['PlotWindow']['WindowHeight'] = str(event.size().height())
-
   def keyPressEvent(self, event):
     if event.key() == QtCore.Qt.Key_Escape:
       self.hide()
     super(PlotWindow, self).keyPressEvent(event)
 
-  def plotProfile(self, column):
-    self.ui.canvasWidget.plotProfile(column)
+  def resizeEvent(self, event):
+    super(PlotWindow, self).resizeEvent(event)
+    TheConfig['PlotWindow']['WindowWidth'] = str(event.size().width())
+    TheConfig['PlotWindow']['WindowHeight'] = str(event.size().height())
 
   def getExportFileName(self, dialogTitle):
-    filename, filter = QtWidgets.QFileDialog.getSaveFileName(self, dialogTitle, TheConfig['PlotWindow']['SaveProfileDirectory'], self.tr('Encapsulated Postscript (*.eps);;Portable Document Format (*.pdf);;PGF files (*.pgf);;PNG images (*.png);;Postscript files (*.ps);;SVG files (*.svg);;SVGZ files (*.svgz);;All files (*.*)'), TheConfig['PlotWindow']['SaveFileExtension'])
+    filename, filter = QtWidgets.QFileDialog.getSaveFileName(self, dialogTitle, TheConfig['PlotWindow']['SaveProfileDirectory'],
+                                                             self.tr('Encapsulated Postscript (*.eps);;Portable Document Format (*.pdf);;PGF files (*.pgf);;PNG images (*.png);;Postscript files (*.ps);;SVG files (*.svg);;SVGZ files (*.svgz);;All files (*.*)'),
+                                                             TheConfig['PlotWindow']['SaveFileExtension'])
 
     if filename != '':
       TheConfig['PlotWindow']['SaveProfileDirectory'] = path.dirname(filename)
       TheConfig['PlotWindow']['SaveFileExtension'] = filter
 
     return filename
+
+  def plotProfile(self, column):
+    self.ui.canvasWidget.plotProfile(column)
 
   def saveCurrentSize(self):
     filename = self.getExportFileName(self.tr('Export profile of the current size'))

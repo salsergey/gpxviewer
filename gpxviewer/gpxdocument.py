@@ -124,4 +124,5 @@ class GpxDocument(dict):
     else: # GPXMAGICK not in cfg
       raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'This file in not a valid GPX Viewer project file.'))
 
+
 TheDocument = GpxDocument()

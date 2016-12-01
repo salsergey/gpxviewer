@@ -25,7 +25,7 @@ class PointConfigDialog(QDialog):
     super(PointConfigDialog, self).__init__(parent)
     self.ui = gpxviewer.ui_pointconfigdialog.Ui_pointConfigDialog()
     self.ui.setupUi(self)
-    self.setMinimumWidth(350)
+    self.setMinimumWidth(420)
     self.style = style
 
     self.ui.markerColorCheckBox.setChecked(TheConfig['PointStyle'].getboolean('MarkerColorEnabled'))
@@ -101,7 +101,6 @@ class PointConfigDialog(QDialog):
     self.ui.captionPositionXSpinBox.valueChanged.connect(self.setCaptionPositionX)
     self.ui.captionPositionYSpinBox.valueChanged.connect(self.setCaptionPositionY)
     self.ui.captionSizeSpinBox.valueChanged.connect(self.setCaptionSize)
-    # TODO: tooltips
 
   def markerColorEnabled(self, enabled):
     TheConfig['PointStyle']['MarkerColorEnabled'] = str(enabled)

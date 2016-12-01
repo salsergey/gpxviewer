@@ -50,7 +50,6 @@ setup(
   author_email='salsergey@gmail.com',
   license='GNU GPL3',
   packages=['gpxviewer'],
-  # TODO: dependencies
   install_requires=['matplotlib'],
   data_files=datafiles,
   entry_points={

@@ -355,7 +355,7 @@
    <sender>actionLoadGPXfile</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>loadGPXFile()</slot>
+   <slot>fileLoadGPXFile()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -487,7 +487,7 @@
   <slot>plotTimeProfile()</slot>
   <slot>fileSave()</slot>
   <slot>fileSaveAs()</slot>
-  <slot>loadGPXFile()</slot>
+  <slot>fileLoadGPXFile()</slot>
   <slot>showProfileStyleOptions()</slot>
   <slot>showSkipped(bool)</slot>
   <slot>showMarked(bool)</slot>
