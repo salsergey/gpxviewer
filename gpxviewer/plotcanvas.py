@@ -31,7 +31,7 @@ from gpxviewer.configstore import TheConfig
 class PlotCanvas(FigureCanvas):
   def __init__(self, parent=None, width=12.8, height=10.24, dpi=100):
     # to be able to show cyrillic names
-    font = {'family': ['Arial', 'Droid Sans'], 'weight': 'normal', 'size': 12}
+    font = {'family': ['Arial', 'DejaVu Sans'], 'weight': 'normal', 'size': 12}
     rc('font', **font)
     fig = Figure(figsize=(width, height), dpi=dpi, facecolor='w')
     self.axes = fig.add_subplot(111)
