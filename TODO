@@ -1,10 +1,10 @@
 == Major ==
 
 * Handle tracks.
+* Handle multiple files.
 
 == Minor ==
 
-* Windows installer: working folder.
 * Ask about the GPX file loaction if not found.
 * Memory leaks.
 * Draw icons.
