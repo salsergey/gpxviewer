@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2017 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -21,8 +21,8 @@ from PyQt5.QtCore import QCoreApplication, QLocale, QTranslator
 from PyQt5.QtWidgets import QApplication
 import gpxviewer.rc_gpxviewer
 
-
 app = None
+
 
 def main():
   global app
@@ -38,12 +38,14 @@ def main():
 
   gpxMainWindow = GpxMainWindow()
   gpxMainWindow.show()
-  if len(sys.argv) == 2:
+  if len(sys.argv) > 1:
     if sys.argv[1].endswith('.gpx'):
-      gpxMainWindow.openGPXFile(sys.argv[1])
+      for file in sys.argv[1:]:
+        gpxMainWindow.openGPXFile(file)
     if sys.argv[1].endswith('.gpxv'):
       gpxMainWindow.openGPXProject(sys.argv[1])
   sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
   main()

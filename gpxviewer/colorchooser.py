@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2017 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -18,7 +18,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 
 
 class ColorChooser(QtWidgets.QPushButton):
-  def __init__(self, parent = None):
+  def __init__(self, parent=None):
     super(ColorChooser, self).__init__(parent)
     self.buttonWidth = 60
     self.clicked.connect(self.openColorDialog)

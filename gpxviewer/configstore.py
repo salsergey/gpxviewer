@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2017 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -58,8 +58,7 @@ class ConfigStore(configparser.ConfigParser):
                                'CaptionPositionX': '0',
                                'CaptionPositionY': '5',
                                'CaptionSizeEnabled': True,
-                               'CaptionSize': '12'}
-               }
+                               'CaptionSize': '12'}}
     self.read_dict(defaults)
     if os.name == 'nt':
       self.configfile = os.path.expanduser('~/AppData/Local/gpxviewerrc')

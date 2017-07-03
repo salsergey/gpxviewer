@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2017 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -68,11 +68,11 @@ class PointConfigDialog(QDialog):
     self.ui.lineColorButton.setColor(self.style[gpx.LINE_COLOR])
 
     self.ui.markerStyleCombo.addItems([m[1] for m in self.markerStyles])
-    for i,m in enumerate(self.markerStyles):
+    for i, m in enumerate(self.markerStyles):
       if m[0] == self.style[gpx.MARKER_STYLE]:
         self.ui.markerStyleCombo.setCurrentIndex(i)
     self.ui.lineStyleCombo.addItems([m[1] for m in self.lineStyles])
-    for i,m in enumerate(self.lineStyles):
+    for i, m in enumerate(self.lineStyles):
       if m[0] == self.style[gpx.LINE_STYLE]:
         self.ui.lineStyleCombo.setCurrentIndex(i)
 

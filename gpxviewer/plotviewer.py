@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2017 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -21,7 +21,7 @@ import gpxviewer.ui_plotwindow
 
 
 class PlotWindow(QtWidgets.QMainWindow):
-  def __init__(self, parent = None):
+  def __init__(self, parent=None):
     super(PlotWindow, self).__init__(parent)
     self.ui = gpxviewer.ui_plotwindow.Ui_PlotWindow()
     self.ui.setupUi(self)

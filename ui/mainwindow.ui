@@ -14,15 +14,32 @@
    <string notr="true">GPX Viewer</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="QTableView" name="gpxView">
-      <property name="selectionBehavior">
-       <enum>QAbstractItemView::SelectRows</enum>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
       </property>
-      <attribute name="horizontalHeaderStretchLastSection">
+      <property name="tabBarAutoHide" stdset="0">
        <bool>true</bool>
-      </attribute>
+      </property>
+      <widget class="QWidget" name="wptTab">
+       <attribute name="title">
+        <string>Waypoints</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QTableView" name="wptView">
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -33,7 +50,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>30</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -42,6 +59,7 @@
     </property>
     <addaction name="actionLoadGPXfile"/>
     <addaction name="separator"/>
+    <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
@@ -75,6 +93,9 @@
    <property name="movable">
     <bool>false</bool>
    </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonIconOnly</enum>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -82,6 +103,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionLoadGPXfile"/>
+   <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="actionSaveAs"/>
@@ -108,7 +130,8 @@
   <action name="actionQuit">
    <property name="icon">
     <iconset>
-     <normaloff>.</normaloff>.</iconset>
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>&amp;Quit</string>
@@ -120,7 +143,8 @@
   <action name="actionOpen">
    <property name="icon">
     <iconset>
-     <normaloff>.</normaloff>.</iconset>
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>&amp;Open project</string>
@@ -134,7 +158,8 @@
   <action name="actionSave">
    <property name="icon">
     <iconset>
-     <normaloff>.</normaloff>.</iconset>
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>&amp;Save project</string>
@@ -143,7 +168,8 @@
   <action name="actionSaveAs">
    <property name="icon">
     <iconset>
-     <normaloff>.</normaloff>.</iconset>
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Save project &amp;as...</string>
@@ -152,7 +178,8 @@
   <action name="actionLoadGPXfile">
    <property name="icon">
     <iconset>
-     <normaloff>.</normaloff>.</iconset>
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>&amp;Load GPX file</string>
@@ -164,7 +191,8 @@
   <action name="actionDistanceProfile">
    <property name="icon">
     <iconset>
-     <normaloff>.</normaloff>.</iconset>
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>&amp;Distance profile</string>
@@ -176,7 +204,8 @@
   <action name="actionTimeProfile">
    <property name="icon">
     <iconset>
-     <normaloff>.</normaloff>.</iconset>
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>&amp;Time profile</string>
@@ -188,7 +217,8 @@
   <action name="actionProfileStyle">
    <property name="icon">
     <iconset>
-     <normaloff>.</normaloff>.</iconset>
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Profile &amp;style</string>
@@ -234,6 +264,14 @@
   <action name="actionAboutGPXViewer">
    <property name="text">
     <string>About &amp;GPX Viewer</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="text">
+    <string>&amp;New project</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true"/>
    </property>
   </action>
  </widget>
@@ -479,6 +517,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionNew</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>fileNew()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>fileOpen()</slot>
@@ -495,5 +549,6 @@
   <slot>showOther(bool)</slot>
   <slot>gpxViewerHelp()</slot>
   <slot>aboutGPXViewer()</slot>
+  <slot>fileNew()</slot>
  </slots>
 </ui>

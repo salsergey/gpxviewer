@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.7
+# Created by: PyQt5 UI code generator 5.8.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -15,16 +15,25 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle("GPX Viewer")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.centralwidget)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
+        self.tabWidget.setProperty("tabBarAutoHide", True)
+        self.tabWidget.setObjectName("tabWidget")
+        self.wptTab = QtWidgets.QWidget()
+        self.wptTab.setObjectName("wptTab")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.wptTab)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.gpxView = QtWidgets.QTableView(self.centralwidget)
-        self.gpxView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        self.gpxView.setObjectName("gpxView")
-        self.gpxView.horizontalHeader().setStretchLastSection(True)
-        self.verticalLayout.addWidget(self.gpxView)
+        self.wptView = QtWidgets.QTableView(self.wptTab)
+        self.wptView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.wptView.setObjectName("wptView")
+        self.wptView.horizontalHeader().setStretchLastSection(True)
+        self.verticalLayout.addWidget(self.wptView)
+        self.tabWidget.addTab(self.wptTab, "")
+        self.verticalLayout_2.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1024, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1024, 27))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -38,6 +47,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.toolBar = QtWidgets.QToolBar(MainWindow)
         self.toolBar.setMovable(False)
+        self.toolBar.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
         self.toolBar.setObjectName("toolBar")
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
         self.secondaryToolBar = QtWidgets.QToolBar(MainWindow)
@@ -47,7 +57,7 @@ class Ui_MainWindow(object):
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.secondaryToolBar)
         self.actionQuit = QtWidgets.QAction(MainWindow)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("."), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionQuit.setIcon(icon)
         self.actionQuit.setShortcutContext(QtCore.Qt.ApplicationShortcut)
         self.actionQuit.setObjectName("actionQuit")
@@ -93,8 +103,12 @@ class Ui_MainWindow(object):
         self.actionGpxViewerHelp.setObjectName("actionGpxViewerHelp")
         self.actionAboutGPXViewer = QtWidgets.QAction(MainWindow)
         self.actionAboutGPXViewer.setObjectName("actionAboutGPXViewer")
+        self.actionNew = QtWidgets.QAction(MainWindow)
+        self.actionNew.setShortcut("")
+        self.actionNew.setObjectName("actionNew")
         self.menuFile.addAction(self.actionLoadGPXfile)
         self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionSaveAs)
@@ -112,6 +126,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFilter.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
         self.toolBar.addAction(self.actionLoadGPXfile)
+        self.toolBar.addAction(self.actionNew)
         self.toolBar.addAction(self.actionOpen)
         self.toolBar.addAction(self.actionSave)
         self.toolBar.addAction(self.actionSaveAs)
@@ -122,6 +137,7 @@ class Ui_MainWindow(object):
         self.secondaryToolBar.addAction(self.actionTimeProfile)
 
         self.retranslateUi(MainWindow)
+        self.tabWidget.setCurrentIndex(0)
         self.actionQuit.triggered.connect(MainWindow.close)
         self.actionOpen.triggered.connect(MainWindow.fileOpen)
         self.actionAboutQt.triggered.connect(MainWindow.aboutQt)
@@ -137,10 +153,12 @@ class Ui_MainWindow(object):
         self.actionShowCaptioned.triggered['bool'].connect(MainWindow.showCaptioned)
         self.actionGpxViewerHelp.triggered.connect(MainWindow.gpxViewerHelp)
         self.actionAboutGPXViewer.triggered.connect(MainWindow.aboutGPXViewer)
+        self.actionNew.triggered.connect(MainWindow.fileNew)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.wptTab), _translate("MainWindow", "Waypoints"))
         self.menuFile.setTitle(_translate("MainWindow", "&File"))
         self.menuHelp.setTitle(_translate("MainWindow", "&Help"))
         self.menuFilter.setTitle(_translate("MainWindow", "F&ilter"))
@@ -159,4 +177,5 @@ class Ui_MainWindow(object):
         self.actionShowOther.setText(_translate("MainWindow", "Show &other"))
         self.actionGpxViewerHelp.setText(_translate("MainWindow", "GPX Viewer &Help"))
         self.actionAboutGPXViewer.setText(_translate("MainWindow", "About &GPX Viewer"))
+        self.actionNew.setText(_translate("MainWindow", "&New project"))
 

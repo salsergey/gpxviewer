@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2017 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -37,18 +37,19 @@ class GpxWarning(Exception):
 
 
 class GpxModel(QtCore.QAbstractTableModel):
-  def __init__(self, parent = None):
+  def __init__(self, parent=None):
     super(GpxModel, self).__init__(parent)
-    self.fields = [self.tr('Name'), self.tr('Latitude'), self.tr('Longitude'), self.tr('Altitude'), self.tr('Distance'), self.tr('Time'), self.tr('Time difference'), self.tr('Time in days')]
+    self.fields = [self.tr('Name'), self.tr('Latitude'), self.tr('Longitude'), self.tr('Altitude'),
+                   self.tr('Distance'), self.tr('Time'), self.tr('Time difference'), self.tr('Time in days')]
     self.resetModel()
 
-  def rowCount(self, parent = None):
+  def rowCount(self, parent=None):
     return len(self.points)
 
-  def columnCount(self, parent = None):
+  def columnCount(self, parent=None):
     return len(self.fields)
 
-  def data(self, index, role = QtCore.Qt.DisplayRole):
+  def data(self, index, role=QtCore.Qt.DisplayRole):
     if role == QtCore.Qt.DisplayRole:
       return str(self.points[index.row()][index.column()])
     elif role == QtCore.Qt.DecorationRole and index.column() == NAME:
@@ -97,21 +98,21 @@ class GpxModel(QtCore.QAbstractTableModel):
     QGuiApplication.clipboard().setText(text)
 
   def getIndexesWithIncludeState(self, state):
-    return [i for i,s in enumerate(self.includeStates) if s == state]
+    return [i for i, s in enumerate(self.includeStates) if s == state]
 
   def getNeglectStates(self):
-    return [i for i,s in enumerate(self.neglectStates) if s]
+    return [i for i, s in enumerate(self.neglectStates) if s]
 
   def getPointStyles(self, key):
     if key in {MARKER_COLOR, MARKER_STYLE, MARKER_SIZE}:
-      return [p[key] for i,p in enumerate(self.pointStyles) if self.includeStates[i] in {INC_MARKER, INC_CAPTION}]
+      return [p[key] for i, p in enumerate(self.pointStyles) if self.includeStates[i] in {INC_MARKER, INC_CAPTION}]
     if key in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}:
-      return [p[key] for i,p in enumerate(self.pointStyles) if self.splitStates[i]]
+      return [p[key] for i, p in enumerate(self.pointStyles) if self.splitStates[i]]
     if key in {CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE}:
-      return [p[key] for i,p in enumerate(self.pointStyles) if self.includeStates[i] == INC_CAPTION]
+      return [p[key] for i, p in enumerate(self.pointStyles) if self.includeStates[i] == INC_CAPTION]
 
   def getSplitLines(self):
-    return [i for i,s in enumerate(self.splitStates) if s]
+    return [i for i, s in enumerate(self.splitStates) if s]
 
   def resetModel(self):
     self.beginResetModel()
@@ -120,12 +121,15 @@ class GpxModel(QtCore.QAbstractTableModel):
     self.splitStates = []
     self.neglectStates = []
     self.pointStyles = []
+    self.minalt = 10000
+    self.maxalt = 0
     self.endResetModel()
 
   def setIncludeStates(self, IDs, state):
     for i in IDs:
       self.includeStates[i] = state
     self.updateDistance()
+    self.updateTimeDifference()
 
   def setNeglectStates(self, IDs, state):
     for i in IDs:
@@ -141,14 +145,11 @@ class GpxModel(QtCore.QAbstractTableModel):
       self.splitStates[i] = state
 
   def parse(self, filename):
-    self.resetModel()
-
-    namespaces = {'ns0' : 'http://www.topografix.com/GPX/1/0',
-                  'ns1' : 'http://www.topografix.com/GPX/1/1'}
+    namespaces = {'ns0': 'http://www.topografix.com/GPX/1/0',
+                  'ns1': 'http://www.topografix.com/GPX/1/1'}
     try:
-      #ET.register_namespace('', ns['ns0'])
       doc = ET.parse(filename)
-    except:
+    except ET.ParseError:
       raise GpxWarning(filename + self.tr(' is an invalid GPX file.'))
 
     ns = {'ns': namespaces['ns1']}
@@ -157,20 +158,9 @@ class GpxModel(QtCore.QAbstractTableModel):
       ns = {'ns': namespaces['ns0']}
       data = doc.findall('.//{%(ns)s}wpt' % ns)
     if len(data) == 0:
-      raise GpxWarning(self.tr('GPX file is empty.'))
+      raise GpxWarning(self.tr('GPX file ' + filename + ' is empty.'))
 
-    id = 0
-    minalt = 10000
-    maxalt = 0
-    while data[0].findtext('{%(ns)s}time' % ns) == None:
-      del data[0]
-    start = data[0]
-    start_t = start.findtext('{%(ns)s}time' % ns).strip()
-    try:
-      start_dt = datetime.strptime(start_t, '%Y-%m-%dT%H:%M:%SZ')
-    except ValueError as e:
-      raise GpxWarning(self.tr('Waypoint time format is invalid.'))
-
+    id = len(self.points)
     defaultStyle = {MARKER_COLOR: int(TheConfig['PointStyle']['MarkerColor']),
                     MARKER_STYLE: TheConfig['PointStyle']['MarkerStyle'],
                     MARKER_SIZE: int(TheConfig['PointStyle']['MarkerSize']),
@@ -185,17 +175,17 @@ class GpxModel(QtCore.QAbstractTableModel):
       try:
         point = {}
         name = p.findtext('{%(ns)s}name' % ns)
-        point[NAME] = name.strip() if name != None else ''
+        point[NAME] = name.strip() if name is not None else ''
         point[LAT] = float(p.get('lat'))
         point[LON] = float(p.get('lon'))
         point[ALT] = int(round(float(p.findtext('{%(ns)s}ele' % ns))))
-        minalt = min(minalt, point[ALT])
-        maxalt = max(maxalt, point[ALT])
-        dt = datetime.strptime(p.findtext('{%(ns)s}time' % ns).strip(), '%Y-%m-%dT%H:%M:%SZ')
-        point[TIME] = dt
-        time_delta = dt - start_dt
-        point[TIMEDELTA] = time_delta
-        point[TIME_DAYS] = round(time_delta.days + time_delta.seconds / 60.0 / 60.0 / 24.0, 3)
+        self.minalt = min(self.minalt, point[ALT])
+        self.maxalt = max(self.maxalt, point[ALT])
+        if p.findtext('{%(ns)s}time' % ns) is not None:
+          dt = datetime.strptime(p.findtext('{%(ns)s}time' % ns).strip(), '%Y-%m-%dT%H:%M:%SZ')
+          point[TIME] = dt
+        else:
+          point[TIME] = ''
         point['ID'] = id
 
         self.beginInsertRows(QtCore.QModelIndex(), id, id)
@@ -210,18 +200,18 @@ class GpxModel(QtCore.QAbstractTableModel):
       except (TypeError, ValueError):
         print(self.tr('Waypoint ') + (point[NAME] + ' ' if point[NAME] != '' else '') + self.tr('is invalid and will be skipped.'))
 
+    # TODO: fix another way?
+    self.endResetModel()
     self.updateDistance()
+    self.updateTimeDifference()
     self.layoutChanged.emit()
 
-    TheConfig['ProfileStyle']['MinimumAltitude'] = str(round(minalt, -3) - 500 if round(minalt, -3) > minalt else round(minalt, -3))
-    TheConfig['ProfileStyle']['MaximumAltitude'] = str(round(maxalt, -3) + 500 if round(maxalt, -3) < maxalt else round(maxalt, -3))
+    TheConfig['ProfileStyle']['MinimumAltitude'] = str(round(self.minalt, -3) - 500 if round(self.minalt, -3) > self.minalt else round(self.minalt, -3))
+    TheConfig['ProfileStyle']['MaximumAltitude'] = str(round(self.maxalt, -3) + 500 if round(self.maxalt, -3) < self.maxalt else round(self.maxalt, -3))
 
   def updateDistance(self):
-    for i in range(self.rowCount()):
-      if self.index(i, 0).data(IncludeRole) != INC_SKIP:
-        break
-    prev_lat = float(self.index(i, LAT).data())
-    prev_lon = float(self.index(i, LON).data())
+    prev_lat = None
+    prev_lon = None
     dist = 0.0
 
     for i in range(self.rowCount()):
@@ -229,16 +219,32 @@ class GpxModel(QtCore.QAbstractTableModel):
         lat = float(self.index(i, LAT).data())
         lon = float(self.index(i, LON).data())
 
-        if self.index(i, 0).data(NeglectRole):
-          self.points[i][DIST] =  round(dist, 3)
-        else:
+        if not self.index(i, 0).data(NeglectRole) and prev_lat is not None and prev_lon is not None:
           dist += _distance(lat, lon, prev_lat, prev_lon) * 1.2  # with mountain coefficient
-          self.points[i][DIST] =  round(dist, 3)
+        self.points[i][DIST] = round(dist, 3)
 
         prev_lat = lat
         prev_lon = lon
       else:
         self.points[i][DIST] = ''
+
+  def updateTimeDifference(self):
+    time_delta = 0
+    start_dt = None
+
+    for i in range(self.rowCount()):
+      if self.index(i, 0).data(IncludeRole) != INC_SKIP:
+        if self.points[i][TIME] != '':
+          if start_dt is None:
+            start_dt = self.points[i][TIME]
+          self.points[i][TIMEDELTA] = self.points[i][TIME] - start_dt
+          self.points[i][TIME_DAYS] = round(self.points[i][TIMEDELTA].days + self.points[i][TIMEDELTA].seconds / 60.0 / 60.0 / 24.0, 3)
+        else:
+          self.points[i][TIMEDELTA] = ''
+          self.points[i][TIME_DAYS] = ''
+      else:
+        self.points[i][TIMEDELTA] = ''
+        self.points[i][TIME_DAYS] = ''
 
 
 class GpxSortFilterModel(QtCore.QSortFilterProxyModel):
@@ -246,14 +252,14 @@ class GpxSortFilterModel(QtCore.QSortFilterProxyModel):
     super(GpxSortFilterModel, self).__init__(parent)
 
   def lessThan(self, left, right):
-    if left.column() == TIME and right.column() == TIME:
+    if left.column() == TIME and right.column() == TIME and left.data() != '' and right.data() != '':
       return datetime.strptime(left.data(), '%Y-%m-%d %H:%M:%S') < datetime.strptime(right.data(), '%Y-%m-%d %H:%M:%S')
     else:
       return super(GpxSortFilterModel, self).lessThan(left, right)
 
 
 def _distance(lat1, lon1, lat2, lon2):
-  Radius = 6378.14 # The equatorial radius of the Earth
+  Radius = 6378.14  # The equatorial radius of the Earth
   # angle between two points
   angle = acos(min(1.0, sin(lat1*pi/180.0) * sin(lat2*pi/180.0) +
                cos(lat1*pi/180.0) * cos(lat2*pi/180.0) * cos((lon1 - lon2)*pi/180.0)))
@@ -262,6 +268,7 @@ def _distance(lat1, lon1, lat2, lon2):
   dist = r * angle
 
   return dist
+
 
 def _markerIcon(style, color):
   size = 16

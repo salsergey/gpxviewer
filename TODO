@@ -1,12 +1,17 @@
 == Major ==
 
 * Handle tracks.
-* Handle multiple files.
+* Daily track statistics.
+* Time zones.
 
 == Minor ==
 
+* Add "Set as start point" to the context menu.
 * Ask about the GPX file loaction if not found.
-* Memory leaks.
 * Draw icons.
 * Adjust context menu.
 * Add tooltips.
+
+== Fixes ==
+
+* Memory leaks.
