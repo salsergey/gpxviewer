@@ -253,22 +253,22 @@
         <translation>Время в днях</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="154"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="157"/>
         <source> is an invalid GPX file.</source>
         <translation> повреждённый GPX файл.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="204"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="207"/>
         <source>Waypoint </source>
         <translation>Маршрутная точка </translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="204"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="207"/>
         <source>is invalid and will be skipped.</source>
         <translation>повреждена и будет пропущена.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="162"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="165"/>
         <source>GPX file </source>
         <translation>GPX файл </translation>
     </message>
@@ -608,12 +608,12 @@
         <translation>По разделительным линиям</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/statwindow.py" line="37"/>
+        <location filename="../../gpxviewer/statwindow.py" line="38"/>
         <source>By name:</source>
         <translation>По названию:</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/statwindow.py" line="41"/>
+        <location filename="../../gpxviewer/statwindow.py" line="42"/>
         <source>Enter regular expression</source>
         <translation>Регулярное выражение</translation>
     </message>
@@ -669,34 +669,44 @@
 <context>
     <name>profileConfigDialog</name>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="94"/>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="110"/>
         <source>Configure profile style</source>
         <translation>Настроить стиль профиля</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="95"/>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="111"/>
         <source>Profile color</source>
         <translation>Цвет профиля</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="96"/>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="112"/>
         <source>Fill color</source>
         <translation>Цвет заполнения</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="97"/>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="113"/>
         <source>Profile width</source>
         <translation>Толщина профиля</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="98"/>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="114"/>
         <source>Minimum altitude</source>
         <translation>Минимальная высота</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="99"/>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="115"/>
         <source>Maximum altitude</source>
         <translation>Максимальная высота</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="116"/>
+        <source>Time zone offset</source>
+        <translation>Сдвиг часового пояса</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="117"/>
+        <source> min</source>
+        <translation> мин</translation>
     </message>
 </context>
 </TS>

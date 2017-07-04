@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>260</width>
-    <height>288</height>
+    <width>247</width>
+    <height>308</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -119,6 +119,36 @@
          <widget class="QSpinBox" name="maxaltSpinBox">
           <property name="maximum">
            <number>10000</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QLabel" name="label_7">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Time zone offset</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="timezoneSpinBox">
+          <property name="suffix">
+           <string> min</string>
+          </property>
+          <property name="minimum">
+           <number>-999</number>
+          </property>
+          <property name="maximum">
+           <number>999</number>
           </property>
          </widget>
         </item>

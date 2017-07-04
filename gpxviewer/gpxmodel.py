@@ -17,7 +17,7 @@
 import sys
 from math import sqrt, sin, cos, pi
 import xml.etree.ElementTree as ET
-from datetime import datetime
+from datetime import datetime, timedelta
 from math import pi, sin, cos, acos
 from PyQt5 import QtCore
 from PyQt5.QtGui import QColor, QFont, QGuiApplication, QPixmap, QPainter
@@ -51,7 +51,10 @@ class GpxModel(QtCore.QAbstractTableModel):
 
   def data(self, index, role=QtCore.Qt.DisplayRole):
     if role == QtCore.Qt.DisplayRole:
-      return str(self.points[index.row()][index.column()])
+      if index.column() == TIME:
+        return str(self.points[index.row()][index.column()] + timedelta(minutes=TheConfig['ProfileStyle'].getint('TimeZoneOffset')))
+      else:
+        return str(self.points[index.row()][index.column()])
     elif role == QtCore.Qt.DecorationRole and index.column() == NAME:
       if index.data(IncludeRole) in {INC_MARKER, INC_CAPTION}:
         return _markerIcon(index.data(MarkerRole)[MARKER_STYLE], index.data(MarkerRole)[MARKER_COLOR])

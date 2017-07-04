@@ -421,6 +421,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       TheConfig['ProfileStyle']['ProfileWidth'] = str(dlg.style['ProfileWidth'])
       TheConfig['ProfileStyle']['MinimumAltitude'] = str(dlg.style['MinimumAltitude'])
       TheConfig['ProfileStyle']['MaximumAltitude'] = str(dlg.style['MaximumAltitude'])
+      TheConfig['ProfileStyle']['TimeZoneOffset'] = str(dlg.style['TimeZoneOffset'])
 
   def updateIncludeFilter(self):
     mask = [TheConfig['MainWindow'].getboolean('ShowDefault'), TheConfig['MainWindow'].getboolean('ShowSkipped'),

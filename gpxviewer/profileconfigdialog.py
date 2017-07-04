@@ -31,18 +31,21 @@ class ProfileConfigDialog(QDialog):
     self.style['ProfileWidth'] = float(TheConfig['ProfileStyle']['ProfileWidth'])
     self.style['MinimumAltitude'] = int(TheConfig['ProfileStyle']['MinimumAltitude'])
     self.style['MaximumAltitude'] = int(TheConfig['ProfileStyle']['MaximumAltitude'])
+    self.style['TimeZoneOffset'] = int(TheConfig['ProfileStyle']['TimeZoneOffset'])
 
     self.ui.profileColorButton.setColor(self.style['ProfileColor'])
     self.ui.fillColorButton.setColor(self.style['FillColor'])
     self.ui.profileWidthSpinBox.setValue(self.style['ProfileWidth'])
     self.ui.minaltSpinBox.setValue(self.style['MinimumAltitude'])
     self.ui.maxaltSpinBox.setValue(self.style['MaximumAltitude'])
+    self.ui.timezoneSpinBox.setValue(self.style['TimeZoneOffset'])
 
     self.ui.profileColorButton.colorSet.connect(self.setProfileColor)
     self.ui.fillColorButton.colorSet.connect(self.setFillColor)
     self.ui.profileWidthSpinBox.valueChanged.connect(self.setProfileWidth)
     self.ui.minaltSpinBox.valueChanged.connect(self.setMinimumAltitude)
     self.ui.maxaltSpinBox.valueChanged.connect(self.setMaximumAltitude)
+    self.ui.timezoneSpinBox.valueChanged.connect(self.setTimeZoneOffset)
 
   def setProfileColor(self):
     self.style['ProfileColor'] = self.ui.profileColorButton.color.rgba()
@@ -58,3 +61,6 @@ class ProfileConfigDialog(QDialog):
 
   def setMaximumAltitude(self):
     self.style['MaximumAltitude'] = self.ui.maxaltSpinBox.value()
+
+  def setTimeZoneOffset(self):
+    self.style['TimeZoneOffset'] = self.ui.timezoneSpinBox.value()
