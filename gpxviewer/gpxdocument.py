@@ -102,6 +102,7 @@ class GpxDocument(dict):
           TheConfig['ProfileStyle']['ProfileWidth'] = self['ProfileWidth']
           TheConfig['ProfileStyle']['MinimumAltitude'] = self['MinimumAltitude']
           TheConfig['ProfileStyle']['MaximumAltitude'] = self['MaximumAltitude']
+          TheConfig['ProfileStyle']['TimeZoneOffset'] = self['TimeZoneOffset']
 
           for i, m in zip(sorted(self['MarkerPoints'] + self['CaptionPoints']), self['MarkerColors']):
             self.gpxmodel.setPointStyle([i], gpx.MARKER_COLOR, m)
