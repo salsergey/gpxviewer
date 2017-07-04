@@ -126,6 +126,7 @@
    <addaction name="separator"/>
    <addaction name="actionDistanceProfile"/>
    <addaction name="actionTimeProfile"/>
+   <addaction name="actionStatistics"/>
   </widget>
   <action name="actionQuit">
    <property name="icon">
@@ -267,8 +268,23 @@
    </property>
   </action>
   <action name="actionNew">
+   <property name="icon">
+    <iconset>
+     <normaloff/>
+    </iconset>
+   </property>
    <property name="text">
     <string>&amp;New project</string>
+   </property>
+  </action>
+  <action name="actionStatistics">
+   <property name="icon">
+    <iconset>
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Statistics</string>
    </property>
    <property name="shortcut">
     <string notr="true"/>
@@ -533,6 +549,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionStatistics</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>showStatistics()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>fileOpen()</slot>
@@ -550,5 +582,6 @@
   <slot>gpxViewerHelp()</slot>
   <slot>aboutGPXViewer()</slot>
   <slot>fileNew()</slot>
+  <slot>showStatistics()</slot>
  </slots>
 </ui>

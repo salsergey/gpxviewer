@@ -10,6 +10,7 @@
         <file>icons/configure.svg</file>
         <file>icons/distanceprofile.svg</file>
         <file>icons/timeprofile.svg</file>
+        <file>icons/view-statistics.svg</file>
         <file>translations/gpxviewer_ru.qm</file>
     </qresource>
 </RCC>

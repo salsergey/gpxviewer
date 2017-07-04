@@ -19,6 +19,7 @@ from os import path
 from PyQt5 import QtCore, QtWidgets, QtGui
 import gpxviewer.plotviewer as plt
 import gpxviewer.gpxmodel as gpx
+import gpxviewer.statwindow as stat
 from gpxviewer.configstore import TheConfig
 from gpxviewer.gpxdocument import TheDocument
 import gpxviewer.ui_mainwindow
@@ -43,6 +44,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.ui.actionProfileStyle.setIcon(QtGui.QIcon.fromTheme('configure', QtGui.QIcon(':/icons/configure.svg')))
     self.ui.actionDistanceProfile.setIcon(QtGui.QIcon(':/icons/distanceprofile.svg'))
     self.ui.actionTimeProfile.setIcon(QtGui.QIcon(':/icons/timeprofile.svg'))
+    self.ui.actionStatistics.setIcon(QtGui.QIcon.fromTheme('view-statistics', QtGui.QIcon(':/icons/view-statistics.svg')))
     self.ui.actionAboutGPXViewer.setIcon(QtGui.QIcon(':/icons/gpxviewer.svg'))
 
     self.ui.actionNew.setShortcut(QtGui.QKeySequence.New)
@@ -88,6 +90,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.projectChanged = False
     self.titleFilename = None
     self.plot = plt.PlotWindow()
+    self.stat = stat.StatWindow()
 
   def aboutQt(self):
     QtWidgets.QApplication.aboutQt()
@@ -107,6 +110,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
         return
 
     self.plot.close()
+    self.stat.close()
     TheConfig.save()
     super(GpxMainWindow, self).closeEvent(event)
 
@@ -145,7 +149,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       self.filterLineEdit.setFocus()
       self.filterLineEdit.selectAll()
     if event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
-      TheDocument.gpxmodel.copyToClipboard([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selection().indexes() if i.column() == gpx.NAME])
+      TheDocument.gpxmodel.copyToClipboard([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()])
     if event.key() == QtCore.Qt.Key_Escape:
       self.ui.wptView.setFocus()
     super(GpxMainWindow, self).keyPressEvent(event)
@@ -383,6 +387,14 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.plot.plotProfile(gpx.TIME_DAYS)
     self.plot.show()
     self.plot.activateWindow()
+
+  def showStatistics(self):
+    if TheDocument.gpxmodel.rowCount() - len(TheDocument.gpxmodel.getIndexesWithIncludeState(gpx.INC_SKIP)) < 2:
+      return
+
+    self.stat.updateStatistics()
+    self.stat.show()
+    self.stat.activateWindow()
 
   def showSkipped(self, show):
     TheConfig['MainWindow']['ShowSkipped'] = str(show)

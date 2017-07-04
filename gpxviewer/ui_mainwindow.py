@@ -104,8 +104,12 @@ class Ui_MainWindow(object):
         self.actionAboutGPXViewer = QtWidgets.QAction(MainWindow)
         self.actionAboutGPXViewer.setObjectName("actionAboutGPXViewer")
         self.actionNew = QtWidgets.QAction(MainWindow)
-        self.actionNew.setShortcut("")
+        self.actionNew.setIcon(icon)
         self.actionNew.setObjectName("actionNew")
+        self.actionStatistics = QtWidgets.QAction(MainWindow)
+        self.actionStatistics.setIcon(icon)
+        self.actionStatistics.setShortcut("")
+        self.actionStatistics.setObjectName("actionStatistics")
         self.menuFile.addAction(self.actionLoadGPXfile)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionNew)
@@ -135,6 +139,7 @@ class Ui_MainWindow(object):
         self.secondaryToolBar.addSeparator()
         self.secondaryToolBar.addAction(self.actionDistanceProfile)
         self.secondaryToolBar.addAction(self.actionTimeProfile)
+        self.secondaryToolBar.addAction(self.actionStatistics)
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
@@ -154,6 +159,7 @@ class Ui_MainWindow(object):
         self.actionGpxViewerHelp.triggered.connect(MainWindow.gpxViewerHelp)
         self.actionAboutGPXViewer.triggered.connect(MainWindow.aboutGPXViewer)
         self.actionNew.triggered.connect(MainWindow.fileNew)
+        self.actionStatistics.triggered.connect(MainWindow.showStatistics)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -178,4 +184,5 @@ class Ui_MainWindow(object):
         self.actionGpxViewerHelp.setText(_translate("MainWindow", "GPX Viewer &Help"))
         self.actionAboutGPXViewer.setText(_translate("MainWindow", "About &GPX Viewer"))
         self.actionNew.setText(_translate("MainWindow", "&New project"))
+        self.actionStatistics.setText(_translate("MainWindow", "&Statistics"))
 
