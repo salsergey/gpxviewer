@@ -89,48 +89,48 @@ class GpxDocument(dict):
       for file in self['GPXFile']:
         if os.path.exists(file):
           self.gpxmodel.parse(file)
-
-          self.gpxmodel.setIncludeStates(self['SkipPoints'], gpx.INC_SKIP)
-          self.gpxmodel.setIncludeStates(self['MarkerPoints'], gpx.INC_MARKER)
-          self.gpxmodel.setIncludeStates(self['CaptionPoints'], gpx.INC_CAPTION)
-          self.gpxmodel.setSplitLines(self['SplitLines'], True)
-          self.gpxmodel.setNeglectStates(self['NeglectDistances'], True)
-          self.gpxmodel.updateDistance()
-
-          TheConfig['ProfileStyle']['ProfileColor'] = self['ProfileColor']
-          TheConfig['ProfileStyle']['FillColor'] = self['FillColor']
-          TheConfig['ProfileStyle']['ProfileWidth'] = self['ProfileWidth']
-          TheConfig['ProfileStyle']['MinimumAltitude'] = self['MinimumAltitude']
-          TheConfig['ProfileStyle']['MaximumAltitude'] = self['MaximumAltitude']
-          TheConfig['ProfileStyle']['TimeZoneOffset'] = self['TimeZoneOffset']
-
-          for i, m in zip(sorted(self['MarkerPoints'] + self['CaptionPoints']), self['MarkerColors']):
-            self.gpxmodel.setPointStyle([i], gpx.MARKER_COLOR, m)
-          for i, m in zip(sorted(self['MarkerPoints'] + self['CaptionPoints']), self['MarkerStyles']):
-            self.gpxmodel.setPointStyle([i], gpx.MARKER_STYLE, m)
-          for i, m in zip(sorted(self['MarkerPoints'] + self['CaptionPoints']), self['MarkerSizes']):
-            self.gpxmodel.setPointStyle([i], gpx.MARKER_SIZE, m)
-
-          for i, m in zip(self['SplitLines'], self['SplitLineColors']):
-            self.gpxmodel.setPointStyle([i], gpx.LINE_COLOR, m)
-          for i, m in zip(self['SplitLines'], self['SplitLineStyles']):
-            self.gpxmodel.setPointStyle([i], gpx.LINE_STYLE, m)
-          for i, m in zip(self['SplitLines'], self['SplitLineWidths']):
-            self.gpxmodel.setPointStyle([i], gpx.LINE_WIDTH, m)
-
-          for i, m in zip(self['CaptionPoints'], self['CaptionPositionXs']):
-            self.gpxmodel.setPointStyle([i], gpx.CAPTION_POSX, m)
-          for i, m in zip(self['CaptionPoints'], self['CaptionPositionYs']):
-            self.gpxmodel.setPointStyle([i], gpx.CAPTION_POSY, m)
-          for i, m in zip(self['CaptionPoints'], self['CaptionSizes']):
-            self.gpxmodel.setPointStyle([i], gpx.CAPTION_SIZE, m)
-        else:  # GPXFile doesn't exist
+        else:  # file doesn't exist
           raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'The file ') + file + QCoreApplication.translate('GpxDocument', ' doesn\'t exist.'))
 
       if self.gpxmodel.rowCount() != int(self['NumberOfPoints']):
         self.gpxmodel.resetModel()
         raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'One of the files:\n\n') + '\n'.join(self['GPXFile']) + '\n\n' +
                              QCoreApplication.translate('GpxDocument', 'has wrong number of valid waypoints. This file is likely to be damaged or changed from outside.'))
+
+      self.gpxmodel.setIncludeStates(self['SkipPoints'], gpx.INC_SKIP)
+      self.gpxmodel.setIncludeStates(self['MarkerPoints'], gpx.INC_MARKER)
+      self.gpxmodel.setIncludeStates(self['CaptionPoints'], gpx.INC_CAPTION)
+      self.gpxmodel.setSplitLines(self['SplitLines'], True)
+      self.gpxmodel.setNeglectStates(self['NeglectDistances'], True)
+      self.gpxmodel.updateDistance()
+
+      TheConfig['ProfileStyle']['ProfileColor'] = self['ProfileColor']
+      TheConfig['ProfileStyle']['FillColor'] = self['FillColor']
+      TheConfig['ProfileStyle']['ProfileWidth'] = self['ProfileWidth']
+      TheConfig['ProfileStyle']['MinimumAltitude'] = self['MinimumAltitude']
+      TheConfig['ProfileStyle']['MaximumAltitude'] = self['MaximumAltitude']
+      TheConfig['ProfileStyle']['TimeZoneOffset'] = self['TimeZoneOffset']
+
+      for i, m in zip(sorted(self['MarkerPoints'] + self['CaptionPoints']), self['MarkerColors']):
+        self.gpxmodel.setPointStyle([i], gpx.MARKER_COLOR, m)
+      for i, m in zip(sorted(self['MarkerPoints'] + self['CaptionPoints']), self['MarkerStyles']):
+        self.gpxmodel.setPointStyle([i], gpx.MARKER_STYLE, m)
+      for i, m in zip(sorted(self['MarkerPoints'] + self['CaptionPoints']), self['MarkerSizes']):
+        self.gpxmodel.setPointStyle([i], gpx.MARKER_SIZE, m)
+
+      for i, m in zip(self['SplitLines'], self['SplitLineColors']):
+        self.gpxmodel.setPointStyle([i], gpx.LINE_COLOR, m)
+      for i, m in zip(self['SplitLines'], self['SplitLineStyles']):
+        self.gpxmodel.setPointStyle([i], gpx.LINE_STYLE, m)
+      for i, m in zip(self['SplitLines'], self['SplitLineWidths']):
+        self.gpxmodel.setPointStyle([i], gpx.LINE_WIDTH, m)
+
+      for i, m in zip(self['CaptionPoints'], self['CaptionPositionXs']):
+        self.gpxmodel.setPointStyle([i], gpx.CAPTION_POSX, m)
+      for i, m in zip(self['CaptionPoints'], self['CaptionPositionYs']):
+        self.gpxmodel.setPointStyle([i], gpx.CAPTION_POSY, m)
+      for i, m in zip(self['CaptionPoints'], self['CaptionSizes']):
+        self.gpxmodel.setPointStyle([i], gpx.CAPTION_SIZE, m)
     else:  # GPXMAGICK not in cfg
       raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'This file in not a valid GPX Viewer project file.'))
 

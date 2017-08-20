@@ -1,9 +1,11 @@
 == Major ==
 
 * Handle tracks.
+* Editing names.
 
 == Minor ==
 
+* Recent files.
 * Add "Set as start point" to the context menu.
 * Ask about the GPX file loaction if not found.
 * Draw icons.

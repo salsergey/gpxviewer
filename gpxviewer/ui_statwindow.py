@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/statwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.8.2
+# Created by: PyQt5 UI code generator 5.9
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -34,6 +34,7 @@ class Ui_StatWindow(object):
         self.statWidget.horizontalHeader().setStretchLastSection(True)
         self.verticalLayout_5.addWidget(self.statWidget)
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
+        self.groupBox.setAlignment(QtCore.Qt.AlignCenter)
         self.groupBox.setObjectName("groupBox")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.groupBox)
         self.horizontalLayout.setObjectName("horizontalLayout")

@@ -165,7 +165,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
                 self.tr('Using') + ' Python ' + str(sys.version_info.major) + '.' + str(sys.version_info.minor) + '.' + str(sys.version_info.micro) + ', ' + \
                 'PyQt5 ' + QtCore.PYQT_VERSION_STR + ', ' + \
                 'Qt ' + QtCore.QT_VERSION_STR + '<br><br>' + \
-                'Copyright 2016 Sergey Salnikov<br><br>' + \
+                'Copyright 2016-2017 Sergey Salnikov<br><br>' + \
                 self.tr('License:') + ' <a href=http://www.gnu.org/licenses/gpl.html>GNU General Public License, version 3</a>'
     QtWidgets.QMessageBox.about(self, self.tr('About GPX Viewer'), aboutText)
 
@@ -278,6 +278,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
         return
 
     self.setProjectChanged(False)
+    TheDocument['GPXFile'] = []
     TheDocument.gpxmodel.resetModel()
 
   def fileLoadGPXFile(self):

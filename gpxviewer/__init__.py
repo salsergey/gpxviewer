@@ -27,7 +27,7 @@ app = None
 def main():
   global app
   app = QApplication(sys.argv)
-  QCoreApplication.setApplicationVersion('0.4')
+  QCoreApplication.setApplicationVersion('0.5')
 
   translator = QTranslator(app)
   translator.load(QLocale(), 'gpxviewer', '_', ':/translations')
