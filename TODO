@@ -10,8 +10,9 @@
 * Ask about the GPX file loaction if not found.
 * Draw icons.
 * Adjust context menu.
-* Add tooltips.
+* Add descriptions and status in tooltips.
 
 == Fixes ==
 
+* Loading multiple GPX files takes a lot of time.
 * Memory leaks.

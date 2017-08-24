@@ -12,7 +12,7 @@ class Ui_profileConfigDialog(object):
     def setupUi(self, profileConfigDialog):
         profileConfigDialog.setObjectName("profileConfigDialog")
         profileConfigDialog.setWindowModality(QtCore.Qt.WindowModal)
-        profileConfigDialog.resize(247, 308)
+        profileConfigDialog.resize(247, 328)
         self.verticalLayout = QtWidgets.QVBoxLayout(profileConfigDialog)
         self.verticalLayout.setContentsMargins(3, -1, 3, -1)
         self.verticalLayout.setObjectName("verticalLayout")

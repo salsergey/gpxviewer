@@ -287,6 +287,17 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     for f in filenames:
       self.openGPXFile(f)
 
+  def fileSaveGPXFileAs(self):
+    if TheDocument.gpxmodel.rowCount() - len(TheDocument.gpxmodel.getIndexesWithIncludeState(gpx.INC_SKIP)) < 1:
+      QtWidgets.QMessageBox.warning(self, self.tr('Save error'), self.tr('The GPX file will be empty.'))
+      return
+
+    filename = QtWidgets.QFileDialog.getSaveFileName(self, self.tr('Save GPX file as'), TheConfig['MainWindow']['LoadGPXDirectory'],
+                                                     self.tr('GPX XML (*.gpx);;All files (*)'))[0]
+    if filename != '':
+      TheConfig['MainWindow']['LoadGPXDirectory'] = path.dirname(filename)
+      TheDocument.gpxmodel.writeToFile(filename)
+
   def fileOpen(self):
     if self.projectChanged and len(TheDocument['GPXFile']) != 0:
       result = QtWidgets.QMessageBox.information(self, self.tr('Open GPX Viewer project'),
@@ -325,8 +336,11 @@ class GpxMainWindow(QtWidgets.QMainWindow):
         self.setProjectChanged(False)
         self.updateTitleFilename(self.projectFile)
         return True
-
-    return False
+      else:
+        return False
+    else:
+      QtWidgets.QMessageBox.warning(self, self.tr('Save error'), self.tr('The project is empty.'))
+      return False
 
   def openGPXFile(self, filename):
     TheConfig['MainWindow']['LoadGPXDirectory'] = path.dirname(filename)
@@ -365,7 +379,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       if n == 2:
         break
     if n < 2:
-      QtWidgets.QMessageBox.warning(self, self.tr('Plot Error'), self.tr('Not enouph points with distance.'))
+      QtWidgets.QMessageBox.warning(self, self.tr('Plot error'), self.tr('Not enouph points with distance.'))
       return
 
     self.plot.setWindowTitle(self.tr('Distance Profile'))
@@ -381,7 +395,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       if n == 2:
         break
     if n < 2:
-      QtWidgets.QMessageBox.warning(self, self.tr('Plot Error'), self.tr('Not enouph points with timestamps.'))
+      QtWidgets.QMessageBox.warning(self, self.tr('Plot error'), self.tr('Not enouph points with timestamps.'))
       return
 
     self.plot.setWindowTitle(self.tr('Time Profile'))
@@ -391,6 +405,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
 
   def showStatistics(self):
     if TheDocument.gpxmodel.rowCount() - len(TheDocument.gpxmodel.getIndexesWithIncludeState(gpx.INC_SKIP)) < 2:
+      QtWidgets.QMessageBox.warning(self, self.tr('Statistics error'), self.tr('Not enouph points.'))
       return
 
     self.stat.updateStatistics()

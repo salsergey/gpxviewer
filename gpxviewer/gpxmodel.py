@@ -41,6 +41,8 @@ class GpxModel(QtCore.QAbstractTableModel):
     super(GpxModel, self).__init__(parent)
     self.fields = [self.tr('Name'), self.tr('Latitude'), self.tr('Longitude'), self.tr('Altitude'),
                    self.tr('Distance'), self.tr('Time'), self.tr('Time difference'), self.tr('Time in days')]
+    self.namespaces = {'ns0': 'http://www.topografix.com/GPX/1/0',
+                       'ns1': 'http://www.topografix.com/GPX/1/1'}
     self.resetModel()
 
   def rowCount(self, parent=None):
@@ -148,17 +150,15 @@ class GpxModel(QtCore.QAbstractTableModel):
       self.splitStates[i] = state
 
   def parse(self, filename):
-    namespaces = {'ns0': 'http://www.topografix.com/GPX/1/0',
-                  'ns1': 'http://www.topografix.com/GPX/1/1'}
     try:
       doc = ET.parse(filename)
     except ET.ParseError:
       raise GpxWarning(filename + self.tr(' is an invalid GPX file.'))
 
-    ns = {'ns': namespaces['ns1']}
+    ns = {'ns': self.namespaces['ns1']}
     data = doc.findall('.//{%(ns)s}wpt' % ns)
     if len(data) == 0:
-      ns = {'ns': namespaces['ns0']}
+      ns = {'ns': self.namespaces['ns0']}
       data = doc.findall('.//{%(ns)s}wpt' % ns)
     if len(data) == 0:
       raise GpxWarning(self.tr('GPX file ' + filename + ' is empty.'))
@@ -248,6 +248,59 @@ class GpxModel(QtCore.QAbstractTableModel):
       else:
         self.points[i][TIMEDELTA] = ''
         self.points[i][TIME_DAYS] = ''
+
+  def writeToFile(self, filename):
+    root = ET.Element('gpx', attrib={'version': '1.1',
+                                     'creator': 'GPXViewer - https://bitbucket.org/salsergey/gpxviewer',
+                                     'xmlns': self.namespaces['ns1']})
+    metadata = ET.Element('metadata')
+    root.append(metadata)
+
+    minlat = 90
+    minlon = 180
+    maxlat = 0
+    maxlon = -180
+    for p, s in zip(self.points, self.includeStates):
+      if s != INC_SKIP:
+        element = ET.Element('wpt', attrib={'lat': str(p[LAT]), 'lon': str(p[LON])})
+        root.append(element)
+        if p[LAT] < minlat:
+          minlat = p[LAT]
+        if p[LON] < minlon:
+          minlon = p[LON]
+        if p[LAT] > maxlat:
+          maxlat = p[LAT]
+        if p[LON] > maxlon:
+          maxlon = p[LON]
+
+        el = ET.Element('name')
+        el.text = p[NAME]
+        element.append(el)
+        el = ET.Element('ele')
+        el.text = str(p[ALT])
+        element.append(el)
+        el = ET.Element('time')
+        el.text = p[TIME].strftime('%Y-%m-%dT%H:%M:%SZ')
+        element.append(el)
+
+    el = ET.Element('time')
+    el.text = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+    metadata.append(el)
+    el = ET.Element('bounds', attrib={'minlat': str(minlat), 'minlon': str(minlon), 'maxlat': str(maxlat), 'maxlon': str(maxlon)})
+    metadata.append(el)
+
+    outgpx = ET.tostring(root, encoding='unicode')
+    outgpx = outgpx.replace('<metadata', '\n  <metadata')
+    outgpx = outgpx.replace('</metadata', '\n  </metadata')
+    outgpx = outgpx.replace('<wpt', '\n  <wpt')
+    outgpx = outgpx.replace('<bounds', '\n    <bounds')
+    outgpx = outgpx.replace('<name', '\n    <name')
+    outgpx = outgpx.replace('<ele', '\n    <ele')
+    outgpx = outgpx.replace('<time', '\n    <time')
+    outgpx = outgpx.replace('</wpt', '\n  </wpt')
+    outgpx = outgpx.replace('</gpx', '\n</gpx')
+    with open(filename, 'w') as file:
+      file.write(outgpx)
 
 
 class GpxSortFilterModel(QtCore.QSortFilterProxyModel):

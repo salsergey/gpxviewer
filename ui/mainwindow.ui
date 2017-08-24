@@ -20,7 +20,7 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <property name="tabBarAutoHide" stdset="0">
+      <property name="tabBarAutoHide">
        <bool>true</bool>
       </property>
       <widget class="QWidget" name="wptTab">
@@ -45,19 +45,12 @@
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1024</width>
-     <height>27</height>
-    </rect>
-   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>&amp;File</string>
     </property>
     <addaction name="actionLoadGPXfile"/>
+    <addaction name="actionSaveGPXfileAs"/>
     <addaction name="separator"/>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
@@ -88,7 +81,6 @@
    <addaction name="menuFilter"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
    <property name="movable">
     <bool>false</bool>
@@ -131,8 +123,7 @@
   <action name="actionQuit">
    <property name="icon">
     <iconset>
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Quit</string>
@@ -144,8 +135,7 @@
   <action name="actionOpen">
    <property name="icon">
     <iconset>
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Open project</string>
@@ -159,8 +149,7 @@
   <action name="actionSave">
    <property name="icon">
     <iconset>
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Save project</string>
@@ -169,8 +158,7 @@
   <action name="actionSaveAs">
    <property name="icon">
     <iconset>
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Save project &amp;as...</string>
@@ -179,8 +167,7 @@
   <action name="actionLoadGPXfile">
    <property name="icon">
     <iconset>
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Load GPX file</string>
@@ -192,8 +179,7 @@
   <action name="actionDistanceProfile">
    <property name="icon">
     <iconset>
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Distance profile</string>
@@ -205,8 +191,7 @@
   <action name="actionTimeProfile">
    <property name="icon">
     <iconset>
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Time profile</string>
@@ -218,8 +203,7 @@
   <action name="actionProfileStyle">
    <property name="icon">
     <iconset>
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Profile &amp;style</string>
@@ -270,8 +254,7 @@
   <action name="actionNew">
    <property name="icon">
     <iconset>
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;New project</string>
@@ -280,14 +263,18 @@
   <action name="actionStatistics">
    <property name="icon">
     <iconset>
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Statistics</string>
    </property>
    <property name="shortcut">
     <string notr="true"/>
+   </property>
+  </action>
+  <action name="actionSaveGPXfileAs">
+   <property name="text">
+    <string>Save &amp;GPX file as...</string>
    </property>
   </action>
  </widget>
@@ -565,6 +552,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSaveGPXfileAs</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>fileSaveGPXFileAs()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>fileOpen()</slot>
@@ -583,5 +586,6 @@
   <slot>aboutGPXViewer()</slot>
   <slot>fileNew()</slot>
   <slot>showStatistics()</slot>
+  <slot>fileSaveGPXFileAs()</slot>
  </slots>
 </ui>
