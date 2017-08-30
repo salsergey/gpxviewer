@@ -42,64 +42,77 @@ class PlotCanvas(FigureCanvas):
     FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding, QSizePolicy.Expanding)
     FigureCanvas.updateGeometry(self)
 
-    # filter out all skipped points
-    self.model = QSortFilterProxyModel(self)
-    self.model.setSourceModel(TheDocument.gpxmodel)
-    self.model.setFilterKeyColumn(gpx.NAME)
-    self.model.setFilterRole(gpx.IncludeRole)
-
   def plotProfile(self, column):
-    self.model.setFilterRegExp(str(gpx.INC_DEFAULT) + '|' + str(gpx.INC_MARKER) + '|' + str(gpx.INC_CAPTION))
-    self.axes.clear()
-    self.axes.grid(axis='y', linestyle='--', linewidth=0.5)
-    if column == gpx.DIST:
-      self.axes.set_xlabel(self.tr('Distance with coefficient 1.2 (km)'))
-    else:
-      self.axes.set_xlabel(self.tr('Time (days)'))
-    self.axes.set_ylabel(self.tr('Altitude (m)'))
-
     xx = []
     yy = []
     markers = []
     splitLines = []
     neglectPoints = [0]
     captions = []
-    for i in range(self.model.rowCount()):
-      xx += [float(self.model.index(i, column).data())]
-      yy += [float(self.model.index(i, gpx.ALT).data())]
-      if self.model.index(i, 0).data(gpx.IncludeRole) in {gpx.INC_MARKER, gpx.INC_CAPTION}:
-        markers += [(i, self.model.index(i, 0).data(gpx.MarkerRole))]
-      if self.model.index(i, 0).data(gpx.SplitStateRole):
-        splitLines += [(i, self.model.index(i, 0).data(gpx.SplitLineRole))]
-      if i != 0 and self.model.index(i, 0).data(gpx.NeglectRole):
-        neglectPoints += [i]
-      if self.model.index(i, 0).data(gpx.IncludeRole) == gpx.INC_CAPTION:
-        captions += [(i, self.model.index(i, 0).data(gpx.CaptionRole))]
-    neglectPoints += [self.model.rowCount()]
+    for p in TheDocument.gpxparser.points:
+      if type(p) == int:
+        xx += [float(TheDocument.wptmodel.index(p, column).data())]
+        yy += [float(TheDocument.wptmodel.index(p, gpx.ALT).data())]
+        if TheDocument.wptmodel.index(p, 0).data(gpx.IncludeRole) in {gpx.INC_MARKER, gpx.INC_CAPTION}:
+          markers += [(xx[-1], yy[-1], TheDocument.wptmodel.index(p, 0).data(gpx.MarkerRole))]
+        if TheDocument.wptmodel.index(p, 0).data(gpx.SplitStateRole):
+          splitLines += [(xx[-1], yy[-1], TheDocument.wptmodel.index(p, 0).data(gpx.SplitLineRole))]
+        if p != 0 and TheDocument.wptmodel.index(p, 0).data(gpx.NeglectRole):
+          neglectPoints += [xx[-1]]
+        if TheDocument.wptmodel.index(p, 0).data(gpx.IncludeRole) == gpx.INC_CAPTION:
+          captions += [(p, xx[-1], yy[-1], TheDocument.wptmodel.index(p, 0).data(gpx.CaptionRole))]
+      else:
+        if column == gpx.DIST or TheDocument.trkmodel.tracks[p[0]][gpx.TRKTIME] != '':
+          xx += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][column])]
+          yy += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][gpx.ALT])]
+    neglectPoints += [xx[-1]]
+
+    self.axes.clear()
+    self.axes.grid(axis='y', linestyle='--', linewidth=0.5)
+    if column == gpx.DIST:
+      self.axes.set_xlabel(self.tr('Distance with coefficient 1.2 (km)'))
+    else:
+      if xx[-1] > 1:
+        self.axes.set_xlabel(self.tr('Time (days)'))
+      else:
+        self.axes.set_xlabel(self.tr('Time (hours)'))
+    self.axes.set_ylabel(self.tr('Altitude (m)'))
 
     self.axes.set_xlim(xmax=xx[-1])
     self.axes.set_ylim(ymin=int(TheConfig['ProfileStyle']['MinimumAltitude']), ymax=int(TheConfig['ProfileStyle']['MaximumAltitude']))
 
     if column == gpx.DIST:
-      self.axes.set_xticks(range(0, int(ceil(xx[-1])), 5))
+      if xx[-1] > 100:
+        step = 10
+      elif xx[-1] > 50:
+        step = 5
+      elif xx[-1] > 20:
+        step = 2
+      else:
+        step = 1
+      self.axes.set_xticks(range(0, ceil(xx[-1]), int(ceil(step))))
     else:
-      self.axes.set_xticks(range(int(ceil(xx[-1]))))
+      if xx[-1] > 1:
+        self.axes.set_xticks(range(int(ceil(xx[-1]))))
+      else:
+        self.axes.set_xticks([t / 24 for t in range(int(ceil(24 * xx[-1])))])
+        self.axes.set_xticklabels([str(t) for t in range(int(ceil(24 * xx[-1])))])
 
     for l in splitLines:
-      self.axes.plot([xx[l[0]]] * 2, [int(TheConfig['ProfileStyle']['MinimumAltitude']), yy[l[0]]],
-                     linestyle=l[1][gpx.LINE_STYLE], color=_colorTuple(l[1][gpx.LINE_COLOR]), linewidth=l[1][gpx.LINE_WIDTH])
+      self.axes.plot([l[0]] * 2, [int(TheConfig['ProfileStyle']['MinimumAltitude']), l[1]],
+                     linestyle=l[2][gpx.LINE_STYLE], color=_colorTuple(l[2][gpx.LINE_COLOR]), linewidth=l[2][gpx.LINE_WIDTH])
 
     self.axes.fill_between(xx, int(TheConfig['ProfileStyle']['MinimumAltitude']), yy, color=_colorTuple(int(TheConfig['ProfileStyle']['FillColor'])))
     for n in range(1, len(neglectPoints)):
-      self.axes.plot(xx[neglectPoints[n-1]:neglectPoints[n]], yy[neglectPoints[n-1]:neglectPoints[n]],
+      self.axes.plot(xx[xx.index(neglectPoints[n-1]) + (1 if n > 1 else 0):xx.index(neglectPoints[n]) + 1], yy[xx.index(neglectPoints[n-1]) + (1 if n > 1 else 0):xx.index(neglectPoints[n]) + 1],
                      color=_colorTuple(int(TheConfig['ProfileStyle']['ProfileColor'])), linewidth=float(TheConfig['ProfileStyle']['ProfileWidth']))
 
     for m in markers:
-      self.axes.plot(xx[m[0]], yy[m[0]], marker=m[1][gpx.MARKER_STYLE], color=_colorTuple(m[1][gpx.MARKER_COLOR]), markersize=m[1][gpx.MARKER_SIZE])
+      self.axes.plot(m[0], m[1], marker=m[2][gpx.MARKER_STYLE], color=_colorTuple(m[2][gpx.MARKER_COLOR]), markersize=m[2][gpx.MARKER_SIZE])
 
     for c in captions:
-      self.axes.annotate(self.model.index(c[0], gpx.NAME).data(), (xx[c[0]], yy[c[0]]), xytext=(c[1][gpx.CAPTION_POSX], c[1][gpx.CAPTION_POSY]),
-                         fontsize=c[1][gpx.CAPTION_SIZE], rotation='vertical', horizontalalignment='center', verticalalignment='bottom', textcoords='offset points')
+      self.axes.annotate(TheDocument.wptmodel.index(c[0], gpx.NAME).data(), (c[1], c[2]), xytext=(c[3][gpx.CAPTION_POSX], c[3][gpx.CAPTION_POSY]),
+                         fontsize=c[3][gpx.CAPTION_SIZE], rotation='vertical', horizontalalignment='center', verticalalignment='bottom', textcoords='offset points')
 
     self.draw()
 

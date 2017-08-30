@@ -1,7 +1,6 @@
 == Major ==
 
-* Handle tracks.
-* Editing names.
+* Editing names (and other tags?).
 
 == Minor ==
 
@@ -11,8 +10,10 @@
 * Draw icons.
 * Adjust context menu.
 * Add descriptions and status in tooltips.
+* Button for time resorting.
+* Drag & drop resorting.
+* Read names from other tags.
 
 == Fixes ==
 
-* Loading multiple GPX files takes a lot of time.
 * Memory leaks.

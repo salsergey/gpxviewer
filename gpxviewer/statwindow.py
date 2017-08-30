@@ -78,28 +78,28 @@ class StatWindow(QtWidgets.QMainWindow):
     total_drop = 0
     total_time = timedelta(0)
 
-    for i, s in enumerate(TheDocument.gpxmodel.includeStates):
+    for i, s in enumerate(TheDocument.wptmodel.includeStates):
       if s != gpx.INC_SKIP:
-        point_start = TheDocument.gpxmodel.points[i]
+        point_start = TheDocument.wptmodel.waypoints[i]
         point_prev = point_start
         break
-    for i, s in enumerate(TheDocument.gpxmodel.includeStates[::-1]):
+    for i, s in enumerate(TheDocument.wptmodel.includeStates[::-1]):
       if s != gpx.INC_SKIP:
-        i_stop = TheDocument.gpxmodel.rowCount() - i - 1
+        i_stop = TheDocument.wptmodel.rowCount() - i - 1
         break
 
     segments = []
-    for i, p in enumerate(TheDocument.gpxmodel.points):
-      if TheDocument.gpxmodel.includeStates[i] != gpx.INC_SKIP:
-        if self.ui.actionBySplittingLines.isChecked() and TheDocument.gpxmodel.splitStates[i] or \
+    for i, p in enumerate(TheDocument.wptmodel.waypoints):
+      if TheDocument.wptmodel.includeStates[i] != gpx.INC_SKIP:
+        if self.ui.actionBySplittingLines.isChecked() and TheDocument.wptmodel.splitStates[i] or \
            not self.ui.actionBySplittingLines.isChecked() and QtCore.QRegularExpression(self.filterLineEdit.text()).match(p[gpx.NAME]).hasMatch() or \
            i == i_stop:
              if p['ID'] != point_start['ID']:
               segments += [i]
     self.ui.statWidget.setRowCount(len(segments))
 
-    for i, p in enumerate(TheDocument.gpxmodel.points):
-      if TheDocument.gpxmodel.includeStates[i] != gpx.INC_SKIP:
+    for i, p in enumerate(TheDocument.wptmodel.waypoints):
+      if TheDocument.wptmodel.includeStates[i] != gpx.INC_SKIP:
         if p[gpx.ALT] > point_prev[gpx.ALT]:
           alt_raise += p[gpx.ALT] - point_prev[gpx.ALT]
         else:

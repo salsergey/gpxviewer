@@ -24,7 +24,8 @@ from PyQt5.QtGui import QColor, QFont, QGuiApplication, QPixmap, QPainter
 from gpxviewer.configstore import TheConfig
 
 
-GPXFIELDS = NAME, LAT, LON, ALT, DIST, TIME, TIMEDELTA, TIME_DAYS = range(8)
+WPTFIELDS = NAME, LAT, LON, ALT, DIST, TIME, TIMEDELTA, TIME_DAYS = range(8)
+TRKFIELDS = TRKNAME, TRKSEGS, TRKPTS, TRKLEN, TRKTIME, TRKDUR = range(6)
 ValueRole, IDRole, IncludeRole, SplitStateRole, MarkerRole, SplitLineRole, CaptionRole, NeglectRole = range(QtCore.Qt.UserRole, QtCore.Qt.UserRole + 8)
 INCSTATES = INC_DEFAULT, INC_SKIP, INC_MARKER, INC_CAPTION = range(4)
 INCCOLORS = DefaultColor, SkipColor, MarkerColor, CaptionColor = QtCore.Qt.white, QColor(255, 225, 225), QColor(225, 225, 255), QColor(225, 255, 225)
@@ -36,38 +37,36 @@ class GpxWarning(Exception):
     super(GpxWarning, self).__init__(value)
 
 
-class GpxModel(QtCore.QAbstractTableModel):
+class WptModel(QtCore.QAbstractTableModel):
   def __init__(self, parent=None):
-    super(GpxModel, self).__init__(parent)
+    super(WptModel, self).__init__(parent)
     self.fields = [self.tr('Name'), self.tr('Latitude'), self.tr('Longitude'), self.tr('Altitude'),
                    self.tr('Distance'), self.tr('Time'), self.tr('Time difference'), self.tr('Time in days')]
-    self.namespaces = {'ns0': 'http://www.topografix.com/GPX/1/0',
-                       'ns1': 'http://www.topografix.com/GPX/1/1'}
     self.resetModel()
+    self.pix = QPixmap(16, 16)
+    self.pix.fill(QtCore.Qt.transparent)
 
   def rowCount(self, parent=None):
-    return len(self.points)
+    return len(self.waypoints)
 
   def columnCount(self, parent=None):
     return len(self.fields)
 
   def data(self, index, role=QtCore.Qt.DisplayRole):
     if role == QtCore.Qt.DisplayRole:
-      if index.column() == TIME:
-        return str(self.points[index.row()][index.column()] + timedelta(minutes=TheConfig['ProfileStyle'].getint('TimeZoneOffset')))
+      if index.column() == TIME and self.waypoints[index.row()][index.column()] != '':
+        return str(self.waypoints[index.row()][index.column()] + timedelta(minutes=TheConfig['ProfileStyle'].getint('TimeZoneOffset')))
       else:
-        return str(self.points[index.row()][index.column()])
+        return str(self.waypoints[index.row()][index.column()])
     elif role == QtCore.Qt.DecorationRole and index.column() == NAME:
       if index.data(IncludeRole) in {INC_MARKER, INC_CAPTION}:
         return _markerIcon(index.data(MarkerRole)[MARKER_STYLE], index.data(MarkerRole)[MARKER_COLOR])
       else:
-        pix = QPixmap(16, 16)
-        pix.fill(QtCore.Qt.transparent)
-        return pix
+        return self.pix
     elif role == ValueRole:
-      return self.points[index.row()][index.column()]
+      return self.waypoints[index.row()][index.column()]
     elif role == IDRole:
-      return self.points[index.row()]['ID']
+      return self.waypoints[index.row()]['ID']
     elif role == IncludeRole:
       return self.includeStates[index.row()]
     elif role == SplitStateRole:
@@ -99,7 +98,7 @@ class GpxModel(QtCore.QAbstractTableModel):
   def copyToClipboard(self, IDs):
     text = ''
     for i in IDs:
-      text += '\t'.join([self.index(i, f).data() for f in GPXFIELDS]) + '\n'
+      text += '\t'.join([self.index(i, f).data() for f in WPTFIELDS]) + '\n'
     QGuiApplication.clipboard().setText(text)
 
   def getIndexesWithIncludeState(self, state):
@@ -121,25 +120,23 @@ class GpxModel(QtCore.QAbstractTableModel):
 
   def resetModel(self):
     self.beginResetModel()
-    self.points = []
+    self.waypoints = []
     self.includeStates = []
     self.splitStates = []
     self.neglectStates = []
     self.pointStyles = []
-    self.minalt = 10000
-    self.maxalt = 0
     self.endResetModel()
 
-  def setIncludeStates(self, IDs, state):
+  def setIncludeStates(self, IDs, state, update=True):
     for i in IDs:
       self.includeStates[i] = state
-    self.updateDistance()
-    self.updateTimeDifference()
+    if update:
+      self.parent().updatePoints()
 
   def setNeglectStates(self, IDs, state):
     for i in IDs:
       self.neglectStates[i] = state
-    self.updateDistance()
+    self.parent().updateDistance()
 
   def setPointStyle(self, IDs, key, value):
     for i in IDs:
@@ -149,21 +146,79 @@ class GpxModel(QtCore.QAbstractTableModel):
     for i in IDs:
       self.splitStates[i] = state
 
+
+class TrkModel(QtCore.QAbstractTableModel):
+  def __init__(self, parent=None):
+    super(TrkModel, self).__init__(parent)
+    self.fields = [self.tr('Name'), self.tr('Segments'), self.tr('Points'), self.tr('Length'), self.tr('Time'), self.tr('Duration')]
+    self.resetModel()
+
+  def rowCount(self, parent=None):
+    return len(self.tracks)
+
+  def columnCount(self, parent=None):
+    return len(self.fields)
+
+  def data(self, index, role=QtCore.Qt.DisplayRole):
+    if role == QtCore.Qt.DisplayRole:
+      if index.column() == TRKTIME and self.tracks[index.row()][index.column()] != '':
+        return str(self.tracks[index.row()][index.column()] + timedelta(minutes=TheConfig['ProfileStyle'].getint('TimeZoneOffset')))
+      else:
+        return str(self.tracks[index.row()][index.column()])
+    elif role == IncludeRole:
+      return self.includeStates[index.row()]
+    elif role == QtCore.Qt.BackgroundRole:
+      return INCCOLORS[self.includeStates[index.row()]]
+    return None
+
+  def headerData(self, section, orientation, role):
+    if role == QtCore.Qt.DisplayRole:
+      return self.fields[section] if orientation == QtCore.Qt.Horizontal else section + 1
+    return None
+
+  def copyToClipboard(self, IDs):
+    text = ''
+    for i in IDs:
+      text += '\t'.join([self.index(i, f).data() for f in TRKFIELDS]) + '\n'
+    QGuiApplication.clipboard().setText(text)
+
+  def getIndexesWithIncludeState(self, state):
+    return [i for i, s in enumerate(self.includeStates) if s == state]
+
+  def resetModel(self):
+    self.beginResetModel()
+    self.tracks = []
+    self.includeStates = []
+    self.endResetModel()
+
+  def setIncludeStates(self, IDs, state, update=True):
+    for i in IDs:
+      self.includeStates[i] = state
+    if update:
+      self.parent().updatePoints()
+
+
+class GpxParser(QtCore.QObject):
+  def __init__(self, parent=None):
+    super(GpxParser, self).__init__(parent)
+    self.wptmodel = WptModel(self)
+    self.trkmodel = TrkModel(self)
+    self.resetModels()
+
+  def resetModels(self):
+    self.wptmodel.resetModel()
+    self.trkmodel.resetModel()
+    self.points = []
+    self.minalt = 10000
+    self.maxalt = 0
+
   def parse(self, filename):
     try:
       doc = ET.parse(filename)
     except ET.ParseError:
       raise GpxWarning(filename + self.tr(' is an invalid GPX file.'))
+    ns = {'ns': doc.getroot().tag.split('}')[0][1:]}
 
-    ns = {'ns': self.namespaces['ns1']}
-    data = doc.findall('.//{%(ns)s}wpt' % ns)
-    if len(data) == 0:
-      ns = {'ns': self.namespaces['ns0']}
-      data = doc.findall('.//{%(ns)s}wpt' % ns)
-    if len(data) == 0:
-      raise GpxWarning(self.tr('GPX file ' + filename + ' is empty.'))
-
-    id = len(self.points)
     defaultStyle = {MARKER_COLOR: int(TheConfig['PointStyle']['MarkerColor']),
                     MARKER_STYLE: TheConfig['PointStyle']['MarkerStyle'],
                     MARKER_SIZE: int(TheConfig['PointStyle']['MarkerSize']),
@@ -174,7 +229,8 @@ class GpxModel(QtCore.QAbstractTableModel):
                     CAPTION_POSY: int(TheConfig['PointStyle']['CaptionPositionY']),
                     CAPTION_SIZE: int(TheConfig['PointStyle']['CaptionSize'])}
 
-    for p in data:
+    wptid = len(self.wptmodel.waypoints)
+    for p in doc.iterfind('.//{%(ns)s}wpt' % ns):
       try:
         point = {}
         name = p.findtext('{%(ns)s}name' % ns)
@@ -189,70 +245,173 @@ class GpxModel(QtCore.QAbstractTableModel):
           point[TIME] = dt
         else:
           point[TIME] = ''
-        point['ID'] = id
+        point[DIST] = ''
+        point[TIMEDELTA] = ''
+        point[TIME_DAYS] = ''
+        point['ID'] = wptid
 
-        self.beginInsertRows(QtCore.QModelIndex(), id, id)
-        self.points += [point]
-        self.includeStates += [INC_DEFAULT]
-        self.splitStates += [False]
-        self.neglectStates += [False]
-        self.pointStyles += [defaultStyle.copy()]
-        self.endInsertRows()
-        id += 1
+        self.wptmodel.beginInsertRows(QtCore.QModelIndex(), wptid, wptid)
+        self.wptmodel.waypoints += [point]
+        self.wptmodel.includeStates += [INC_DEFAULT]
+        self.wptmodel.splitStates += [False]
+        self.wptmodel.neglectStates += [False]
+        self.wptmodel.pointStyles += [defaultStyle.copy()]
+        self.wptmodel.endInsertRows()
+        wptid += 1
 
       except (TypeError, ValueError):
-        print(self.tr('Waypoint ') + (point[NAME] + ' ' if point[NAME] != '' else '') + self.tr('is invalid and will be skipped.'))
+        self.warningSent.emit(self.tr('File read error'),
+                              self.tr('Waypoint ') + (point[NAME] + ' ' if point[NAME] != '' else '') + self.tr('is invalid and will be skipped.', 'Waypoint'))
 
-    # TODO: fix another way?
-    self.endResetModel()
-    self.updateDistance()
-    self.updateTimeDifference()
-    self.layoutChanged.emit()
+    trkid = len(self.wptmodel.waypoints)
+    for t in doc.iterfind('.//{%(ns)s}trk' % ns):
+      try:
+        track = {}
+        name = t.findtext('{%(ns)s}name' % ns)
+        track[TRKNAME] = name.strip() if name is not None else ''
+
+        track['SEGMENTS'] = []
+        pts = 0
+        tot_dist = 0.0
+        for s in t.iterfind('.//{%(ns)s}trkseg' % ns):
+          segment = []
+          prev_lat = None
+          prev_lon = None
+          dist = 0.0
+          for p in s.iterfind('.//{%(ns)s}trkpt' % ns):
+            point = {}
+            point[LAT] = float(p.get('lat'))
+            point[LON] = float(p.get('lon'))
+            point[ALT] = int(round(float(p.findtext('{%(ns)s}ele' % ns))))
+            self.minalt = min(self.minalt, point[ALT])
+            self.maxalt = max(self.maxalt, point[ALT])
+            if p.findtext('{%(ns)s}time' % ns) is not None:
+              dt = datetime.strptime(p.findtext('{%(ns)s}time' % ns).strip(), '%Y-%m-%dT%H:%M:%SZ')
+              point[TIME] = dt
+            else:
+              point[TIME] = ''
+
+            if prev_lat is not None and prev_lon is not None:
+              dist += _distance(point[LAT], point[LON], prev_lat, prev_lon) * 1.2  # with mountain coefficient
+            prev_lat = point[LAT]
+            prev_lon = point[LON]
+
+            segment += [point]
+            pts += 1
+
+          track['SEGMENTS'] += [segment]
+          tot_dist += dist
+
+        track[TRKSEGS] = len(track['SEGMENTS'])
+        track[TRKPTS] = pts
+        track[TRKLEN] = round(tot_dist, 3)
+        track[TRKTIME] = track['SEGMENTS'][0][0][TIME]
+        track[TRKDUR] = track['SEGMENTS'][-1][-1][TIME] - track['SEGMENTS'][0][0][TIME] \
+                        if track['SEGMENTS'][0][0][TIME] != '' and track['SEGMENTS'][-1][-1][TIME] != '' else ''
+
+        self.trkmodel.beginInsertRows(QtCore.QModelIndex(), trkid, trkid)
+        self.trkmodel.tracks += [track]
+        self.trkmodel.includeStates += [INC_DEFAULT]
+        self.trkmodel.endInsertRows()
+        trkid += 1
+
+      except (TypeError, ValueError):
+        self.warningSent.emit(self.tr('File read error'),
+                              self.tr('Track ') + (track[TRKNAME] + ' ' if track[TRKNAME] != '' else '') + self.tr('is invalid and will be skipped.', 'Track'))
 
     TheConfig['ProfileStyle']['MinimumAltitude'] = str(round(self.minalt, -3) - 500 if round(self.minalt, -3) > self.minalt else round(self.minalt, -3))
     TheConfig['ProfileStyle']['MaximumAltitude'] = str(round(self.maxalt, -3) + 500 if round(self.maxalt, -3) < self.maxalt else round(self.maxalt, -3))
+
+  def updatePoints(self):
+    self.points = []
+    includeTracks = True
+    for i, p in enumerate(self.wptmodel.waypoints):
+      if self.wptmodel.includeStates[i] != INC_SKIP and p[TIME] == '':
+        includeTracks = False
+
+    if len(self.trkmodel.tracks) != 0 and includeTracks:
+      for tind, track in enumerate(self.trkmodel.tracks):
+        if self.trkmodel.includeStates[tind] != INC_SKIP and \
+           (track[TRKTIME] != '' or len(self.wptmodel.waypoints) == len(self.wptmodel.getIndexesWithIncludeState(INC_SKIP))):
+          for sind, segment in enumerate(track['SEGMENTS']):
+            self.points += zip([tind] * len(segment), [sind] * len(segment), range(len(segment)))
+      ind = 0
+      i = 0
+      while i < len(self.wptmodel.waypoints):
+        if self.wptmodel.includeStates[i] != INC_SKIP:
+          if ind < len(self.points) and self.wptmodel.waypoints[i][TIME] < self.trkmodel.tracks[self.points[ind][0]]['SEGMENTS'][self.points[ind][1]][self.points[ind][2]][TIME] or ind == len(self.points):
+            self.points.insert(ind, i)
+            i += 1
+          ind += 1
+        else:
+          i += 1
+    else:
+      for i, p in enumerate(self.wptmodel.waypoints):
+        if self.wptmodel.includeStates[i] != INC_SKIP:
+          self.points += [i]
+
+    self.updateDistance()
+    self.updateTimeDifference()
 
   def updateDistance(self):
     prev_lat = None
     prev_lon = None
     dist = 0.0
 
-    for i in range(self.rowCount()):
-      if self.index(i, 0).data(IncludeRole) != INC_SKIP:
-        lat = float(self.index(i, LAT).data())
-        lon = float(self.index(i, LON).data())
-
-        if not self.index(i, 0).data(NeglectRole) and prev_lat is not None and prev_lon is not None:
+    for p in self.points:
+      if type(p) == int:
+        lat = self.wptmodel.waypoints[p][LAT]
+        lon = self.wptmodel.waypoints[p][LON]
+        if not self.wptmodel.neglectStates[p] and prev_lat is not None and prev_lon is not None:
           dist += _distance(lat, lon, prev_lat, prev_lon) * 1.2  # with mountain coefficient
-        self.points[i][DIST] = round(dist, 3)
-
+        self.wptmodel.waypoints[p][DIST] = round(dist, 3)
         prev_lat = lat
         prev_lon = lon
       else:
-        self.points[i][DIST] = ''
+        lat = self.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][LAT]
+        lon = self.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][LON]
+        if prev_lat is not None and prev_lon is not None:
+          dist += _distance(lat, lon, prev_lat, prev_lon) * 1.2  # with mountain coefficient
+        self.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][DIST] = round(dist, 3)
+        prev_lat = lat
+        prev_lon = lon
+
+    for i in self.wptmodel.getIndexesWithIncludeState(INC_SKIP):
+      self.wptmodel.waypoints[i][DIST] = ''
 
   def updateTimeDifference(self):
-    time_delta = 0
     start_dt = None
+    for i, p in enumerate(self.wptmodel.waypoints):
+      if self.wptmodel.includeStates[i] != INC_SKIP and p[TIME] != '':
+        start_dt = p[TIME]
+        break
+    for i, track in enumerate(self.trkmodel.tracks):
+      if self.trkmodel.includeStates[i] != INC_SKIP and track[TRKTIME] != '' and (start_dt is None or track[TRKTIME] < start_dt):
+        start_dt = track[TRKTIME]
+        break
 
-    for i in range(self.rowCount()):
-      if self.index(i, 0).data(IncludeRole) != INC_SKIP:
-        if self.points[i][TIME] != '':
-          if start_dt is None:
-            start_dt = self.points[i][TIME]
-          self.points[i][TIMEDELTA] = self.points[i][TIME] - start_dt
-          self.points[i][TIME_DAYS] = round(self.points[i][TIMEDELTA].days + self.points[i][TIMEDELTA].seconds / 60.0 / 60.0 / 24.0, 3)
-        else:
-          self.points[i][TIMEDELTA] = ''
-          self.points[i][TIME_DAYS] = ''
+    for i, p in enumerate(self.wptmodel.waypoints):
+      if self.wptmodel.includeStates[i] != INC_SKIP and p[TIME] != '':
+        p[TIMEDELTA] = p[TIME] - start_dt
+        p[TIME_DAYS] = round(p[TIMEDELTA].days + p[TIMEDELTA].seconds / 60.0 / 60.0 / 24.0, 3)
       else:
-        self.points[i][TIMEDELTA] = ''
-        self.points[i][TIME_DAYS] = ''
+        p[TIMEDELTA] = ''
+        p[TIME_DAYS] = ''
+
+    for i, track in enumerate(self.trkmodel.tracks):
+      if self.trkmodel.includeStates[i] != INC_SKIP:
+        for seg in track['SEGMENTS']:
+          for p in seg:
+            if p[TIME] != '':
+              time_delta = p[TIME] - start_dt
+              p[TIME_DAYS] = round(time_delta.days + time_delta.seconds / 60.0 / 60.0 / 24.0, 3)
+            else:
+              p[TIME_DAYS] = ''
 
   def writeToFile(self, filename):
     root = ET.Element('gpx', attrib={'version': '1.1',
                                      'creator': 'GPXViewer - https://bitbucket.org/salsergey/gpxviewer',
-                                     'xmlns': self.namespaces['ns1']})
+                                     'xmlns': 'http://www.topografix.com/GPX/1/1'})
     metadata = ET.Element('metadata')
     root.append(metadata)
 
@@ -260,7 +419,7 @@ class GpxModel(QtCore.QAbstractTableModel):
     minlon = 180
     maxlat = 0
     maxlon = -180
-    for p, s in zip(self.points, self.includeStates):
+    for p, s in zip(self.wptmodel.waypoints, self.wptmodel.includeStates):
       if s != INC_SKIP:
         element = ET.Element('wpt', attrib={'lat': str(p[LAT]), 'lon': str(p[LON])})
         root.append(element)
@@ -272,7 +431,6 @@ class GpxModel(QtCore.QAbstractTableModel):
           maxlat = p[LAT]
         if p[LON] > maxlon:
           maxlon = p[LON]
-
         el = ET.Element('name')
         el.text = p[NAME]
         element.append(el)
@@ -282,6 +440,34 @@ class GpxModel(QtCore.QAbstractTableModel):
         el = ET.Element('time')
         el.text = p[TIME].strftime('%Y-%m-%dT%H:%M:%SZ')
         element.append(el)
+
+    for track, s in zip(self.trkmodel.tracks, self.trkmodel.includeStates):
+      if s != INC_SKIP:
+        elTrk = ET.Element('trk')
+        root.append(elTrk)
+        el = ET.Element('name')
+        el.text = track[TRKNAME]
+        elTrk.append(el)
+        for seg in track['SEGMENTS']:
+          elSeg = ET.Element('trkseg')
+          elTrk.append(elSeg)
+          for p in seg:
+            elP = ET.Element('trkpt', attrib={'lat': str(p[LAT]), 'lon': str(p[LON])})
+            elSeg.append(elP)
+            if p[LAT] < minlat:
+              minlat = p[LAT]
+            if p[LON] < minlon:
+              minlon = p[LON]
+            if p[LAT] > maxlat:
+              maxlat = p[LAT]
+            if p[LON] > maxlon:
+              maxlon = p[LON]
+            el = ET.Element('ele')
+            el.text = str(p[ALT])
+            elP.append(el)
+            el = ET.Element('time')
+            el.text = p[TIME].strftime('%Y-%m-%dT%H:%M:%SZ')
+            elP.append(el)
 
     el = ET.Element('time')
     el.text = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
@@ -293,14 +479,18 @@ class GpxModel(QtCore.QAbstractTableModel):
     outgpx = outgpx.replace('<metadata', '\n  <metadata')
     outgpx = outgpx.replace('</metadata', '\n  </metadata')
     outgpx = outgpx.replace('<wpt', '\n  <wpt')
+    outgpx = outgpx.replace('<trk', '\n  <trk')
     outgpx = outgpx.replace('<bounds', '\n    <bounds')
     outgpx = outgpx.replace('<name', '\n    <name')
     outgpx = outgpx.replace('<ele', '\n    <ele')
     outgpx = outgpx.replace('<time', '\n    <time')
     outgpx = outgpx.replace('</wpt', '\n  </wpt')
+    outgpx = outgpx.replace('</trk', '\n  </trk')
     outgpx = outgpx.replace('</gpx', '\n</gpx')
     with open(filename, 'w') as file:
       file.write(outgpx)
+
+  warningSent = QtCore.pyqtSignal(str, str)
 
 
 class GpxSortFilterModel(QtCore.QSortFilterProxyModel):
@@ -308,10 +498,15 @@ class GpxSortFilterModel(QtCore.QSortFilterProxyModel):
     super(GpxSortFilterModel, self).__init__(parent)
 
   def lessThan(self, left, right):
-    if left.column() == TIME and right.column() == TIME and left.data() != '' and right.data() != '':
-      return datetime.strptime(left.data(), '%Y-%m-%d %H:%M:%S') < datetime.strptime(right.data(), '%Y-%m-%d %H:%M:%S')
-    else:
-      return super(GpxSortFilterModel, self).lessThan(left, right)
+    if (left.column() == right.column() == TIME) or (left.column() == right.column() == TIMEDELTA):
+      if left.data() != '' and right.data() != '':
+        return left.data(ValueRole) < right.data(ValueRole)
+      elif right.data() == '':
+        return False
+      else:
+        return True
+
+    return super(GpxSortFilterModel, self).lessThan(left, right)
 
 
 def _distance(lat1, lon1, lat2, lon2):

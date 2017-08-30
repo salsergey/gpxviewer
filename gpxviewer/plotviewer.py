@@ -76,6 +76,7 @@ class PlotWindow(QtWidgets.QMainWindow):
 
   def plotProfile(self, column):
     self.ui.canvasWidget.plotProfile(column)
+    self.ui.centralwidget.setFocus()
 
   def saveCurrentSize(self):
     filename = self.getExportFileName(self.tr('Export profile of the current size'))

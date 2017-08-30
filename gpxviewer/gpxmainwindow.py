@@ -65,7 +65,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.ui.secondaryToolBar.addWidget(wdg)
 
     self.includefiltermodel = QtCore.QSortFilterProxyModel(self)
-    self.includefiltermodel.setSourceModel(TheDocument.gpxmodel)
+    self.includefiltermodel.setSourceModel(TheDocument.wptmodel)
     self.includefiltermodel.setFilterKeyColumn(gpx.NAME)
     self.includefiltermodel.setFilterRole(gpx.IncludeRole)
     self.updateIncludeFilter()
@@ -80,11 +80,18 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.namefiltermodel.setFilterKeyColumn(gpx.NAME)
     self.filterLineEdit.textChanged.connect(self.namefiltermodel.setFilterRegExp)
 
+    self.ui.trkView.setModel(TheDocument.trkmodel)
+
+    self.ui.wptView.installEventFilter(self)
+    self.ui.trkView.installEventFilter(self)
+
     self.ui.actionShowSkipped.setChecked(TheConfig['MainWindow'].getboolean('ShowSkipped'))
     self.ui.actionShowMarked.setChecked(TheConfig['MainWindow'].getboolean('ShowMarked'))
     self.ui.actionShowCaptioned.setChecked(TheConfig['MainWindow'].getboolean('ShowCaptioned'))
     self.ui.actionShowOther.setChecked(TheConfig['MainWindow'].getboolean('ShowDefault'))
     self.resize(TheConfig['MainWindow'].getint('WindowWidth'), TheConfig['MainWindow'].getint('WindowHeight'))
+
+    TheDocument.gpxparser.warningSent.connect(self.showWarning)
 
     self.projectSaved = False
     self.projectChanged = False
@@ -115,48 +122,73 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     super(GpxMainWindow, self).closeEvent(event)
 
   def contextMenuEvent(self, event):
-    if self.ui.wptView.selectionModel().hasSelection():
-      actSkip = QtWidgets.QAction(self.tr('Skip points'), self)
-      actSkip.triggered.connect(self.skipPoints)
-      actMarker = QtWidgets.QAction(self.tr('Points with markers'), self)
-      actMarker.triggered.connect(self.markerPoints)
-      actCaption = QtWidgets.QAction(self.tr('Points with captions and markers'), self)
-      actCaption.triggered.connect(self.captionPoints)
-      actSplit = QtWidgets.QAction(self.tr('Points with splitting lines'), self)
-      actSplit.triggered.connect(self.splitLines)
-      actNeglect = QtWidgets.QAction(self.tr('Neglect previous distance'), self)
-      actNeglect.triggered.connect(self.neglectDistance)
-      actReset = QtWidgets.QAction(self.tr('Reset'), self)
-      actReset.triggered.connect(self.resetPoints)
-      actStyle = QtWidgets.QAction(QtGui.QIcon.fromTheme('configure', QtGui.QIcon(':/icons/configure.svg')), self.tr('Point style'), self)
-      actStyle.triggered.connect(self.pointStyle)
+    if self.ui.tabWidget.currentWidget() == self.ui.wptTab:
+      if self.ui.wptView.selectionModel().hasSelection():
+        actSkip = QtWidgets.QAction(self.tr('Skip points'), self)
+        actSkip.triggered.connect(self.skipPoints)
+        actMarker = QtWidgets.QAction(self.tr('Points with markers'), self)
+        actMarker.triggered.connect(self.markerPoints)
+        actCaption = QtWidgets.QAction(self.tr('Points with captions and markers'), self)
+        actCaption.triggered.connect(self.captionPoints)
+        actSplit = QtWidgets.QAction(self.tr('Points with splitting lines'), self)
+        actSplit.triggered.connect(self.splitLines)
+        actNeglect = QtWidgets.QAction(self.tr('Neglect previous distance'), self)
+        actNeglect.triggered.connect(self.neglectDistance)
+        actReset = QtWidgets.QAction(self.tr('Reset'), self)
+        actReset.triggered.connect(self.resetPoints)
+        actStyle = QtWidgets.QAction(QtGui.QIcon.fromTheme('configure', QtGui.QIcon(':/icons/configure.svg')), self.tr('Point style'), self)
+        actStyle.triggered.connect(self.pointStyle)
 
-      menu = QtWidgets.QMenu(self)
-      menu.addAction(actSkip)
-      menu.addAction(actMarker)
-      menu.addAction(actCaption)
-      menu.addSeparator()
-      menu.addAction(actSplit)
-      menu.addAction(actNeglect)
-      menu.addSeparator()
-      menu.addAction(actReset)
-      menu.addSeparator()
-      menu.addAction(actStyle)
-      menu.popup(event.globalPos())
+        menu = QtWidgets.QMenu(self)
+        menu.addAction(actSkip)
+        menu.addAction(actMarker)
+        menu.addAction(actCaption)
+        menu.addSeparator()
+        menu.addAction(actSplit)
+        menu.addAction(actNeglect)
+        menu.addSeparator()
+        menu.addAction(actReset)
+        menu.addSeparator()
+        menu.addAction(actStyle)
+        menu.popup(event.globalPos())
+    else:
+      if self.ui.trkView.selectionModel().hasSelection():
+        actSkip = QtWidgets.QAction(self.tr('Skip tracks'), self)
+        actSkip.triggered.connect(self.skipTracks)
+        actReset = QtWidgets.QAction(self.tr('Reset'), self)
+        actReset.triggered.connect(self.resetTracks)
+
+        menu = QtWidgets.QMenu(self)
+        menu.addAction(actSkip)
+        menu.addAction(actReset)
+        menu.popup(event.globalPos())
+
+  def eventFilter(self, obj, event):
+    if event.type() == QtCore.QEvent.KeyPress and event.key() == QtCore.Qt.Key_Tab and event.modifiers() == QtCore.Qt.ControlModifier:
+      self.keyPressEvent(QtGui.QKeyEvent(event))
+      return True
+    else:
+      return super(GpxMainWindow, self).eventFilter(obj, event)
 
   def keyPressEvent(self, event):
     if event.key() == QtCore.Qt.Key_F and event.modifiers() == QtCore.Qt.ControlModifier:
       self.filterLineEdit.setFocus()
       self.filterLineEdit.selectAll()
     if event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
-      TheDocument.gpxmodel.copyToClipboard([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()])
+      if self.ui.tabWidget.currentWidget() == self.ui.wptTab:
+        TheDocument.wptmodel.copyToClipboard([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()])
+      else:
+        TheDocument.trkmodel.copyToClipboard([i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
     if event.key() == QtCore.Qt.Key_Escape:
       self.ui.wptView.setFocus()
+    if event.key() == QtCore.Qt.Key_Tab and event.modifiers() == QtCore.Qt.ControlModifier:
+      self.ui.tabWidget.setCurrentIndex(1 - self.ui.tabWidget.currentIndex())
     super(GpxMainWindow, self).keyPressEvent(event)
 
   def resizeEvent(self, event):
     super(GpxMainWindow, self).resizeEvent(event)
     self.ui.wptView.resizeColumnsToContents()
+    self.ui.trkView.resizeColumnsToContents()
     TheConfig['MainWindow']['WindowWidth'] = str(event.size().width())
     TheConfig['MainWindow']['WindowHeight'] = str(event.size().height())
 
@@ -180,7 +212,15 @@ class GpxMainWindow(QtWidgets.QMainWindow):
                            Useful shortcuts:<br>
                            Ctrl+C - Copy points to clipboard<br>
                            Ctrl+P - Show distance profile<br>
-                           Ctrl+T - Show time profile''')
+                           Ctrl+T - Show time profile<br>
+                           Ctrl+I - Show statistics<br>
+                           <br>
+                           Several cases are possible when plotting a profile:
+                           <ul>
+                           <li>All non-skipped points have timestamps: points and tracks with timestamps are taken into account</li>
+                           <li>There are points without timestamps: only points are considered, tracks are skipped</li>
+                           <li>There are no points: all non-skipped tracks are taken into account</li>
+                           </ul>''')
     msg = QtWidgets.QMessageBox(self)
     msg.setWindowTitle(self.tr('GPX Viewer Help'))
     msg.setTextFormat(QtCore.Qt.RichText)
@@ -193,34 +233,34 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.updateTitleFilename()
 
   def skipPoints(self):
-    TheDocument.gpxmodel.setIncludeStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selection().indexes() if i.column() == gpx.NAME], gpx.INC_SKIP)
+    TheDocument.wptmodel.setIncludeStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selection().indexes() if i.column() == gpx.NAME], gpx.INC_SKIP)
     self.includefiltermodel.invalidateFilter()
     self.setProjectChanged(True)
 
   def markerPoints(self):
-    TheDocument.gpxmodel.setIncludeStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selection().indexes() if i.column() == gpx.NAME], gpx.INC_MARKER)
+    TheDocument.wptmodel.setIncludeStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selection().indexes() if i.column() == gpx.NAME], gpx.INC_MARKER)
     self.includefiltermodel.invalidateFilter()
     self.setProjectChanged(True)
 
   def captionPoints(self):
-    TheDocument.gpxmodel.setIncludeStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selection().indexes() if i.column() == gpx.NAME], gpx.INC_CAPTION)
+    TheDocument.wptmodel.setIncludeStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selection().indexes() if i.column() == gpx.NAME], gpx.INC_CAPTION)
     self.includefiltermodel.invalidateFilter()
     self.setProjectChanged(True)
 
   def splitLines(self):
-    TheDocument.gpxmodel.setSplitLines([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selection().indexes() if i.column() == gpx.NAME], True)
+    TheDocument.wptmodel.setSplitLines([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selection().indexes() if i.column() == gpx.NAME], True)
     self.includefiltermodel.invalidateFilter()
     self.setProjectChanged(True)
 
   def neglectDistance(self):
-    TheDocument.gpxmodel.setNeglectStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selection().indexes() if i.column() == gpx.NAME], True)
+    TheDocument.wptmodel.setNeglectStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selection().indexes() if i.column() == gpx.NAME], True)
     self.setProjectChanged(True)
 
   def resetPoints(self):
     indexes = [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selection().indexes() if i.column() == gpx.NAME]
-    TheDocument.gpxmodel.setIncludeStates(indexes, gpx.INC_DEFAULT)
-    TheDocument.gpxmodel.setSplitLines(indexes, False)
-    TheDocument.gpxmodel.setNeglectStates(indexes, False)
+    TheDocument.wptmodel.setIncludeStates(indexes, gpx.INC_DEFAULT)
+    TheDocument.wptmodel.setSplitLines(indexes, False)
+    TheDocument.wptmodel.setNeglectStates(indexes, False)
     self.includefiltermodel.invalidateFilter()
     self.setProjectChanged(True)
 
@@ -263,7 +303,15 @@ class GpxMainWindow(QtWidgets.QMainWindow):
         self.setPointStyle(gpx.CAPTION_SIZE, dlg.style[gpx.CAPTION_SIZE])
 
   def setPointStyle(self, key, value):
-    TheDocument.gpxmodel.setPointStyle([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selection().indexes() if i.column() == gpx.NAME], key, value)
+    TheDocument.wptmodel.setPointStyle([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selection().indexes() if i.column() == gpx.NAME], key, value)
+
+  def skipTracks(self):
+    TheDocument.trkmodel.setIncludeStates([i.row() for i in self.ui.trkView.selectionModel().selection().indexes() if i.column() == gpx.TRKNAME], gpx.INC_SKIP)
+    self.setProjectChanged(True)
+
+  def resetTracks(self):
+    TheDocument.trkmodel.setIncludeStates([i.row() for i in self.ui.trkView.selectionModel().selection().indexes() if i.column() == gpx.TRKNAME], gpx.INC_DEFAULT)
+    self.setProjectChanged(True)
 
   def fileNew(self):
     if self.projectChanged and len(TheDocument['GPXFile']) != 0:
@@ -277,18 +325,19 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       if result == QtWidgets.QMessageBox.Cancel:
         return
 
-    self.setProjectChanged(False)
-    TheDocument['GPXFile'] = []
-    TheDocument.gpxmodel.resetModel()
+    self.reset()
 
   def fileLoadGPXFile(self):
     filenames = QtWidgets.QFileDialog.getOpenFileNames(self, self.tr('Open GPX file'), TheConfig['MainWindow']['LoadGPXDirectory'],
                                                        self.tr('GPX XML (*.gpx);;All files (*)'))[0]
     for f in filenames:
       self.openGPXFile(f)
+    TheDocument.gpxparser.updatePoints()
+    self.updateTabs()
 
   def fileSaveGPXFileAs(self):
-    if TheDocument.gpxmodel.rowCount() - len(TheDocument.gpxmodel.getIndexesWithIncludeState(gpx.INC_SKIP)) < 1:
+    if TheDocument.wptmodel.rowCount() == len(TheDocument.wptmodel.getIndexesWithIncludeState(gpx.INC_SKIP)) and \
+       TheDocument.trkmodel.rowCount() == len(TheDocument.trkmodel.getIndexesWithIncludeState(gpx.INC_SKIP)):
       QtWidgets.QMessageBox.warning(self, self.tr('Save error'), self.tr('The GPX file will be empty.'))
       return
 
@@ -296,7 +345,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
                                                      self.tr('GPX XML (*.gpx);;All files (*)'))[0]
     if filename != '':
       TheConfig['MainWindow']['LoadGPXDirectory'] = path.dirname(filename)
-      TheDocument.gpxmodel.writeToFile(filename)
+      TheDocument.gpxparser.writeToFile(filename)
 
   def fileOpen(self):
     if self.projectChanged and len(TheDocument['GPXFile']) != 0:
@@ -314,6 +363,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
                                                      self.tr('GPX Viewer Projects (*.gpxv);;All files (*)'))[0]
     if filename != '':
       self.openGPXProject(filename)
+      self.updateTabs()
 
   def fileSave(self):
     if not self.projectSaved:
@@ -347,15 +397,13 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     TheDocument['GPXFile'] += [filename]
     self.projectSaved = False
     try:
-      TheDocument.gpxmodel.parse(filename)
-      self.ui.wptView.resizeColumnsToContents()
+      TheDocument.gpxparser.parse(filename)
       self.setProjectChanged(True)
       if len(TheDocument['GPXFile']) > 1:
         self.updateTitleFilename('[ ' + self.tr('Multiple GPX files') + ' ]')
       else:
         self.updateTitleFilename(filename)
     except gpx.GpxWarning as e:
-      # TODO: filename
       QtWidgets.QMessageBox.warning(self, self.tr('File read error'), e.args[0])
 
   def openGPXProject(self, filename):
@@ -365,21 +413,18 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       TheDocument.openFile(filename)
       self.includefiltermodel.invalidateFilter()
       self.ui.wptView.resizeColumnsToContents()
+      self.ui.trkView.resizeColumnsToContents()
       self.setProjectChanged(False)
       self.updateTitleFilename(self.projectFile)
       TheConfig['MainWindow']['ProjectDirectory'] = path.dirname(self.projectFile)
     except gpx.GpxWarning as e:
+      self.reset()
       QtWidgets.QMessageBox.warning(self, self.tr('File read error'), e.args[0])
 
   def plotDistanceProfile(self):
-    n = 0
-    for p in TheDocument.gpxmodel.points:
-      if p[gpx.DIST] != '':
-        n += 1
-      if n == 2:
-        break
-    if n < 2:
-      QtWidgets.QMessageBox.warning(self, self.tr('Plot error'), self.tr('Not enouph points with distance.'))
+    if TheDocument.wptmodel.rowCount() - len(TheDocument.wptmodel.getIndexesWithIncludeState(gpx.INC_SKIP)) < 2 and \
+       TheDocument.trkmodel.rowCount() == len(TheDocument.trkmodel.getIndexesWithIncludeState(gpx.INC_SKIP)):
+      QtWidgets.QMessageBox.warning(self, self.tr('Plot error'), self.tr('Not enouph points or tracks.'))
       return
 
     self.plot.setWindowTitle(self.tr('Distance Profile'))
@@ -389,14 +434,19 @@ class GpxMainWindow(QtWidgets.QMainWindow):
 
   def plotTimeProfile(self):
     n = 0
-    for p, s in zip(TheDocument.gpxmodel.points, TheDocument.gpxmodel.includeStates):
+    for p, s in zip(TheDocument.wptmodel.waypoints, TheDocument.wptmodel.includeStates):
       if s != gpx.INC_SKIP and p[gpx.TIME] != '':
         n += 1
       if n == 2:
         break
     if n < 2:
-      QtWidgets.QMessageBox.warning(self, self.tr('Plot error'), self.tr('Not enouph points with timestamps.'))
-      return
+      for t, s in zip(TheDocument.trkmodel.tracks, TheDocument.trkmodel.includeStates):
+        if s != gpx.INC_SKIP and t[gpx.TRKTIME] != '':
+          n = 2
+          break
+      if n < 2:
+        QtWidgets.QMessageBox.warning(self, self.tr('Plot error'), self.tr('Not enouph points or tracks.'))
+        return
 
     self.plot.setWindowTitle(self.tr('Time Profile'))
     self.plot.plotProfile(gpx.TIME_DAYS)
@@ -404,7 +454,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.plot.activateWindow()
 
   def showStatistics(self):
-    if TheDocument.gpxmodel.rowCount() - len(TheDocument.gpxmodel.getIndexesWithIncludeState(gpx.INC_SKIP)) < 2:
+    if TheDocument.wptmodel.rowCount() - len(TheDocument.wptmodel.getIndexesWithIncludeState(gpx.INC_SKIP)) < 2:
       QtWidgets.QMessageBox.warning(self, self.tr('Statistics error'), self.tr('Not enouph points.'))
       return
 
@@ -439,6 +489,19 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       TheConfig['ProfileStyle']['MaximumAltitude'] = str(dlg.style['MaximumAltitude'])
       TheConfig['ProfileStyle']['TimeZoneOffset'] = str(dlg.style['TimeZoneOffset'])
 
+  def showWarning(self, title, text):
+    QtWidgets.QMessageBox.warning(self, title, text)
+
+  def reset(self):
+    self.projectFile = ''
+    self.projectSaved = False
+    self.setProjectChanged(False)
+    TheDocument['GPXFile'] = []
+    TheDocument.gpxparser.resetModels()
+    self.setWindowTitle('GPX Viewer')
+    self.ui.wptView.setDisabled(True)
+    self.ui.trkView.setDisabled(True)
+
   def updateIncludeFilter(self):
     mask = [TheConfig['MainWindow'].getboolean('ShowDefault'), TheConfig['MainWindow'].getboolean('ShowSkipped'),
             TheConfig['MainWindow'].getboolean('ShowMarked'), TheConfig['MainWindow'].getboolean('ShowCaptioned')]
@@ -450,3 +513,15 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       self.titleFilename = title
     if self.titleFilename is not None:
       self.setWindowTitle(self.titleFilename + ('*' if self.projectChanged else '') + ' — GPX Viewer')
+
+  def updateTabs(self):
+    if TheDocument.wptmodel.rowCount() != 0:
+      self.ui.wptView.setEnabled(True)
+      self.ui.wptView.resizeColumnsToContents()
+      if TheDocument.trkmodel.rowCount() == 0:
+        self.ui.tabWidget.setCurrentWidget(self.ui.wptTab)
+    if TheDocument.trkmodel.rowCount() != 0:
+      self.ui.trkView.setEnabled(True)
+      self.ui.trkView.resizeColumnsToContents()
+      if TheDocument.wptmodel.rowCount() == 0:
+        self.ui.tabWidget.setCurrentWidget(self.ui.trkTab)
