@@ -48,7 +48,7 @@ class GpxDocument(dict):
     self['GPXFile'] = []
 
   def saveFile(self, filename):
-    with open(filename, 'w') as file:
+    with open(filename, 'w', encoding='utf-8') as file:
       self['NumberOfPoints'] = self.wptmodel.rowCount()
       self['NumberOfTracks'] = self.trkmodel.rowCount()
       self['SkipPoints'] = self.wptmodel.getIndexesWithIncludeState(gpx.INC_SKIP)
@@ -79,7 +79,7 @@ class GpxDocument(dict):
   def openFile(self, filename):
     cfg = GpxConfigParser()
     try:
-      cfg.read(filename)
+      cfg.read(filename, encoding='utf-8')
     except (configparser.ParsingError, UnicodeDecodeError):
       raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'This file in not a valid GPX Viewer project file.'))
 
