@@ -31,7 +31,7 @@ matplotlib.use('Qt5Agg')
 class PlotCanvas(FigureCanvas):
   def __init__(self, parent=None, width=12.8, height=10.24, dpi=100):
     # to be able to show cyrillic names
-    font = {'family': ['CMU Serif', 'Arial', 'DejaVu Sans'], 'style': 'normal', 'size': 12}
+    font = {'family': ['CMU Sans Serif', 'Arial', 'DejaVu Sans'], 'style': 'normal', 'size': 12}
     rc('font', **font)
     fig = Figure(figsize=(width, height), dpi=dpi, facecolor='w')
     self.axes = fig.add_subplot(111)

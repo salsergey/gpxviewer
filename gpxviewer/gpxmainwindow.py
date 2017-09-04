@@ -330,10 +330,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
   def fileLoadGPXFile(self):
     filenames = QtWidgets.QFileDialog.getOpenFileNames(self, self.tr('Open GPX file'), TheConfig['MainWindow']['LoadGPXDirectory'],
                                                        self.tr('GPX XML (*.gpx);;All files (*)'))[0]
-    for f in filenames:
-      self.openGPXFile(f)
-    TheDocument.gpxparser.updatePoints()
-    self.updateTabs()
+    self.openGPXFiles(filenames)
 
   def fileSaveGPXFileAs(self):
     if TheDocument.wptmodel.rowCount() == len(TheDocument.wptmodel.getIndexesWithIncludeState(gpx.INC_SKIP)) and \
@@ -363,7 +360,6 @@ class GpxMainWindow(QtWidgets.QMainWindow):
                                                      self.tr('GPX Viewer Projects (*.gpxv);;All files (*)'))[0]
     if filename != '':
       self.openGPXProject(filename)
-      self.updateTabs()
 
   def fileSave(self):
     if not self.projectSaved:
@@ -392,6 +388,12 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       QtWidgets.QMessageBox.warning(self, self.tr('Save error'), self.tr('The project is empty.'))
       return False
 
+  def openGPXFiles(self, filenames):
+    for f in filenames:
+      self.openGPXFile(f)
+    TheDocument.gpxparser.updatePoints()
+    self.updateTabs()
+
   def openGPXFile(self, filename):
     TheConfig['MainWindow']['LoadGPXDirectory'] = path.dirname(filename)
     TheDocument['GPXFile'] += [filename]
@@ -416,6 +418,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       self.ui.trkView.resizeColumnsToContents()
       self.setProjectChanged(False)
       self.updateTitleFilename(self.projectFile)
+      self.updateTabs()
       TheConfig['MainWindow']['ProjectDirectory'] = path.dirname(self.projectFile)
     except gpx.GpxWarning as e:
       self.reset()

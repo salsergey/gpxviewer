@@ -27,7 +27,7 @@ app = None
 def main():
   global app
   app = QApplication(sys.argv)
-  QCoreApplication.setApplicationVersion('0.6')
+  QCoreApplication.setApplicationVersion('0.7')
 
   translator = QTranslator(app)
   translator.load(QLocale(), 'gpxviewer', '_', ':/translations')
@@ -40,8 +40,7 @@ def main():
   gpxMainWindow.show()
   if len(sys.argv) > 1:
     if sys.argv[1].endswith('.gpx'):
-      for file in sys.argv[1:]:
-        gpxMainWindow.openGPXFile(file)
+      gpxMainWindow.openGPXFiles(sys.argv[1:])
     if sys.argv[1].endswith('.gpxv'):
       gpxMainWindow.openGPXProject(sys.argv[1])
   sys.exit(app.exec_())

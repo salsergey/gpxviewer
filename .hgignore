@@ -6,4 +6,4 @@ gpxviewer.egg-info
 __pycache__
 gpxviewer/*.pyc
 WinInstaller.txt
-.vscode/launch.json
+.vscode
