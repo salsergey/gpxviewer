@@ -1,6 +1,6 @@
 == Major ==
 
-* Editing names (and other tags?).
+* Drag & drop resorting.
 
 == Minor ==
 
@@ -11,9 +11,12 @@
 * Adjust context menu.
 * Add descriptions and status in tooltips.
 * Button for time resorting.
-* Drag & drop resorting.
 * Read names from other tags.
+* Copying a column.
+* Total statistics for selected only.
 
 == Fixes ==
 
 * Memory leaks.
+* Incapsulation in GPX models.
+* Add comments to the code!

@@ -16,7 +16,7 @@
 
 from datetime import datetime, timedelta
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtGui import QGuiApplication
+from PyQt5.QtGui import QIcon
 import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import TheConfig
 from gpxviewer.gpxdocument import TheDocument
@@ -31,6 +31,8 @@ class StatWindow(QtWidgets.QMainWindow):
     super(StatWindow, self).__init__(parent)
     self.ui = gpxviewer.ui_statwindow.Ui_StatWindow()
     self.ui.setupUi(self)
+
+    self.setWindowIcon(QIcon(':/icons/gpxviewer.svg'))
 
     wdg = QtWidgets.QWidget()
     wdg.setLayout(QtWidgets.QHBoxLayout())

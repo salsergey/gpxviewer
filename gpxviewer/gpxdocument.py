@@ -49,8 +49,10 @@ class GpxDocument(dict):
 
   def saveFile(self, filename):
     with open(filename, 'w', encoding='utf-8') as file:
+      # Number of points/tracks to check the validity of the files
       self['NumberOfPoints'] = self.wptmodel.rowCount()
       self['NumberOfTracks'] = self.trkmodel.rowCount()
+
       self['SkipPoints'] = self.wptmodel.getIndexesWithIncludeState(gpx.INC_SKIP)
       self['MarkerPoints'] = self.wptmodel.getIndexesWithIncludeState(gpx.INC_MARKER)
       self['CaptionPoints'] = self.wptmodel.getIndexesWithIncludeState(gpx.INC_CAPTION)
@@ -72,6 +74,9 @@ class GpxDocument(dict):
       self['CaptionPositionYs'] = self.wptmodel.getPointStyles(gpx.CAPTION_POSY)
       self['CaptionSizes'] = self.wptmodel.getPointStyles(gpx.CAPTION_SIZE)
 
+      self['ChangedNames'] = self.wptmodel.changedNames
+      self['PointNames'] = self.wptmodel.pointNames
+
       cfg = GpxConfigParser()
       cfg.read_dict({GPXMAGICK: self})
       cfg.write(file)
@@ -84,6 +89,7 @@ class GpxDocument(dict):
       raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'This file in not a valid GPX Viewer project file.'))
 
     if GPXMAGICK in cfg:
+      self.clear()
       self.update(cfg.items(GPXMAGICK))
       self.gpxparser.resetModels()
       # Fix to handle legacy files
@@ -156,6 +162,12 @@ class GpxDocument(dict):
       if 'CaptionPoints' in self and 'CaptionSizes' in self:
         for i, m in zip(self['CaptionPoints'], self['CaptionSizes']):
           self.wptmodel.setPointStyle([i], gpx.CAPTION_SIZE, m)
+
+      if 'ChangedNames' in self and 'PointNames' in self:
+        self.wptmodel.changedNames = self['ChangedNames']
+        self.wptmodel.pointNames = self['PointNames']
+        for i, n in zip(self.wptmodel.changedNames, self.wptmodel.pointNames):
+          self.wptmodel.waypoints[i][gpx.NAME] = n
     else:  # GPXMAGICK not in cfg
       raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'This file in not a valid GPX Viewer project file.'))
 

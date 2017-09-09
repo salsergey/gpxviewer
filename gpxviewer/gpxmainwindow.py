@@ -92,6 +92,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.resize(TheConfig['MainWindow'].getint('WindowWidth'), TheConfig['MainWindow'].getint('WindowHeight'))
 
     TheDocument.gpxparser.warningSent.connect(self.showWarning)
+    TheDocument.gpxparser.wptmodel.namesChanged.connect(self.setProjectChanged)
 
     self.projectSaved = False
     self.projectChanged = False

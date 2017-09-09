@@ -53,7 +53,7 @@ class WptModel(QtCore.QAbstractTableModel):
     return len(self.fields)
 
   def data(self, index, role=QtCore.Qt.DisplayRole):
-    if role == QtCore.Qt.DisplayRole:
+    if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
       if index.column() == TIME and self.waypoints[index.row()][index.column()] != '':
         return str(self.waypoints[index.row()][index.column()] + timedelta(minutes=TheConfig['ProfileStyle'].getint('TimeZoneOffset')))
       else:
@@ -90,6 +90,23 @@ class WptModel(QtCore.QAbstractTableModel):
       return font
     return None
 
+  def setData(self, index, value, role):
+    if index.isValid() and role == QtCore.Qt.EditRole and value != self.waypoints[index.row()][NAME]:
+      self.waypoints[index.row()][NAME] = value
+      self.changedNames += [index.row()]
+      self.pointNames += [value]
+      self.dataChanged.emit(index, index)
+      self.namesChanged.emit(True)
+      return True
+    else:
+      return False
+
+  def flags(self, index):
+    if index.column() == NAME:
+      return super(WptModel, self).flags(index) | QtCore.Qt.ItemIsEditable
+    else:
+      return super(WptModel, self).flags(index)
+
   def headerData(self, section, orientation, role):
     if role == QtCore.Qt.DisplayRole:
       return self.fields[section] if orientation == QtCore.Qt.Horizontal else section + 1
@@ -125,6 +142,8 @@ class WptModel(QtCore.QAbstractTableModel):
     self.splitStates = []
     self.neglectStates = []
     self.pointStyles = []
+    self.changedNames = []
+    self.pointNames = []
     self.endResetModel()
 
   def setIncludeStates(self, IDs, state, update=True):
@@ -145,6 +164,8 @@ class WptModel(QtCore.QAbstractTableModel):
   def setSplitLines(self, IDs, state):
     for i in IDs:
       self.splitStates[i] = state
+
+  namesChanged = QtCore.pyqtSignal(bool)
 
 
 class TrkModel(QtCore.QAbstractTableModel):
