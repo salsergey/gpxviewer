@@ -108,13 +108,29 @@
     <addaction name="actionShowCaptioned"/>
     <addaction name="actionShowOther"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionProfileStyle"/>
+    <addaction name="actionDistanceProfile"/>
+    <addaction name="actionTimeProfile"/>
+    <addaction name="actionStatistics"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuFilter"/>
+   <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QToolBar" name="toolBar">
+  <widget class="QToolBar" name="fileToolBar">
+   <property name="windowTitle">
+    <string>File</string>
+   </property>
    <property name="movable">
     <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::TopToolBarArea</set>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonIconOnly</enum>
@@ -132,9 +148,15 @@
    <addaction name="actionSaveAs"/>
    <addaction name="separator"/>
   </widget>
-  <widget class="QToolBar" name="secondaryToolBar">
+  <widget class="QToolBar" name="toolsToolBar">
+   <property name="windowTitle">
+    <string>Tools</string>
+   </property>
    <property name="movable">
     <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::TopToolBarArea</set>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -150,6 +172,26 @@
    <addaction name="actionDistanceProfile"/>
    <addaction name="actionTimeProfile"/>
    <addaction name="actionStatistics"/>
+  </widget>
+  <widget class="QToolBar" name="filterToolBar">
+   <property name="windowTitle">
+    <string>Filter</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::TopToolBarArea</set>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextBesideIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
   </widget>
   <action name="actionQuit">
    <property name="icon">

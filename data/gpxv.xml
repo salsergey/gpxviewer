@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/gpxv">
+    <sub-class-of type="text/plain"/>
+    <comment xml:lang="en">GPX Viewer project</comment>
+    <comment xml:lang="ru">Проект GPX Viewer</comment>
+    <icon name="gpxviewer"/>
+    <magic priority="99">
+        <match type="string" value="[9e27ea8e]" offset="0"/>
+    </magic>
+    <glob pattern="*.gpxv" />
+  </mime-type>
+</mime-info>

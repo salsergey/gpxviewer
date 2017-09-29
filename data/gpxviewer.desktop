@@ -15,4 +15,4 @@ Icon=gpxviewer
 Terminal=false
 StartupNotify=true
 
-MimeType=application/gpx+xml;text/plain;
+MimeType=application/gpx+xml;application/gpxv;

@@ -17,6 +17,7 @@ class Ui_StatWindow(object):
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.statWidget = QtWidgets.QTableWidget(self.centralwidget)
+        self.statWidget.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.statWidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.statWidget.setColumnCount(5)
         self.statWidget.setObjectName("statWidget")

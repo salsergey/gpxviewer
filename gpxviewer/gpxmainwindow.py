@@ -62,7 +62,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.filterLineEdit.setPlaceholderText(self.tr('Enter regular expression'))
     self.filterLineEdit.setClearButtonEnabled(True)
     wdg.layout().addWidget(self.filterLineEdit)
-    self.ui.secondaryToolBar.addWidget(wdg)
+    self.ui.filterToolBar.addWidget(wdg)
 
     self.includefiltermodel = QtCore.QSortFilterProxyModel(self)
     self.includefiltermodel.setSourceModel(TheDocument.wptmodel)
@@ -103,6 +103,19 @@ class GpxMainWindow(QtWidgets.QMainWindow):
   def aboutQt(self):
     QtWidgets.QApplication.aboutQt()
 
+  def eventFilter(self, obj, event):
+    if event.type() == QtCore.QEvent.KeyPress and event.key() == QtCore.Qt.Key_Tab and event.modifiers() == QtCore.Qt.ControlModifier:
+      self.keyPressEvent(QtGui.QKeyEvent(event))
+      return True
+    elif event.type() == QtCore.QEvent.ContextMenu or (event.type() == QtCore.QEvent.KeyPress and event.key() == QtCore.Qt.Key_Menu):
+      if obj == self.ui.wptView:
+        self.wptContextMenuEvent(QtGui.QContextMenuEvent(event))
+      elif obj == self.ui.trkView:
+        self.trkContextMenuEvent(QtGui.QContextMenuEvent(event))
+      return True
+    else:
+      return super(GpxMainWindow, self).eventFilter(obj, event)
+
   def closeEvent(self, event):
     if self.projectChanged and len(TheDocument['GPXFile']) != 0:
       result = QtWidgets.QMessageBox.information(self, self.tr('Close GPX Viewer'),
@@ -122,67 +135,62 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     TheConfig.save()
     super(GpxMainWindow, self).closeEvent(event)
 
-  def contextMenuEvent(self, event):
-    if self.ui.tabWidget.currentWidget() == self.ui.wptTab:
-      if self.ui.wptView.selectionModel().hasSelection():
-        actSkip = QtWidgets.QAction(self.tr('Skip points'), self)
-        actSkip.triggered.connect(self.skipPoints)
-        actMarker = QtWidgets.QAction(self.tr('Points with markers'), self)
-        actMarker.triggered.connect(self.markerPoints)
-        actCaption = QtWidgets.QAction(self.tr('Points with captions and markers'), self)
-        actCaption.triggered.connect(self.captionPoints)
-        actSplit = QtWidgets.QAction(self.tr('Points with splitting lines'), self)
-        actSplit.triggered.connect(self.splitLines)
-        actNeglect = QtWidgets.QAction(self.tr('Neglect previous distance'), self)
-        actNeglect.triggered.connect(self.neglectDistance)
-        actReset = QtWidgets.QAction(self.tr('Reset'), self)
-        actReset.triggered.connect(self.resetPoints)
-        actStyle = QtWidgets.QAction(QtGui.QIcon.fromTheme('configure', QtGui.QIcon(':/icons/configure.svg')), self.tr('Point style'), self)
-        actStyle.triggered.connect(self.pointStyle)
+  def wptContextMenuEvent(self, event):
+    if self.ui.wptView.selectionModel().hasSelection():
+      actSkip = QtWidgets.QAction(self.tr('Skip points'), self)
+      actSkip.triggered.connect(self.skipPoints)
+      actMarker = QtWidgets.QAction(self.tr('Points with markers'), self)
+      actMarker.triggered.connect(self.markerPoints)
+      actCaption = QtWidgets.QAction(self.tr('Points with captions and markers'), self)
+      actCaption.triggered.connect(self.captionPoints)
+      actSplit = QtWidgets.QAction(self.tr('Points with splitting lines'), self)
+      actSplit.triggered.connect(self.splitLines)
+      actNeglect = QtWidgets.QAction(self.tr('Neglect previous distance'), self)
+      actNeglect.triggered.connect(self.neglectDistance)
+      actReset = QtWidgets.QAction(self.tr('Reset'), self)
+      actReset.triggered.connect(self.resetPoints)
+      actStyle = QtWidgets.QAction(QtGui.QIcon.fromTheme('configure', QtGui.QIcon(':/icons/configure.svg')), self.tr('Point style'), self)
+      actStyle.triggered.connect(self.pointStyle)
 
-        menu = QtWidgets.QMenu(self)
-        menu.addAction(actSkip)
-        menu.addAction(actMarker)
-        menu.addAction(actCaption)
-        menu.addSeparator()
-        menu.addAction(actSplit)
-        menu.addAction(actNeglect)
-        menu.addSeparator()
-        menu.addAction(actReset)
-        menu.addSeparator()
-        menu.addAction(actStyle)
-        menu.popup(event.globalPos())
-    else:
-      if self.ui.trkView.selectionModel().hasSelection():
-        actSkip = QtWidgets.QAction(self.tr('Skip tracks'), self)
-        actSkip.triggered.connect(self.skipTracks)
-        actReset = QtWidgets.QAction(self.tr('Reset'), self)
-        actReset.triggered.connect(self.resetTracks)
+      menu = QtWidgets.QMenu(self)
+      menu.addAction(actSkip)
+      menu.addAction(actMarker)
+      menu.addAction(actCaption)
+      menu.addSeparator()
+      menu.addAction(actSplit)
+      menu.addAction(actNeglect)
+      menu.addSeparator()
+      menu.addAction(actReset)
+      menu.addSeparator()
+      menu.addAction(actStyle)
+      menu.popup(QtGui.QCursor.pos())
+      event.accept()
 
-        menu = QtWidgets.QMenu(self)
-        menu.addAction(actSkip)
-        menu.addAction(actReset)
-        menu.popup(event.globalPos())
+  def trkContextMenuEvent(self, event):
+    if self.ui.trkView.selectionModel().hasSelection():
+      actSkip = QtWidgets.QAction(self.tr('Skip tracks'), self)
+      actSkip.triggered.connect(self.skipTracks)
+      actReset = QtWidgets.QAction(self.tr('Reset'), self)
+      actReset.triggered.connect(self.resetTracks)
 
-  def eventFilter(self, obj, event):
-    if event.type() == QtCore.QEvent.KeyPress and event.key() == QtCore.Qt.Key_Tab and event.modifiers() == QtCore.Qt.ControlModifier:
-      self.keyPressEvent(QtGui.QKeyEvent(event))
-      return True
-    else:
-      return super(GpxMainWindow, self).eventFilter(obj, event)
+      menu = QtWidgets.QMenu(self)
+      menu.addAction(actSkip)
+      menu.addAction(actReset)
+      menu.popup(QtGui.QCursor.pos())
+      event.accept()
 
   def keyPressEvent(self, event):
     if event.key() == QtCore.Qt.Key_F and event.modifiers() == QtCore.Qt.ControlModifier:
       self.filterLineEdit.setFocus()
       self.filterLineEdit.selectAll()
-    if event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
+    elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
       if self.ui.tabWidget.currentWidget() == self.ui.wptTab:
         TheDocument.wptmodel.copyToClipboard([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()])
       else:
         TheDocument.trkmodel.copyToClipboard([i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
-    if event.key() == QtCore.Qt.Key_Escape:
+    elif event.key() == QtCore.Qt.Key_Escape:
       self.ui.wptView.setFocus()
-    if event.key() == QtCore.Qt.Key_Tab and event.modifiers() == QtCore.Qt.ControlModifier:
+    elif event.key() == QtCore.Qt.Key_Tab and event.modifiers() == QtCore.Qt.ControlModifier:
       self.ui.tabWidget.setCurrentIndex(1 - self.ui.tabWidget.currentIndex())
     super(GpxMainWindow, self).keyPressEvent(event)
 
@@ -511,6 +519,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
             TheConfig['MainWindow'].getboolean('ShowMarked'), TheConfig['MainWindow'].getboolean('ShowCaptioned')]
     filter = [gpx.INCSTATES[i] for i, m in enumerate(mask) if m]
     self.includefiltermodel.setFilterRegExp('|'.join([str(f) for f in filter]))
+    self.ui.wptView.resizeColumnsToContents()
 
   def updateTitleFilename(self, title=None):
     if title is not None:

@@ -508,7 +508,7 @@ class GpxParser(QtCore.QObject):
     outgpx = outgpx.replace('</wpt', '\n  </wpt')
     outgpx = outgpx.replace('</trk', '\n  </trk')
     outgpx = outgpx.replace('</gpx', '\n</gpx')
-    with open(filename, 'w') as file:
+    with open(filename, 'w', encoding='utf-8') as file:
       file.write(outgpx)
 
   warningSent = QtCore.pyqtSignal(str, str)
