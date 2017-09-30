@@ -16,7 +16,7 @@
 
 from datetime import datetime, timedelta
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QGuiApplication, QIcon
 import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import TheConfig
 from gpxviewer.gpxdocument import TheDocument
@@ -47,13 +47,17 @@ class StatWindow(QtWidgets.QMainWindow):
     self.ui.toolBar.addWidget(wdg)
     self.filterLineEdit.textChanged.connect(self.updateStatistics)
 
-    self.ui.actionBySplittingLines.setChecked(TheConfig['StatWindow'].getboolean('BySplittingLines'))
+    self.ui.statWidget.itemSelectionChanged.connect(self.updateTotalStatistics)
 
+    self.ui.actionBySplittingLines.setChecked(TheConfig['StatWindow'].getboolean('BySplittingLines'))
     self.resize(TheConfig['StatWindow'].getint('WindowWidth'), TheConfig['StatWindow'].getint('WindowHeight'))
 
   def keyPressEvent(self, event):
     if event.key() == QtCore.Qt.Key_Escape:
-      self.hide()
+      if self.ui.statWidget.selectionModel().hasSelection():
+        self.ui.statWidget.clearSelection()
+      else:
+        self.hide()
     if event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
       self.copyToClipboard()
     super(StatWindow, self).keyPressEvent(event)
@@ -63,6 +67,11 @@ class StatWindow(QtWidgets.QMainWindow):
     self.ui.statWidget.resizeColumnsToContents()
     TheConfig['StatWindow']['WindowWidth'] = str(event.size().width())
     TheConfig['StatWindow']['WindowHeight'] = str(event.size().height())
+
+  def show(self):
+    self.updateStatistics()
+    self.updateTotalStatistics()
+    super(StatWindow, self).show()
 
   def BySplittingLinesToggled(self, checked):
     self.filterLabel.setEnabled(not checked)
@@ -75,10 +84,6 @@ class StatWindow(QtWidgets.QMainWindow):
     n = 0
     alt_raise = 0
     alt_drop = 0
-    total_dist = 0
-    total_raise = 0
-    total_drop = 0
-    total_time = timedelta(0)
 
     for i, s in enumerate(TheDocument.wptmodel.includeStates):
       if s != gpx.INC_SKIP:
@@ -113,22 +118,36 @@ class StatWindow(QtWidgets.QMainWindow):
           self.ui.statWidget.setItem(n, DIST, QtWidgets.QTableWidgetItem(str(round(p[gpx.DIST] - point_start[gpx.DIST], 3))))
           self.ui.statWidget.setItem(n, RAISE, QtWidgets.QTableWidgetItem(str(alt_raise)))
           self.ui.statWidget.setItem(n, DROP, QtWidgets.QTableWidgetItem(str(alt_drop)))
-          self.ui.statWidget.setItem(n, TIME, QtWidgets.QTableWidgetItem(str(p[gpx.TIME] - point_start[gpx.TIME])))
-          total_dist += round(p[gpx.DIST] - point_start[gpx.DIST], 3)
-          total_raise += alt_raise
-          total_drop += alt_drop
-          total_time += p[gpx.TIME] - point_start[gpx.TIME]
+          time_item = QtWidgets.QTableWidgetItem(str(p[gpx.TIME] - point_start[gpx.TIME]))
+          time_item.setData(QtCore.Qt.UserRole, p[gpx.TIME] - point_start[gpx.TIME])
+          self.ui.statWidget.setItem(n, TIME, time_item)
           point_start = p
           n += 1
           alt_raise = 0
           alt_drop = 0
 
+    self.ui.statWidget.resizeColumnsToContents()
+
+  def updateTotalStatistics(self):
+    total_dist = 0
+    total_raise = 0
+    total_drop = 0
+    total_time = timedelta(0)
+
+    if self.ui.statWidget.selectionModel().hasSelection():
+      rows = [i.row() for i in self.ui.statWidget.selectionModel().selectedRows()]
+    else:
+      rows = range(self.ui.statWidget.rowCount())
+    for i in rows:
+      total_dist += round(float(self.ui.statWidget.item(i, DIST).data(QtCore.Qt.DisplayRole)), 3)
+      total_raise += int(self.ui.statWidget.item(i, RAISE).data(QtCore.Qt.DisplayRole))
+      total_drop += int(self.ui.statWidget.item(i, DROP).data(QtCore.Qt.DisplayRole))
+      total_time += self.ui.statWidget.item(i, TIME).data(QtCore.Qt.UserRole)
+
     self.ui.labelDist.setText(str(round(total_dist, 3)))
     self.ui.labelRaise.setText(str(total_raise))
     self.ui.labelDrop.setText(str(total_drop))
     self.ui.labelTime.setText(str(total_time))
-
-    self.ui.statWidget.resizeColumnsToContents()
 
   def copyToClipboard(self):
     text = ''

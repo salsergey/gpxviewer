@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from os import path
+import subprocess
 from PyQt5 import QtCore, QtWidgets, QtGui
 import gpxviewer.plotviewer as plt
 import gpxviewer.gpxmodel as gpx
@@ -149,6 +149,8 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       actNeglect.triggered.connect(self.neglectDistance)
       actReset = QtWidgets.QAction(self.tr('Reset'), self)
       actReset.triggered.connect(self.resetPoints)
+      actShowMap = QtWidgets.QAction(self.tr('Show on Google maps'), self)
+      actShowMap.triggered.connect(self.showGoogleMaps)
       actStyle = QtWidgets.QAction(QtGui.QIcon.fromTheme('configure', QtGui.QIcon(':/icons/configure.svg')), self.tr('Point style'), self)
       actStyle.triggered.connect(self.pointStyle)
 
@@ -161,6 +163,8 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       menu.addAction(actNeglect)
       menu.addSeparator()
       menu.addAction(actReset)
+      menu.addSeparator()
+      menu.addAction(actShowMap)
       menu.addSeparator()
       menu.addAction(actStyle)
       menu.popup(QtGui.QCursor.pos())
@@ -189,7 +193,16 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       else:
         TheDocument.trkmodel.copyToClipboard([i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
     elif event.key() == QtCore.Qt.Key_Escape:
-      self.ui.wptView.setFocus()
+      if self.ui.tabWidget.currentWidget() == self.ui.wptTab:
+        if self.ui.wptView.hasFocus():
+          self.ui.wptView.clearSelection()
+        else:
+          self.ui.wptView.setFocus()
+      else:
+        if self.ui.trkView.hasFocus():
+          self.ui.trkView.clearSelection()
+        else:
+          self.ui.trkView.setFocus()
     elif event.key() == QtCore.Qt.Key_Tab and event.modifiers() == QtCore.Qt.ControlModifier:
       self.ui.tabWidget.setCurrentIndex(1 - self.ui.tabWidget.currentIndex())
     super(GpxMainWindow, self).keyPressEvent(event)
@@ -273,6 +286,11 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.includefiltermodel.invalidateFilter()
     self.setProjectChanged(True)
 
+  def showGoogleMaps(self):
+    lat = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().row(), gpx.LAT).data()
+    lon = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().row(), gpx.LON).data()
+    subprocess.call('xdg-open ' + '"http://maps.google.com/maps?ll=' + lat + ',' + lon + '&t=h&q=' + lat + ',' + lon + '&z=17"', shell=True)
+
   def pointStyle(self):
     style = {}
     style.update(self.ui.wptView.selectionModel().selection().indexes()[0].data(gpx.MarkerRole))
@@ -350,7 +368,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     filename = QtWidgets.QFileDialog.getSaveFileName(self, self.tr('Save GPX file as'), TheConfig['MainWindow']['LoadGPXDirectory'],
                                                      self.tr('GPX XML (*.gpx);;All files (*)'))[0]
     if filename != '':
-      TheConfig['MainWindow']['LoadGPXDirectory'] = path.dirname(filename)
+      TheConfig['MainWindow']['LoadGPXDirectory'] = QtCore.QDir(filename).path()
       TheDocument.gpxparser.writeToFile(filename)
 
   def fileOpen(self):
@@ -386,7 +404,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       if filename != '':
         self.projectFile = filename
         self.projectSaved = True
-        TheConfig['MainWindow']['ProjectDirectory'] = path.dirname(self.projectFile)
+        TheConfig['MainWindow']['ProjectDirectory'] = QtCore.QDir(self.projectFile).path()
         TheDocument.saveFile(self.projectFile)
         self.setProjectChanged(False)
         self.updateTitleFilename(self.projectFile)
@@ -404,7 +422,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.updateTabs()
 
   def openGPXFile(self, filename):
-    TheConfig['MainWindow']['LoadGPXDirectory'] = path.dirname(filename)
+    TheConfig['MainWindow']['LoadGPXDirectory'] = QtCore.QDir(filename).path()
     TheDocument['GPXFile'] += [filename]
     self.projectSaved = False
     try:
@@ -428,7 +446,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       self.setProjectChanged(False)
       self.updateTitleFilename(self.projectFile)
       self.updateTabs()
-      TheConfig['MainWindow']['ProjectDirectory'] = path.dirname(self.projectFile)
+      TheConfig['MainWindow']['ProjectDirectory'] = QtCore.QDir(self.projectFile).path()
     except gpx.GpxWarning as e:
       self.reset()
       QtWidgets.QMessageBox.warning(self, self.tr('File read error'), e.args[0])
@@ -470,7 +488,6 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       QtWidgets.QMessageBox.warning(self, self.tr('Statistics error'), self.tr('Not enouph points.'))
       return
 
-    self.stat.updateStatistics()
     self.stat.show()
     self.stat.activateWindow()
 

@@ -16,7 +16,6 @@
 
 
 import sys
-from os import path
 from PyQt5.QtCore import QCoreApplication, QLocale, QTranslator
 from PyQt5.QtWidgets import QApplication
 import gpxviewer.rc_gpxviewer
