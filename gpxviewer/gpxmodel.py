@@ -271,6 +271,11 @@ class GpxParser(QtCore.QObject):
         point[TIME_DAYS] = ''
         point['ID'] = wptid
 
+        # Additional fields
+        point['CMT'] = p.findtext('{%(ns)s}cmt' % ns)
+        point['DESC'] = p.findtext('{%(ns)s}desc' % ns)
+        point['SYM'] = p.findtext('{%(ns)s}sym' % ns)
+
         self.wptmodel.beginInsertRows(QtCore.QModelIndex(), wptid, wptid)
         self.wptmodel.waypoints += [point]
         self.wptmodel.includeStates += [INC_DEFAULT]
@@ -452,15 +457,27 @@ class GpxParser(QtCore.QObject):
           maxlat = p[LAT]
         if p[LON] > maxlon:
           maxlon = p[LON]
-        el = ET.Element('name')
-        el.text = p[NAME]
-        element.append(el)
         el = ET.Element('ele')
         el.text = str(p[ALT])
         element.append(el)
         el = ET.Element('time')
         el.text = p[TIME].strftime('%Y-%m-%dT%H:%M:%SZ')
         element.append(el)
+        el = ET.Element('name')
+        el.text = p[NAME]
+        element.append(el)
+        if p['CMT'] is not None:
+          el = ET.Element('cmt')
+          el.text = p['CMT']
+          element.append(el)
+        if p['DESC'] is not None:
+          el = ET.Element('desc')
+          el.text = p['DESC']
+          element.append(el)
+        if p['SYM'] is not None:
+          el = ET.Element('sym')
+          el.text = p['SYM']
+          element.append(el)
 
     for track, s in zip(self.trkmodel.tracks, self.trkmodel.includeStates):
       if s != INC_SKIP:
@@ -496,15 +513,18 @@ class GpxParser(QtCore.QObject):
     el = ET.Element('bounds', attrib={'minlat': str(minlat), 'minlon': str(minlon), 'maxlat': str(maxlat), 'maxlon': str(maxlon)})
     metadata.append(el)
 
-    outgpx = ET.tostring(root, encoding='unicode')
+    outgpx = '<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(root, encoding='unicode') + '\n'
     outgpx = outgpx.replace('<metadata', '\n  <metadata')
     outgpx = outgpx.replace('</metadata', '\n  </metadata')
     outgpx = outgpx.replace('<wpt', '\n  <wpt')
     outgpx = outgpx.replace('<trk', '\n  <trk')
     outgpx = outgpx.replace('<bounds', '\n    <bounds')
-    outgpx = outgpx.replace('<name', '\n    <name')
     outgpx = outgpx.replace('<ele', '\n    <ele')
     outgpx = outgpx.replace('<time', '\n    <time')
+    outgpx = outgpx.replace('<name', '\n    <name')
+    outgpx = outgpx.replace('<cmt', '\n    <cmt')
+    outgpx = outgpx.replace('<desc', '\n    <desc')
+    outgpx = outgpx.replace('<sym', '\n    <sym')
     outgpx = outgpx.replace('</wpt', '\n  </wpt')
     outgpx = outgpx.replace('</trk', '\n  </trk')
     outgpx = outgpx.replace('</gpx', '\n</gpx')
