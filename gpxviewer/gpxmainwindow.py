@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-import subprocess
+import webbrowser
 from PyQt5 import QtCore, QtWidgets, QtGui
 import gpxviewer.plotviewer as plt
 import gpxviewer.gpxmodel as gpx
@@ -149,10 +149,10 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       actNeglect.triggered.connect(self.neglectDistance)
       actReset = QtWidgets.QAction(self.tr('Reset'), self)
       actReset.triggered.connect(self.resetPoints)
-      actShowMap = QtWidgets.QAction(self.tr('Show on Google maps'), self)
-      actShowMap.triggered.connect(self.showGoogleMaps)
       actStyle = QtWidgets.QAction(QtGui.QIcon.fromTheme('configure', QtGui.QIcon(':/icons/configure.svg')), self.tr('Point style'), self)
       actStyle.triggered.connect(self.pointStyle)
+      actShowMap = QtWidgets.QAction(self.tr('Show on Google maps'), self)
+      actShowMap.triggered.connect(self.showGoogleMaps)
 
       menu = QtWidgets.QMenu(self)
       menu.addAction(actSkip)
@@ -164,9 +164,9 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       menu.addSeparator()
       menu.addAction(actReset)
       menu.addSeparator()
-      menu.addAction(actShowMap)
-      menu.addSeparator()
       menu.addAction(actStyle)
+      menu.addSeparator()
+      menu.addAction(actShowMap)
       menu.popup(QtGui.QCursor.pos())
       event.accept()
 
@@ -289,7 +289,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
   def showGoogleMaps(self):
     lat = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().row(), gpx.LAT).data()
     lon = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().row(), gpx.LON).data()
-    subprocess.call('xdg-open ' + '"http://maps.google.com/maps?ll=' + lat + ',' + lon + '&t=h&q=' + lat + ',' + lon + '&z=17"', shell=True)
+    webbrowser.open('http://maps.google.com/maps?ll=' + lat + ',' + lon + '&t=h&q=' + lat + ',' + lon + '&z=17')
 
   def pointStyle(self):
     style = {}
