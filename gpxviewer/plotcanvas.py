@@ -70,7 +70,11 @@ class PlotCanvas(FigureCanvas):
     self.axes.clear()
     self.axes.grid(axis='y', linestyle='--', linewidth=0.5)
     if column == gpx.DIST:
-      self.axes.set_xlabel(self.tr('Distance with coefficient 1.2 (km)'))
+      dist_coeff = float(TheConfig['ProfileStyle']['DistanceCoefficient'])
+      if dist_coeff == 1.0:
+        self.axes.set_xlabel(self.tr('Distance (km)'))
+      else:
+        self.axes.set_xlabel(self.tr('Distance with coefficient ') + str(dist_coeff) + self.tr(' (km)'))
     else:
       if xx[-1] > 1:
         self.axes.set_xlabel(self.tr('Time (days)'))

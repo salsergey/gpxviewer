@@ -287,15 +287,15 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.setProjectChanged(True)
 
   def showGoogleMaps(self):
-    lat = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().row(), gpx.LAT).data()
-    lon = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().row(), gpx.LON).data()
-    webbrowser.open('http://maps.google.com/maps?ll=' + lat + ',' + lon + '&t=h&q=' + lat + ',' + lon + '&z=17')
+    lat = self.ui.wptView.selectedIndexes()[gpx.LAT].data()
+    lon = self.ui.wptView.selectedIndexes()[gpx.LON].data()
+    webbrowser.open('http://maps.google.com/maps?ll=' + lat + ',' + lon + '&t=h&q=' + lat + ',' + lon + '&z=15')
 
   def pointStyle(self):
     style = {}
-    style.update(self.ui.wptView.selectionModel().selection().indexes()[0].data(gpx.MarkerRole))
-    style.update(self.ui.wptView.selectionModel().selection().indexes()[0].data(gpx.SplitLineRole))
-    style.update(self.ui.wptView.selectionModel().selection().indexes()[0].data(gpx.CaptionRole))
+    style.update(self.ui.wptView.selectedIndexes()[0].data(gpx.MarkerRole))
+    style.update(self.ui.wptView.selectedIndexes()[0].data(gpx.SplitLineRole))
+    style.update(self.ui.wptView.selectedIndexes()[0].data(gpx.CaptionRole))
     dlg = gpxviewer.pointconfigdialog.PointConfigDialog(self, style)
     if dlg.exec_() == QtWidgets.QDialog.Accepted:
       self.setProjectChanged(True)
@@ -515,8 +515,9 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       TheConfig['ProfileStyle']['FillColor'] = str(dlg.style['FillColor'])
       TheConfig['ProfileStyle']['ProfileWidth'] = str(dlg.style['ProfileWidth'])
       TheConfig['ProfileStyle']['MinimumAltitude'] = str(dlg.style['MinimumAltitude'])
-      TheConfig['ProfileStyle']['MaximumAltitude'] = str(dlg.style['MaximumAltitude'])
+      TheConfig['ProfileStyle']['DistanceCoefficient'] = str(dlg.style['DistanceCoefficient'])
       TheConfig['ProfileStyle']['TimeZoneOffset'] = str(dlg.style['TimeZoneOffset'])
+      TheDocument.gpxparser.updateDistance()
 
   def showWarning(self, title, text):
     QtWidgets.QMessageBox.warning(self, title, text)

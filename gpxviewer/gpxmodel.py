@@ -383,13 +383,14 @@ class GpxParser(QtCore.QObject):
     prev_lat = None
     prev_lon = None
     dist = 0.0
+    dist_coeff = float(TheConfig['ProfileStyle']['DistanceCoefficient'])
 
     for p in self.points:
       if type(p) == int:
         lat = self.wptmodel.waypoints[p][LAT]
         lon = self.wptmodel.waypoints[p][LON]
         if not self.wptmodel.neglectStates[p] and prev_lat is not None and prev_lon is not None:
-          dist += _distance(lat, lon, prev_lat, prev_lon) * 1.2  # with mountain coefficient
+          dist += _distance(lat, lon, prev_lat, prev_lon) * dist_coeff
         self.wptmodel.waypoints[p][DIST] = round(dist, 3)
         prev_lat = lat
         prev_lon = lon
@@ -397,7 +398,7 @@ class GpxParser(QtCore.QObject):
         lat = self.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][LAT]
         lon = self.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][LON]
         if prev_lat is not None and prev_lon is not None:
-          dist += _distance(lat, lon, prev_lat, prev_lon) * 1.2  # with mountain coefficient
+          dist += _distance(lat, lon, prev_lat, prev_lon) * dist_coeff
         self.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][DIST] = round(dist, 3)
         prev_lat = lat
         prev_lon = lon

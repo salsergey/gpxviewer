@@ -45,6 +45,7 @@ class ConfigStore(configparser.ConfigParser):
                                  'ProfileWidth': '1',
                                  'MinimumAltitude': '0',
                                  'MaximumAltitude': '1000',
+                                 'DistanceCoefficient': '1',
                                  'TimeZoneOffset': '420'},
                 'PointStyle': {'MarkerColorEnabled': True,
                                'MarkerColor': QColor(Qt.blue).rgba(),

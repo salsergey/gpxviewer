@@ -118,7 +118,6 @@ class GpxDocument(dict):
         self.wptmodel.setNeglectStates(self['NeglectDistances'], True)
       if 'SkipTracks' in self:
         self.trkmodel.setIncludeStates(self['SkipTracks'], gpx.INC_SKIP, False)
-      self.gpxparser.updatePoints()
 
       if 'ProfileColor' in self:
         TheConfig['ProfileStyle']['ProfileColor'] = self['ProfileColor']
@@ -130,8 +129,13 @@ class GpxDocument(dict):
         TheConfig['ProfileStyle']['MinimumAltitude'] = self['MinimumAltitude']
       if 'MaximumAltitude' in self:
         TheConfig['ProfileStyle']['MaximumAltitude'] = self['MaximumAltitude']
+      if 'DistanceCoefficient' in self:
+        TheConfig['ProfileStyle']['DistanceCoefficient'] = self['DistanceCoefficient']
       if 'TimeZoneOffset' in self:
         TheConfig['ProfileStyle']['TimeZoneOffset'] = self['TimeZoneOffset']
+
+      # After distance coefficient is set
+      self.gpxparser.updatePoints()
 
       if 'MarkerPoints' in self and 'CaptionPoints' in self and 'MarkerColors' in self:
         for i, m in zip(sorted(self['MarkerPoints'] + self['CaptionPoints']), self['MarkerColors']):
