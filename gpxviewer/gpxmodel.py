@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
-from math import sqrt, sin, cos, pi
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 from math import pi, sin, cos, acos

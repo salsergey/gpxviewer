@@ -15,7 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import datetime, timedelta
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt, QRegularExpression
 from PyQt5.QtGui import QGuiApplication, QIcon
 import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import TheConfig
@@ -53,12 +54,12 @@ class StatWindow(QtWidgets.QMainWindow):
     self.resize(TheConfig['StatWindow'].getint('WindowWidth'), TheConfig['StatWindow'].getint('WindowHeight'))
 
   def keyPressEvent(self, event):
-    if event.key() == QtCore.Qt.Key_Escape:
+    if event.key() == Qt.Key_Escape:
       if self.ui.statWidget.selectionModel().hasSelection():
         self.ui.statWidget.clearSelection()
       else:
         self.hide()
-    if event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
+    if event.key() == Qt.Key_C and event.modifiers() == Qt.ControlModifier:
       self.copyToClipboard()
     super(StatWindow, self).keyPressEvent(event)
 
@@ -85,28 +86,28 @@ class StatWindow(QtWidgets.QMainWindow):
     alt_raise = 0
     alt_drop = 0
 
-    for i, s in enumerate(TheDocument.wptmodel.includeStates):
-      if s != gpx.INC_SKIP:
+    for i in range(TheDocument.wptmodel.rowCount()):
+      if TheDocument.wptmodel.index(i, 0).data(gpx.IncludeRole) != gpx.INC_SKIP:
         point_start = TheDocument.wptmodel.waypoints[i]
         point_prev = point_start
         break
-    for i, s in enumerate(TheDocument.wptmodel.includeStates[::-1]):
-      if s != gpx.INC_SKIP:
-        i_stop = TheDocument.wptmodel.rowCount() - i - 1
+    for i in range(TheDocument.wptmodel.rowCount() - 1, -1, -1):
+      if TheDocument.wptmodel.index(i, 0).data(gpx.IncludeRole) != gpx.INC_SKIP:
+        i_stop = i
         break
 
     segments = []
     for i, p in enumerate(TheDocument.wptmodel.waypoints):
-      if TheDocument.wptmodel.includeStates[i] != gpx.INC_SKIP:
-        if self.ui.actionBySplittingLines.isChecked() and TheDocument.wptmodel.splitStates[i] or \
-           not self.ui.actionBySplittingLines.isChecked() and QtCore.QRegularExpression(self.filterLineEdit.text()).match(p[gpx.NAME]).hasMatch() or \
+      if TheDocument.wptmodel.index(i, 0).data(gpx.IncludeRole) != gpx.INC_SKIP:
+        if self.ui.actionBySplittingLines.isChecked() and TheDocument.wptmodel.index(i, 0).data(gpx.SplitStateRole) or \
+           not self.ui.actionBySplittingLines.isChecked() and QRegularExpression(self.filterLineEdit.text()).match(p[gpx.NAME]).hasMatch() or \
            i == i_stop:
              if p['ID'] != point_start['ID']:
               segments += [i]
     self.ui.statWidget.setRowCount(len(segments))
 
     for i, p in enumerate(TheDocument.wptmodel.waypoints):
-      if TheDocument.wptmodel.includeStates[i] != gpx.INC_SKIP:
+      if TheDocument.wptmodel.index(i, 0).data(gpx.IncludeRole) != gpx.INC_SKIP:
         if p[gpx.ALT] > point_prev[gpx.ALT]:
           alt_raise += p[gpx.ALT] - point_prev[gpx.ALT]
         else:
@@ -119,7 +120,7 @@ class StatWindow(QtWidgets.QMainWindow):
           self.ui.statWidget.setItem(n, RAISE, QtWidgets.QTableWidgetItem(str(alt_raise)))
           self.ui.statWidget.setItem(n, DROP, QtWidgets.QTableWidgetItem(str(alt_drop)))
           time_item = QtWidgets.QTableWidgetItem(str(p[gpx.TIME] - point_start[gpx.TIME]))
-          time_item.setData(QtCore.Qt.UserRole, p[gpx.TIME] - point_start[gpx.TIME])
+          time_item.setData(Qt.UserRole, p[gpx.TIME] - point_start[gpx.TIME])
           self.ui.statWidget.setItem(n, TIME, time_item)
           point_start = p
           n += 1
@@ -139,10 +140,10 @@ class StatWindow(QtWidgets.QMainWindow):
     else:
       rows = range(self.ui.statWidget.rowCount())
     for i in rows:
-      total_dist += round(float(self.ui.statWidget.item(i, DIST).data(QtCore.Qt.DisplayRole)), 3)
-      total_raise += int(self.ui.statWidget.item(i, RAISE).data(QtCore.Qt.DisplayRole))
-      total_drop += int(self.ui.statWidget.item(i, DROP).data(QtCore.Qt.DisplayRole))
-      total_time += self.ui.statWidget.item(i, TIME).data(QtCore.Qt.UserRole)
+      total_dist += round(float(self.ui.statWidget.item(i, DIST).data(Qt.DisplayRole)), 3)
+      total_raise += int(self.ui.statWidget.item(i, RAISE).data(Qt.DisplayRole))
+      total_drop += int(self.ui.statWidget.item(i, DROP).data(Qt.DisplayRole))
+      total_time += self.ui.statWidget.item(i, TIME).data(Qt.UserRole)
 
     self.ui.labelDist.setText(str(round(total_dist, 3)))
     self.ui.labelRaise.setText(str(total_raise))
@@ -152,5 +153,5 @@ class StatWindow(QtWidgets.QMainWindow):
   def copyToClipboard(self):
     text = ''
     for i in self.ui.statWidget.selectionModel().selectedRows():
-      text += '\t'.join([self.ui.statWidget.item(i.row(), c).data(QtCore.Qt.DisplayRole) for c in range(self.ui.statWidget.columnCount())]) + '\n'
+      text += '\t'.join([self.ui.statWidget.item(i.row(), c).data(Qt.DisplayRole) for c in range(self.ui.statWidget.columnCount())]) + '\n'
     QGuiApplication.clipboard().setText(text)

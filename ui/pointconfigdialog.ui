@@ -371,20 +371,20 @@
            <item>
             <widget class="QSpinBox" name="captionPositionXSpinBox">
              <property name="minimum">
-              <number>-99</number>
+              <number>-999</number>
              </property>
              <property name="maximum">
-              <number>99</number>
+              <number>999</number>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QSpinBox" name="captionPositionYSpinBox">
              <property name="minimum">
-              <number>-99</number>
+              <number>-999</number>
              </property>
              <property name="maximum">
-              <number>99</number>
+              <number>999</number>
              </property>
             </widget>
            </item>
@@ -440,9 +440,6 @@
             <widget class="QSpinBox" name="captionSizeSpinBox">
              <property name="minimum">
               <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>100</number>
              </property>
             </widget>
            </item>

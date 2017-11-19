@@ -15,9 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyQt5.QtWidgets import QDialog
+import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import TheConfig
 import gpxviewer.ui_pointconfigdialog
-import gpxviewer.gpxmodel as gpx
 
 
 class PointConfigDialog(QDialog):
@@ -142,7 +142,7 @@ class PointConfigDialog(QDialog):
     self.style[gpx.LINE_STYLE] = self.lineStyles[self.ui.lineStyleCombo.currentIndex()][0]
 
   def setLineWidth(self):
-    self.style[gpx.LINE_WIDTH] = round(self.ui.lineWidthSpinBox.value(), 1)
+    self.style[gpx.LINE_WIDTH] = round(self.ui.lineWidthSpinBox.value(), self.ui.lineWidthSpinBox.decimals())
 
   def setCaptionPositionX(self):
     self.style[gpx.CAPTION_POSX] = self.ui.captionPositionXSpinBox.value()

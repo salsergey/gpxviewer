@@ -14,17 +14,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5.QtCore import QSortFilterProxyModel
-from PyQt5.QtWidgets import QSizePolicy
-from PyQt5.QtGui import QColor, qAlpha
+from math import ceil
 import matplotlib
 from matplotlib import rc
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from math import ceil
+from PyQt5.QtCore import QSortFilterProxyModel
+from PyQt5.QtGui import QColor, qAlpha
+from PyQt5.QtWidgets import QSizePolicy
 import gpxviewer.gpxmodel as gpx
-from gpxviewer.gpxdocument import TheDocument
 from gpxviewer.configstore import TheConfig
+from gpxviewer.gpxdocument import TheDocument
 matplotlib.use('Qt5Agg')
 
 
@@ -62,7 +62,7 @@ class PlotCanvas(FigureCanvas):
         if TheDocument.wptmodel.index(p, 0).data(gpx.IncludeRole) == gpx.INC_CAPTION:
           captions += [(p, xx[-1], yy[-1], TheDocument.wptmodel.index(p, 0).data(gpx.CaptionRole))]
       else:
-        if column == gpx.DIST or TheDocument.trkmodel.tracks[p[0]][gpx.TRKTIME] != '':
+        if column == gpx.DIST or TheDocument.trkmodel.index(p[0], gpx.TRKTIME).data() != '':
           xx += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][column])]
           yy += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][gpx.ALT])]
     neglectPoints += [xx[-1]]

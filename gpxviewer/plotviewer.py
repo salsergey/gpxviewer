@@ -14,8 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from os import path
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtWidgets
+from PyQt5.QtGui import QIcon, QKeySequence
+from PyQt5.QtCore import Qt, QFileInfo
 from gpxviewer.configstore import TheConfig
 import gpxviewer.ui_plotwindow
 
@@ -26,12 +27,12 @@ class PlotWindow(QtWidgets.QMainWindow):
     self.ui = gpxviewer.ui_plotwindow.Ui_PlotWindow()
     self.ui.setupUi(self)
 
-    self.setWindowIcon(QtGui.QIcon(':/icons/gpxviewer.svg'))
-    self.ui.actExportCurrentSize.setIcon(QtGui.QIcon.fromTheme('document-save', QtGui.QIcon(':/icons/document-save.svg')))
-    self.ui.actExportSelectedSize.setIcon(QtGui.QIcon.fromTheme('document-save-as', QtGui.QIcon(':/icons/document-save-as.svg')))
+    self.setWindowIcon(QIcon(':/icons/gpxviewer.svg'))
+    self.ui.actExportCurrentSize.setIcon(QIcon.fromTheme('document-save', QIcon(':/icons/document-save.svg')))
+    self.ui.actExportSelectedSize.setIcon(QIcon.fromTheme('document-save-as', QIcon(':/icons/document-save-as.svg')))
 
-    self.ui.actExportCurrentSize.setShortcut(QtGui.QKeySequence.Save)
-    self.ui.actExportSelectedSize.setShortcut(QtGui.QKeySequence.SaveAs)
+    self.ui.actExportCurrentSize.setShortcut(QKeySequence.Save)
+    self.ui.actExportSelectedSize.setShortcut(QKeySequence.SaveAs)
 
     wdg = QtWidgets.QWidget()
     wdg.setLayout(QtWidgets.QHBoxLayout())
@@ -54,7 +55,7 @@ class PlotWindow(QtWidgets.QMainWindow):
     self.resize(TheConfig['PlotWindow'].getint('WindowWidth'), TheConfig['PlotWindow'].getint('WindowHeight'))
 
   def keyPressEvent(self, event):
-    if event.key() == QtCore.Qt.Key_Escape:
+    if event.key() == Qt.Key_Escape:
       self.hide()
     super(PlotWindow, self).keyPressEvent(event)
 
@@ -69,7 +70,7 @@ class PlotWindow(QtWidgets.QMainWindow):
                                                              TheConfig['PlotWindow']['SaveFileExtension'])
 
     if filename != '':
-      TheConfig['PlotWindow']['SaveProfileDirectory'] = path.dirname(filename)
+      TheConfig['PlotWindow']['SaveProfileDirectory'] = QFileInfo(filename).path()
       TheConfig['PlotWindow']['SaveFileExtension'] = filter
 
     return filename

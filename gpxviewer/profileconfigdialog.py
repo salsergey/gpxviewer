@@ -57,7 +57,7 @@ class ProfileConfigDialog(QDialog):
     self.style['FillColor'] = self.ui.fillColorButton.color.rgba()
 
   def setProfileWidth(self):
-    self.style['ProfileWidth'] = round(self.ui.profileWidthSpinBox.value(), 1)
+    self.style['ProfileWidth'] = round(self.ui.profileWidthSpinBox.value(), self.ui.profileWidthSpinBox.decimals())
 
   def setMinimumAltitude(self):
     self.style['MinimumAltitude'] = self.ui.minaltSpinBox.value()

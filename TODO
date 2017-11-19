@@ -6,7 +6,6 @@
 
 * Recent files.
 * Add "Set as start point" to the context menu.
-* Ask about the GPX file loaction if not found.
 * Draw icons.
 * Adjust context menu.
 * Add descriptions and status in tooltips.
@@ -19,5 +18,4 @@
 == Fixes ==
 
 * Memory leaks.
-* Incapsulation in GPX models.
 * Add comments to the code!

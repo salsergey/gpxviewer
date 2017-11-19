@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/pointconfigdialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.9
+# Created by: PyQt5 UI code generator 5.9.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -212,13 +212,13 @@ class Ui_pointConfigDialog(object):
         self.label_5.setObjectName("label_5")
         self.horizontalLayout_12.addWidget(self.label_5)
         self.captionPositionXSpinBox = QtWidgets.QSpinBox(self.widget_5)
-        self.captionPositionXSpinBox.setMinimum(-99)
-        self.captionPositionXSpinBox.setMaximum(99)
+        self.captionPositionXSpinBox.setMinimum(-999)
+        self.captionPositionXSpinBox.setMaximum(999)
         self.captionPositionXSpinBox.setObjectName("captionPositionXSpinBox")
         self.horizontalLayout_12.addWidget(self.captionPositionXSpinBox)
         self.captionPositionYSpinBox = QtWidgets.QSpinBox(self.widget_5)
-        self.captionPositionYSpinBox.setMinimum(-99)
-        self.captionPositionYSpinBox.setMaximum(99)
+        self.captionPositionYSpinBox.setMinimum(-999)
+        self.captionPositionYSpinBox.setMaximum(999)
         self.captionPositionYSpinBox.setObjectName("captionPositionYSpinBox")
         self.horizontalLayout_12.addWidget(self.captionPositionYSpinBox)
         self.horizontalLayout_11.addWidget(self.widget_5)
@@ -249,7 +249,6 @@ class Ui_pointConfigDialog(object):
         self.horizontalLayout_14.addWidget(self.label_6)
         self.captionSizeSpinBox = QtWidgets.QSpinBox(self.widget_6)
         self.captionSizeSpinBox.setMinimum(1)
-        self.captionSizeSpinBox.setMaximum(100)
         self.captionSizeSpinBox.setObjectName("captionSizeSpinBox")
         self.horizontalLayout_14.addWidget(self.captionSizeSpinBox)
         self.horizontalLayout_13.addWidget(self.widget_6)

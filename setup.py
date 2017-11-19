@@ -17,10 +17,10 @@
 # setup.py
 # A distutils setup script.
 
-from setuptools import setup, Command
-import sys
 import os
 import subprocess
+import sys
+from setuptools import setup, Command
 
 
 class build_dep(Command):

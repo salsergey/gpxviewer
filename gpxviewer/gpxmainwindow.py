@@ -17,14 +17,14 @@
 import sys
 import webbrowser
 from PyQt5 import QtCore, QtWidgets, QtGui
-import gpxviewer.plotviewer as plt
 import gpxviewer.gpxmodel as gpx
 import gpxviewer.statwindow as stat
+import gpxviewer.plotviewer as plt
+import gpxviewer.pointconfigdialog
+import gpxviewer.profileconfigdialog
 from gpxviewer.configstore import TheConfig
 from gpxviewer.gpxdocument import TheDocument
 import gpxviewer.ui_mainwindow
-import gpxviewer.profileconfigdialog
-import gpxviewer.pointconfigdialog
 
 
 class GpxMainWindow(QtWidgets.QMainWindow):
@@ -93,6 +93,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
 
     TheDocument.gpxparser.warningSent.connect(self.showWarning)
     TheDocument.gpxparser.wptmodel.namesChanged.connect(self.setProjectChanged)
+    TheDocument.fileNotFound.connect(self.openedFileNotFound)
 
     self.projectSaved = False
     self.projectChanged = False
@@ -117,7 +118,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       return super(GpxMainWindow, self).eventFilter(obj, event)
 
   def closeEvent(self, event):
-    if self.projectChanged and len(TheDocument['GPXFile']) != 0:
+    if self.projectChanged and len(TheDocument.doc['GPXFile']) != 0:
       result = QtWidgets.QMessageBox.information(self, self.tr('Close GPX Viewer'),
                                                  self.tr('There are unsaved changes. Do you want to save the project?'),
                                                  QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel,
@@ -219,7 +220,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
                 self.tr('Using') + ' Python ' + str(sys.version_info.major) + '.' + str(sys.version_info.minor) + '.' + str(sys.version_info.micro) + ', ' + \
                 'PyQt5 ' + QtCore.PYQT_VERSION_STR + ', ' + \
                 'Qt ' + QtCore.QT_VERSION_STR + '<br><br>' + \
-                'Copyright 2016-2017 Sergey Salnikov<br><br>' + \
+                'Copyright 2016-2017 Sergey Salnikov <a href=mailto:salsergey@gmail.com>&lt;salsergey@gmail.com&gt;</a><br><br>' + \
                 self.tr('License:') + ' <a href=http://www.gnu.org/licenses/gpl.html>GNU General Public License, version 3</a>'
     QtWidgets.QMessageBox.about(self, self.tr('About GPX Viewer'), aboutText)
 
@@ -341,7 +342,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.setProjectChanged(True)
 
   def fileNew(self):
-    if self.projectChanged and len(TheDocument['GPXFile']) != 0:
+    if self.projectChanged and len(TheDocument.doc['GPXFile']) != 0:
       result = QtWidgets.QMessageBox.information(self, self.tr('Load GPX file'),
                                                  self.tr('There are unsaved changes. Do you want to save the project?'),
                                                  QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel,
@@ -368,11 +369,11 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     filename = QtWidgets.QFileDialog.getSaveFileName(self, self.tr('Save GPX file as'), TheConfig['MainWindow']['LoadGPXDirectory'],
                                                      self.tr('GPX XML (*.gpx);;All files (*)'))[0]
     if filename != '':
-      TheConfig['MainWindow']['LoadGPXDirectory'] = QtCore.QDir(filename).path()
+      TheConfig['MainWindow']['LoadGPXDirectory'] = QtCore.QFileInfo(filename).path()
       TheDocument.gpxparser.writeToFile(filename)
 
   def fileOpen(self):
-    if self.projectChanged and len(TheDocument['GPXFile']) != 0:
+    if self.projectChanged and len(TheDocument.doc['GPXFile']) != 0:
       result = QtWidgets.QMessageBox.information(self, self.tr('Open GPX Viewer project'),
                                                  self.tr('There are unsaved changes. Do you want to save the project?'),
                                                  QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel,
@@ -398,13 +399,13 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     return True
 
   def fileSaveAs(self):
-    if len(TheDocument['GPXFile']) != 0:
+    if len(TheDocument.doc['GPXFile']) != 0:
       filename = QtWidgets.QFileDialog.getSaveFileName(self, self.tr('Save project file as'), TheConfig['MainWindow']['ProjectDirectory'],
                                                        self.tr('GPX Viewer Projects (*.gpxv);;All files (*)'))[0]
       if filename != '':
         self.projectFile = filename
         self.projectSaved = True
-        TheConfig['MainWindow']['ProjectDirectory'] = QtCore.QDir(self.projectFile).path()
+        TheConfig['MainWindow']['ProjectDirectory'] = QtCore.QFileInfo(self.projectFile).path()
         TheDocument.saveFile(self.projectFile)
         self.setProjectChanged(False)
         self.updateTitleFilename(self.projectFile)
@@ -422,13 +423,13 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.updateTabs()
 
   def openGPXFile(self, filename):
-    TheConfig['MainWindow']['LoadGPXDirectory'] = QtCore.QDir(filename).path()
-    TheDocument['GPXFile'] += [filename]
+    TheConfig['MainWindow']['LoadGPXDirectory'] = QtCore.QFileInfo(filename).path()
+    TheDocument.doc['GPXFile'] += [filename]
     self.projectSaved = False
     try:
       TheDocument.gpxparser.parse(filename)
       self.setProjectChanged(True)
-      if len(TheDocument['GPXFile']) > 1:
+      if len(TheDocument.doc['GPXFile']) > 1:
         self.updateTitleFilename('[ ' + self.tr('Multiple GPX files') + ' ]')
       else:
         self.updateTitleFilename(filename)
@@ -438,6 +439,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
   def openGPXProject(self, filename):
     self.projectFile = filename
     self.projectSaved = True
+    TheConfig['MainWindow']['ProjectDirectory'] = QtCore.QFileInfo(self.projectFile).path()
     try:
       TheDocument.openFile(filename)
       self.includefiltermodel.invalidateFilter()
@@ -446,10 +448,21 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       self.setProjectChanged(False)
       self.updateTitleFilename(self.projectFile)
       self.updateTabs()
-      TheConfig['MainWindow']['ProjectDirectory'] = QtCore.QDir(self.projectFile).path()
     except gpx.GpxWarning as e:
       self.reset()
       QtWidgets.QMessageBox.warning(self, self.tr('File read error'), e.args[0])
+
+  def openedFileNotFound(self, file):
+    result = QtWidgets.QMessageBox.warning(self, self.tr('File read error'), self.tr('The file ') + file + self.tr(' doesn\'t exist.\n\nDo you want to choose another location of this file?'),
+                                           QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.YesToAll | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.Yes)
+    if result in (QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.YesToAll):
+      filename = QtWidgets.QFileDialog.getOpenFileName(self, self.tr('Open GPX file') + ' ' + QtCore.QFileInfo(file).fileName(), TheConfig['MainWindow']['LoadGPXDirectory'],
+                                                       self.tr('GPX XML (*.gpx);;All files (*)'))[0]
+      if filename != '':
+        TheConfig['MainWindow']['LoadGPXDirectory'] = QtCore.QFileInfo(filename).path()
+        TheDocument.newFilePath = filename
+        if result == QtWidgets.QMessageBox.YesToAll:
+          TheDocument.applyToAll = True
 
   def plotDistanceProfile(self):
     if TheDocument.wptmodel.rowCount() - len(TheDocument.wptmodel.getIndexesWithIncludeState(gpx.INC_SKIP)) < 2 and \
@@ -463,15 +476,16 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.plot.activateWindow()
 
   def plotTimeProfile(self):
+    # Check if there are at least two points with timestamps
     n = 0
-    for p, s in zip(TheDocument.wptmodel.waypoints, TheDocument.wptmodel.includeStates):
-      if s != gpx.INC_SKIP and p[gpx.TIME] != '':
+    for i in range(TheDocument.wptmodel.rowCount()):
+      if TheDocument.wptmodel.index(i, 0).data(gpx.IncludeRole) != gpx.INC_SKIP and TheDocument.wptmodel.index(i, gpx.TIME).data() != '':
         n += 1
       if n == 2:
         break
     if n < 2:
-      for t, s in zip(TheDocument.trkmodel.tracks, TheDocument.trkmodel.includeStates):
-        if s != gpx.INC_SKIP and t[gpx.TRKTIME] != '':
+      for j in range(TheDocument.trkmodel.rowCount()):
+        if TheDocument.trkmodel.index(j, 0).data(gpx.IncludeRole) != gpx.INC_SKIP and TheDocument.trkmodel.index(i, gpx.TRKTIME).data() != '':
           n = 2
           break
       if n < 2:
@@ -526,7 +540,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.projectFile = ''
     self.projectSaved = False
     self.setProjectChanged(False)
-    TheDocument['GPXFile'] = []
+    TheDocument.doc['GPXFile'] = []
     TheDocument.gpxparser.resetModels()
     self.setWindowTitle('GPX Viewer')
     self.ui.wptView.setDisabled(True)
