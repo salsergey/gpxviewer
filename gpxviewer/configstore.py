@@ -20,9 +20,26 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 
 
+class GpxConfigParser(configparser.ConfigParser):
+  def __init__(self):
+    super(GpxConfigParser, self).__init__()
+
+  def items(self, section, raw=False, vars=None):
+    items = dict(super(GpxConfigParser, self).items(section, raw=raw, vars=vars))
+    for i in items:
+      if items[i][0] == '[' and items[i][-1] == ']':
+        items[i] = eval(items[i])
+    return items
+
+  def optionxform(self, optionstr):
+    return optionstr
+
+
 class ConfigStore(configparser.ConfigParser):
   def __init__(self):
     super(ConfigStore, self).__init__()
+    self.recentProjects = []
+
     defaults = {'MainWindow': {'WindowWidth': '1024',
                                'WindowHeight': '768',
                                'LoadGPXDirectory': os.path.expanduser('~'),
@@ -30,7 +47,9 @@ class ConfigStore(configparser.ConfigParser):
                                'ShowDefault': 'True',
                                'ShowSkipped': 'True',
                                'ShowMarked': 'True',
-                               'ShowCaptioned': 'True'},
+                               'ShowCaptioned': 'True',
+                               'RecentProjects': [],
+                               'MaxRecentProjects': 10},
                 'PlotWindow': {'WindowWidth': '1024',
                                'WindowHeight': '768',
                                'SaveProfileDirectory': os.path.expanduser('~'),
@@ -65,18 +84,21 @@ class ConfigStore(configparser.ConfigParser):
                                'CaptionSizeEnabled': True,
                                'CaptionSize': '12'}}
     self.read_dict(defaults)
+
     if os.name == 'nt':
       self.configfile = os.path.expanduser('~/AppData/Local/gpxviewerrc')
     else:
       self.configfile = os.path.expanduser('~/.config/gpxviewerrc')
     if os.path.exists(self.configfile):
       self.read(self.configfile)
+      self.recentProjects = eval(self['MainWindow']['RecentProjects'])
 
   def optionxform(self, optionstr):
     return optionstr
 
   def save(self):
     with open(self.configfile, 'w') as cfg:
+      self['MainWindow']['RecentProjects'] = str(self.recentProjects)
       self.write(cfg)
 
 

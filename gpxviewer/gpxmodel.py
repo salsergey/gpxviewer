@@ -38,7 +38,7 @@ class GpxWarning(Exception):
 class WptModel(QtCore.QAbstractTableModel):
   def __init__(self, parent=None):
     super(WptModel, self).__init__(parent)
-    self.fields = [self.tr('Name'), self.tr('Latitude'), self.tr('Longitude'), self.tr('Altitude'),
+    self.fields = [self.tr('Name'), self.tr('Latitude'), self.tr('Longitude'), self.tr('Elevation'),
                    self.tr('Distance'), self.tr('Time'), self.tr('Time difference'), self.tr('Time in days')]
     self.resetModel()
     self.pix = QPixmap(16, 16)

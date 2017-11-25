@@ -89,7 +89,6 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.ui.actionShowMarked.setChecked(TheConfig['MainWindow'].getboolean('ShowMarked'))
     self.ui.actionShowCaptioned.setChecked(TheConfig['MainWindow'].getboolean('ShowCaptioned'))
     self.ui.actionShowOther.setChecked(TheConfig['MainWindow'].getboolean('ShowDefault'))
-    self.resize(TheConfig['MainWindow'].getint('WindowWidth'), TheConfig['MainWindow'].getint('WindowHeight'))
 
     TheDocument.gpxparser.warningSent.connect(self.showWarning)
     TheDocument.gpxparser.wptmodel.namesChanged.connect(self.setProjectChanged)
@@ -98,6 +97,11 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.projectSaved = False
     self.projectChanged = False
     self.titleFilename = None
+    self.actionsRecent = []
+
+    self.updateRecentProjects()
+    self.resize(TheConfig['MainWindow'].getint('WindowWidth'), TheConfig['MainWindow'].getint('WindowHeight'))
+
     self.plot = plt.PlotWindow()
     self.stat = stat.StatWindow()
 
@@ -409,6 +413,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
         TheDocument.saveFile(self.projectFile)
         self.setProjectChanged(False)
         self.updateTitleFilename(self.projectFile)
+        self.addRecentProject(self.projectFile)
         return True
       else:
         return False
@@ -448,6 +453,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       self.setProjectChanged(False)
       self.updateTitleFilename(self.projectFile)
       self.updateTabs()
+      self.addRecentProject(filename)
     except gpx.GpxWarning as e:
       self.reset()
       QtWidgets.QMessageBox.warning(self, self.tr('File read error'), e.args[0])
@@ -463,6 +469,11 @@ class GpxMainWindow(QtWidgets.QMainWindow):
         TheDocument.newFilePath = filename
         if result == QtWidgets.QMessageBox.YesToAll:
           TheDocument.applyToAll = True
+
+  def openRecentProject(self):
+    for i, act in enumerate(self.actionsRecent):
+      if self.sender() == act:
+        self.openGPXProject(TheConfig.recentProjects[i])
 
   def plotDistanceProfile(self):
     if TheDocument.wptmodel.rowCount() - len(TheDocument.wptmodel.getIndexesWithIncludeState(gpx.INC_SKIP)) < 2 and \
@@ -570,3 +581,33 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       self.ui.trkView.resizeColumnsToContents()
       if TheDocument.wptmodel.rowCount() == 0:
         self.ui.tabWidget.setCurrentWidget(self.ui.trkTab)
+
+  def addRecentProject(self, filename):
+    if filename in TheConfig.recentProjects:
+      TheConfig.recentProjects.remove(filename)
+    TheConfig.recentProjects.insert(0, filename)
+    if len(TheConfig.recentProjects) > TheConfig['MainWindow'].getint('MaxRecentProjects'):
+      del TheConfig.recentProjects[-1]
+    self.updateRecentProjects()
+
+  def updateRecentProjects(self):
+    for act in self.actionsRecent:
+      self.ui.menuRecentProjects.removeAction(act)
+    self.actionsRecent = []
+    for p in TheConfig.recentProjects:
+      act = QtWidgets.QAction(QtCore.QFileInfo(p).fileName() + ' [' + p + ']', self)
+      act.triggered.connect(self.openRecentProject)
+      self.actionsRecent += [act]
+    self.ui.menuRecentProjects.insertActions(self.ui.actionClearList, self.actionsRecent)
+    if len(TheConfig.recentProjects) > 0:
+      self.ui.menuRecentProjects.insertSeparator(self.ui.actionClearList)
+      self.ui.actionClearList.setEnabled(True)
+    else:
+      self.ui.actionClearList.setDisabled(True)
+
+  def clearRecentList(self):
+    for act in self.actionsRecent:
+      self.ui.menuRecentProjects.removeAction(act)
+    self.actionsRecent = []
+    TheConfig.recentProjects = []
+    self.ui.actionClearList.setDisabled(True)

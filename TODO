@@ -4,15 +4,14 @@
 
 == Minor ==
 
-* Recent files.
+* Rename multiple points at once.
 * Add "Set as start point" to the context menu.
-* Draw icons.
-* Adjust context menu.
-* Add descriptions and status in tooltips.
 * Button for time resorting.
 * Read names from other tags.
 * Copying a column.
-* Rename multiple points at once.
+* Draw icons.
+* Adjust context menu.
+* Add descriptions and status in tooltips.
 * Make movable toolbars.
 
 == Fixes ==

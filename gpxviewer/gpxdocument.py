@@ -17,25 +17,10 @@
 import configparser
 from PyQt5 import QtCore
 import gpxviewer.gpxmodel as gpx
-from gpxviewer.configstore import TheConfig
+from gpxviewer.configstore import GpxConfigParser, TheConfig
 
 
 GPXMAGICK = '9e27ea8e'
-
-
-class GpxConfigParser(configparser.ConfigParser):
-  def __init__(self):
-    super(GpxConfigParser, self).__init__()
-
-  def items(self, section, raw=False, vars=None):
-    items = dict(super(GpxConfigParser, self).items(section, raw=raw, vars=vars))
-    for i in items:
-      if items[i][0] == '[' and items[i][-1] == ']':
-        items[i] = eval(items[i])
-    return items
-
-  def optionxform(self, optionstr):
-    return optionstr
 
 
 class GpxDocument(QtCore.QObject):

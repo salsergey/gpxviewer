@@ -80,6 +80,12 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <widget class="QMenu" name="menuRecentProjects">
+     <property name="title">
+      <string>&amp;Recent projects</string>
+     </property>
+     <addaction name="actionClearList"/>
+    </widget>
     <addaction name="actionLoadGPXfile"/>
     <addaction name="actionSaveGPXfileAs"/>
     <addaction name="separator"/>
@@ -87,6 +93,8 @@
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
+    <addaction name="separator"/>
+    <addaction name="menuRecentProjects"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -279,7 +287,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Profile &amp;style</string>
+    <string>&amp;Profile style</string>
    </property>
   </action>
   <action name="actionShowSkipped">
@@ -351,6 +359,11 @@
   <action name="actionSaveGPXfileAs">
    <property name="text">
     <string>Save &amp;GPX file as...</string>
+   </property>
+  </action>
+  <action name="actionClearList">
+   <property name="text">
+    <string>&amp;Clear list</string>
    </property>
   </action>
  </widget>
@@ -644,6 +657,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionClearList</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>clearRecentList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>fileOpen()</slot>
@@ -663,5 +692,6 @@
   <slot>fileNew()</slot>
   <slot>showStatistics()</slot>
   <slot>fileSaveGPXFileAs()</slot>
+  <slot>clearRecentList()</slot>
  </slots>
 </ui>
