@@ -63,7 +63,7 @@ else:
 
 setup(
   name='gpxviewer',
-  version='0.8',
+  version='0.9',
   description='A GPX viewer',
   url='https://bitbucket.org/salsergey/gpxviewer',
   author='Sergey Salnikov',
