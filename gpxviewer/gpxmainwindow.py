@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2017 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2018 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -540,6 +540,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       TheConfig['ProfileStyle']['FillColor'] = str(dlg.style['FillColor'])
       TheConfig['ProfileStyle']['ProfileWidth'] = str(dlg.style['ProfileWidth'])
       TheConfig['ProfileStyle']['MinimumAltitude'] = str(dlg.style['MinimumAltitude'])
+      TheConfig['ProfileStyle']['MaximumAltitude'] = str(dlg.style['MaximumAltitude'])
       TheConfig['ProfileStyle']['DistanceCoefficient'] = str(dlg.style['DistanceCoefficient'])
       TheConfig['ProfileStyle']['TimeZoneOffset'] = str(dlg.style['TimeZoneOffset'])
       TheDocument.gpxparser.updateDistance()

@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2017 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2018 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -316,7 +316,7 @@ class GpxParser(QtCore.QObject):
               point[TIME] = ''
 
             if prev_lat is not None and prev_lon is not None:
-              dist += _distance(point[LAT], point[LON], prev_lat, prev_lon) * 1.2  # with mountain coefficient
+              dist += _distance(point[LAT], point[LON], prev_lat, prev_lon)
             prev_lat = point[LAT]
             prev_lon = point[LON]
 
@@ -328,7 +328,8 @@ class GpxParser(QtCore.QObject):
 
         track[TRKSEGS] = len(track['SEGMENTS'])
         track[TRKPTS] = pts
-        track[TRKLEN] = round(tot_dist, 3)
+        track['LENGTH'] = tot_dist
+        track[TRKLEN] = ''
         track[TRKTIME] = track['SEGMENTS'][0][0][TIME]
         track[TRKDUR] = track['SEGMENTS'][-1][-1][TIME] - track['SEGMENTS'][0][0][TIME] \
                         if track['SEGMENTS'][0][0][TIME] != '' and track['SEGMENTS'][-1][-1][TIME] != '' else ''
@@ -403,6 +404,9 @@ class GpxParser(QtCore.QObject):
 
     for i in self.wptmodel.getIndexesWithIncludeState(INC_SKIP):
       self.wptmodel.waypoints[i][DIST] = ''
+
+    for i in self.trkmodel.tracks:
+      i[TRKLEN] = round(i['LENGTH'] * dist_coeff, 3)
 
   def updateTimeDifference(self):
     start_dt = None

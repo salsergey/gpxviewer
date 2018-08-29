@@ -274,7 +274,7 @@ Do you want to choose another location of this file?</source>
         <translation>Маршрутная точка </translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="353"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="356"/>
         <source>Track </source>
         <translation>Трек </translation>
     </message>
@@ -285,13 +285,13 @@ Do you want to choose another location of this file?</source>
         <translation>повреждена и будет пропущена.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="353"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="356"/>
         <source>is invalid and will be skipped.</source>
         <comment>Track</comment>
         <translation>повреждён и будет пропущен.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="353"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="356"/>
         <source>File read error</source>
         <translation>Ошибка чтения файла</translation>
     </message>
