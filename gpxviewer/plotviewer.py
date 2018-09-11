@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2017 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2018 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -75,8 +75,8 @@ class PlotWindow(QtWidgets.QMainWindow):
 
     return filename
 
-  def plotProfile(self, column):
-    self.ui.canvasWidget.plotProfile(column)
+  def plotProfile(self, column, wptRows=[], trkRows=[]):
+    self.ui.canvasWidget.plotProfile(column, wptRows, trkRows)
     self.ui.centralwidget.setFocus()
 
   def saveCurrentSize(self):

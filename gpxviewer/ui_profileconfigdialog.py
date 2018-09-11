@@ -12,7 +12,7 @@ class Ui_profileConfigDialog(object):
     def setupUi(self, profileConfigDialog):
         profileConfigDialog.setObjectName("profileConfigDialog")
         profileConfigDialog.setWindowModality(QtCore.Qt.WindowModal)
-        profileConfigDialog.resize(265, 368)
+        profileConfigDialog.resize(265, 396)
         self.verticalLayout = QtWidgets.QVBoxLayout(profileConfigDialog)
         self.verticalLayout.setContentsMargins(3, -1, 3, -1)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -108,6 +108,17 @@ class Ui_profileConfigDialog(object):
         self.timezoneSpinBox.setObjectName("timezoneSpinBox")
         self.horizontalLayout_4.addWidget(self.timezoneSpinBox)
         self.verticalLayout_2.addLayout(self.horizontalLayout_4)
+        self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        self.label = QtWidgets.QLabel(self.frame)
+        self.label.setObjectName("label")
+        self.horizontalLayout_6.addWidget(self.label)
+        self.selectedPointsCheckBox = QtWidgets.QCheckBox(self.frame)
+        self.selectedPointsCheckBox.setMinimumSize(QtCore.QSize(0, 32))
+        self.selectedPointsCheckBox.setLayoutDirection(QtCore.Qt.RightToLeft)
+        self.selectedPointsCheckBox.setObjectName("selectedPointsCheckBox")
+        self.horizontalLayout_6.addWidget(self.selectedPointsCheckBox)
+        self.verticalLayout_2.addLayout(self.horizontalLayout_6)
         spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.MinimumExpanding)
         self.verticalLayout_2.addItem(spacerItem)
         self.verticalLayout.addWidget(self.frame)
@@ -133,5 +144,6 @@ class Ui_profileConfigDialog(object):
         self.label_8.setText(_translate("profileConfigDialog", "Distance coefficient"))
         self.label_7.setText(_translate("profileConfigDialog", "Time zone offset"))
         self.timezoneSpinBox.setSuffix(_translate("profileConfigDialog", " min"))
+        self.label.setText(_translate("profileConfigDialog", "Use only selected points"))
 
 from gpxviewer.colorchooser import ColorChooser

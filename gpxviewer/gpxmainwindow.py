@@ -482,7 +482,10 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       return
 
     self.plot.setWindowTitle(self.tr('Distance Profile'))
-    self.plot.plotProfile(gpx.DIST)
+    if TheConfig['ProfileStyle'].getboolean('SelectedPointsOnly'):
+      self.plot.plotProfile(gpx.DIST, [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], [i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
+    else:
+      self.plot.plotProfile(gpx.DIST)
     self.plot.show()
     self.plot.activateWindow()
 
@@ -504,7 +507,10 @@ class GpxMainWindow(QtWidgets.QMainWindow):
         return
 
     self.plot.setWindowTitle(self.tr('Time Profile'))
-    self.plot.plotProfile(gpx.TIME_DAYS)
+    if TheConfig['ProfileStyle'].getboolean('SelectedPointsOnly'):
+      self.plot.plotProfile(gpx.TIME_DAYS, [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], [i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
+    else:
+      self.plot.plotProfile(gpx.TIME_DAYS)
     self.plot.show()
     self.plot.activateWindow()
 
@@ -543,6 +549,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       TheConfig['ProfileStyle']['MaximumAltitude'] = str(dlg.style['MaximumAltitude'])
       TheConfig['ProfileStyle']['DistanceCoefficient'] = str(dlg.style['DistanceCoefficient'])
       TheConfig['ProfileStyle']['TimeZoneOffset'] = str(dlg.style['TimeZoneOffset'])
+      TheConfig['ProfileStyle']['SelectedPointsOnly'] = str(dlg.style['SelectedPointsOnly'])
       TheDocument.gpxparser.updateDistance()
 
   def showWarning(self, title, text):

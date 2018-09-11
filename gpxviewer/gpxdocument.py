@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2017 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2018 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -127,6 +127,8 @@ class GpxDocument(QtCore.QObject):
         TheConfig['ProfileStyle']['DistanceCoefficient'] = self.doc['DistanceCoefficient']
       if 'TimeZoneOffset' in self.doc:
         TheConfig['ProfileStyle']['TimeZoneOffset'] = self.doc['TimeZoneOffset']
+      if 'SelectedPointsOnly' in self.doc:
+        TheConfig['ProfileStyle']['SelectedPointsOnly'] = self.doc['SelectedPointsOnly']
 
       # After distance coefficient is set
       self.gpxparser.updatePoints()

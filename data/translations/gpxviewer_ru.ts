@@ -3,7 +3,7 @@
 <context>
     <name>GpxDocument</name>
     <message>
-        <location filename="../../gpxviewer/gpxdocument.py" line="169"/>
+        <location filename="../../gpxviewer/gpxdocument.py" line="171"/>
         <source>This file in not a valid GPX Viewer project file.</source>
         <translation>Этот файл не является файлом проекта GPX Viewer.</translation>
     </message>
@@ -76,7 +76,7 @@
         <translation>Профиль по расстоянию</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="506"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="509"/>
         <source>Time Profile</source>
         <translation>Профиль по времени</translation>
     </message>
@@ -161,7 +161,7 @@
         <translation>Сохранить GPX файл как</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="513"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="519"/>
         <source>Not enouph points.</source>
         <translation>Недостаточно точек.</translation>
     </message>
@@ -181,12 +181,12 @@
         <translation>Ошибка сохранения</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="503"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="506"/>
         <source>Plot error</source>
         <translation>Ошибка отрисовки</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="513"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="519"/>
         <source>Statistics error</source>
         <translation>Ошибка расчёта статистики</translation>
     </message>
@@ -196,7 +196,7 @@
         <translation>Пропустить треки</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="503"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="506"/>
         <source>Not enouph points or tracks.</source>
         <translation>Недостаточно точек или треков.</translation>
     </message>
@@ -274,7 +274,7 @@ Do you want to choose another location of this file?</source>
         <translation>Маршрутная точка </translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="356"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="355"/>
         <source>Track </source>
         <translation>Трек </translation>
     </message>
@@ -285,13 +285,13 @@ Do you want to choose another location of this file?</source>
         <translation>повреждена и будет пропущена.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="356"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="355"/>
         <source>is invalid and will be skipped.</source>
         <comment>Track</comment>
         <translation>повреждён и будет пропущен.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="356"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="355"/>
         <source>File read error</source>
         <translation>Ошибка чтения файла</translation>
     </message>
@@ -447,32 +447,32 @@ Do you want to choose another location of this file?</source>
 <context>
     <name>PlotCanvas</name>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="80"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="88"/>
         <source>Time (days)</source>
         <translation>Время (дни)</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="83"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="91"/>
         <source>Altitude (m)</source>
         <translation>Высота (м)</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="82"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="90"/>
         <source>Time (hours)</source>
         <translation>Время (часы)</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="75"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="83"/>
         <source>Distance (km)</source>
         <translation>Расстояние (км)</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="77"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="85"/>
         <source>Distance with coefficient </source>
         <translation>Расстояние с коэффициентом </translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="77"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="85"/>
         <source> (km)</source>
         <translation> (км)</translation>
     </message>
@@ -823,49 +823,54 @@ Do you want to choose another location of this file?</source>
 <context>
     <name>profileConfigDialog</name>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="127"/>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="138"/>
         <source>Configure profile style</source>
         <translation>Настроить стиль профиля</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="128"/>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="139"/>
         <source>Profile color</source>
         <translation>Цвет профиля</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="129"/>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="140"/>
         <source>Fill color</source>
         <translation>Цвет заполнения</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="130"/>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="141"/>
         <source>Profile width</source>
         <translation>Толщина профиля</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="131"/>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="142"/>
         <source>Minimum altitude</source>
         <translation>Минимальная высота</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="132"/>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="143"/>
         <source>Maximum altitude</source>
         <translation>Максимальная высота</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="134"/>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="145"/>
         <source>Time zone offset</source>
         <translation>Сдвиг часового пояса</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="135"/>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="146"/>
         <source> min</source>
         <translation> мин</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="133"/>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="144"/>
         <source>Distance coefficient</source>
         <translation>Коэффициент расстояния</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="147"/>
+        <source>Use only selected points</source>
+        <translation>Только выделенные точки</translation>
     </message>
 </context>
 </TS>

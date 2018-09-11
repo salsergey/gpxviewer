@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2017 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2018 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -65,7 +65,8 @@ class ConfigStore(configparser.ConfigParser):
                                  'MinimumAltitude': '0',
                                  'MaximumAltitude': '1000',
                                  'DistanceCoefficient': '1',
-                                 'TimeZoneOffset': '420'},
+                                 'TimeZoneOffset': '420',
+                                 'SelectedPointsOnly': False},
                 'PointStyle': {'MarkerColorEnabled': True,
                                'MarkerColor': QColor(Qt.blue).rgba(),
                                'MarkerStyleEnabled': True,

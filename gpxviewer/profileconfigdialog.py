@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2017 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2018 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -33,6 +33,7 @@ class ProfileConfigDialog(QDialog):
     self.style['MaximumAltitude'] = int(TheConfig['ProfileStyle']['MaximumAltitude'])
     self.style['DistanceCoefficient'] = float(TheConfig['ProfileStyle']['DistanceCoefficient'])
     self.style['TimeZoneOffset'] = int(TheConfig['ProfileStyle']['TimeZoneOffset'])
+    self.style['SelectedPointsOnly'] = TheConfig['ProfileStyle'].getboolean('SelectedPointsOnly')
 
     self.ui.profileColorButton.setColor(self.style['ProfileColor'])
     self.ui.fillColorButton.setColor(self.style['FillColor'])
@@ -41,6 +42,7 @@ class ProfileConfigDialog(QDialog):
     self.ui.maxaltSpinBox.setValue(self.style['MaximumAltitude'])
     self.ui.distanceCoeffSpinBox.setValue(self.style['DistanceCoefficient'])
     self.ui.timezoneSpinBox.setValue(self.style['TimeZoneOffset'])
+    self.ui.selectedPointsCheckBox.setChecked(self.style['SelectedPointsOnly'])
 
     self.ui.profileColorButton.colorSet.connect(self.setProfileColor)
     self.ui.fillColorButton.colorSet.connect(self.setFillColor)
@@ -49,6 +51,7 @@ class ProfileConfigDialog(QDialog):
     self.ui.maxaltSpinBox.valueChanged.connect(self.setMaximumAltitude)
     self.ui.distanceCoeffSpinBox.valueChanged.connect(self.setDistanceCoefficient)
     self.ui.timezoneSpinBox.valueChanged.connect(self.setTimeZoneOffset)
+    self.ui.selectedPointsCheckBox.toggled.connect(self.setSelectedPointsOnly)
 
   def setProfileColor(self):
     self.style['ProfileColor'] = self.ui.profileColorButton.color.rgba()
@@ -70,3 +73,6 @@ class ProfileConfigDialog(QDialog):
 
   def setTimeZoneOffset(self):
     self.style['TimeZoneOffset'] = self.ui.timezoneSpinBox.value()
+
+  def setSelectedPointsOnly(self, enabled):
+    self.style['SelectedPointsOnly'] = enabled

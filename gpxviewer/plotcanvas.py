@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2017 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2018 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -42,29 +42,37 @@ class PlotCanvas(FigureCanvas):
     FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding, QSizePolicy.Expanding)
     FigureCanvas.updateGeometry(self)
 
-  def plotProfile(self, column):
+  def plotProfile(self, column, wptRows, trkRows):
     xx = []
     yy = []
     markers = []
     splitLines = []
     neglectPoints = [0]
     captions = []
+    zeroDist = 0
     for p in TheDocument.gpxparser.points:
       if type(p) == int:
-        xx += [float(TheDocument.wptmodel.index(p, column).data())]
-        yy += [float(TheDocument.wptmodel.index(p, gpx.ALT).data())]
-        if TheDocument.wptmodel.index(p, 0).data(gpx.IncludeRole) in {gpx.INC_MARKER, gpx.INC_CAPTION}:
-          markers += [(xx[-1], yy[-1], TheDocument.wptmodel.index(p, 0).data(gpx.MarkerRole))]
-        if TheDocument.wptmodel.index(p, 0).data(gpx.SplitStateRole):
-          splitLines += [(xx[-1], yy[-1], TheDocument.wptmodel.index(p, 0).data(gpx.SplitLineRole))]
-        if p != 0 and TheDocument.wptmodel.index(p, 0).data(gpx.NeglectRole):
-          neglectPoints += [xx[-1]]
-        if TheDocument.wptmodel.index(p, 0).data(gpx.IncludeRole) == gpx.INC_CAPTION:
-          captions += [(p, xx[-1], yy[-1], TheDocument.wptmodel.index(p, 0).data(gpx.CaptionRole))]
-      else:
+        if p in wptRows or len(wptRows) == 0:
+          xx += [float(TheDocument.wptmodel.index(p, column).data()) - zeroDist]
+          yy += [float(TheDocument.wptmodel.index(p, gpx.ALT).data())]
+          if len(xx) == 1:
+            zeroDist = xx[0]
+            xx[0] = 0
+          if TheDocument.wptmodel.index(p, 0).data(gpx.IncludeRole) in {gpx.INC_MARKER, gpx.INC_CAPTION}:
+            markers += [(xx[-1], yy[-1], TheDocument.wptmodel.index(p, 0).data(gpx.MarkerRole))]
+          if TheDocument.wptmodel.index(p, 0).data(gpx.SplitStateRole):
+            splitLines += [(xx[-1], yy[-1], TheDocument.wptmodel.index(p, 0).data(gpx.SplitLineRole))]
+          if p != 0 and TheDocument.wptmodel.index(p, 0).data(gpx.NeglectRole):
+            neglectPoints += [xx[-1]]
+          if TheDocument.wptmodel.index(p, 0).data(gpx.IncludeRole) == gpx.INC_CAPTION:
+            captions += [(p, xx[-1], yy[-1], TheDocument.wptmodel.index(p, 0).data(gpx.CaptionRole))]
+      elif p[0] in trkRows or len(trkRows) == 0 and len(wptRows) == 0:
         if column == gpx.DIST or TheDocument.trkmodel.index(p[0], gpx.TRKTIME).data() != '':
-          xx += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][column])]
+          xx += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][column]) - zeroDist]
           yy += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][gpx.ALT])]
+          if len(xx) == 1:
+            zeroDist = xx[0]
+            xx[0] = 0
     neglectPoints += [xx[-1]]
 
     self.axes.clear()
