@@ -156,8 +156,6 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       actReset.triggered.connect(self.resetPoints)
       actStyle = QtWidgets.QAction(QtGui.QIcon.fromTheme('configure', QtGui.QIcon(':/icons/configure.svg')), self.tr('Point style'), self)
       actStyle.triggered.connect(self.pointStyle)
-      actShowMap = QtWidgets.QAction(self.tr('Show on Google maps'), self)
-      actShowMap.triggered.connect(self.showGoogleMaps)
 
       menu = QtWidgets.QMenu(self)
       menu.addAction(actSkip)
@@ -171,7 +169,29 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       menu.addSeparator()
       menu.addAction(actStyle)
       menu.addSeparator()
-      menu.addAction(actShowMap)
+
+      actShowGoogleMap = QtWidgets.QAction(self.tr('Google Maps'), self)
+      actShowGoogleMap.triggered.connect(self.showGoogleMap)
+      actShowYandexMap = QtWidgets.QAction(self.tr('Yandex Maps'), self)
+      actShowYandexMap.triggered.connect(self.showYandexMap)
+      actShowZoomEarthMap = QtWidgets.QAction(self.tr('Zoom Earth'), self)
+      actShowZoomEarthMap.triggered.connect(self.showZoomEarthMap)
+      actShowOpenCycleMap = QtWidgets.QAction(self.tr('OpenCycleMap'), self)
+      actShowOpenCycleMap.triggered.connect(self.showOpenCycleMap)
+      actShowOpenTopoMap = QtWidgets.QAction(self.tr('OpenTopoMap'), self)
+      actShowOpenTopoMap.triggered.connect(self.showOpenTopoMap)
+      actShowTopoMap = QtWidgets.QAction(self.tr('Loadmap.net'), self)
+      actShowTopoMap.triggered.connect(self.showTopoMap)
+
+      showMapMenu = QtWidgets.QMenu(self.tr('Show on map'), self)
+      showMapMenu.addAction(actShowGoogleMap)
+      showMapMenu.addAction(actShowYandexMap)
+      showMapMenu.addAction(actShowZoomEarthMap)
+      showMapMenu.addAction(actShowOpenCycleMap)
+      showMapMenu.addAction(actShowOpenTopoMap)
+      showMapMenu.addAction(actShowTopoMap)
+      menu.addMenu(showMapMenu)
+
       menu.popup(QtGui.QCursor.pos())
       event.accept()
 
@@ -224,7 +244,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
                 self.tr('Using') + ' Python ' + str(sys.version_info.major) + '.' + str(sys.version_info.minor) + '.' + str(sys.version_info.micro) + ', ' + \
                 'PyQt5 ' + QtCore.PYQT_VERSION_STR + ', ' + \
                 'Qt ' + QtCore.QT_VERSION_STR + '<br><br>' + \
-                'Copyright 2016-2017 Sergey Salnikov <a href=mailto:salsergey@gmail.com>&lt;salsergey@gmail.com&gt;</a><br><br>' + \
+                'Copyright 2016-2018 Sergey Salnikov <a href=mailto:salsergey@gmail.com>&lt;salsergey@gmail.com&gt;</a><br><br>' + \
                 self.tr('License:') + ' <a href=http://www.gnu.org/licenses/gpl.html>GNU General Public License, version 3</a>'
     QtWidgets.QMessageBox.about(self, self.tr('About GPX Viewer'), aboutText)
 
@@ -291,10 +311,35 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.includefiltermodel.invalidateFilter()
     self.setProjectChanged(True)
 
-  def showGoogleMaps(self):
+  def showGoogleMap(self):
     lat = self.ui.wptView.selectedIndexes()[gpx.LAT].data()
     lon = self.ui.wptView.selectedIndexes()[gpx.LON].data()
-    webbrowser.open('http://maps.google.com/maps?ll=' + lat + ',' + lon + '&t=h&q=' + lat + ',' + lon + '&z=15')
+    webbrowser.open('https://maps.google.com/maps?ll=' + lat + ',' + lon + '&t=h&q=' + lat + ',' + lon + '&z=15')
+
+  def showYandexMap(self):
+    lat = self.ui.wptView.selectedIndexes()[gpx.LAT].data()
+    lon = self.ui.wptView.selectedIndexes()[gpx.LON].data()
+    webbrowser.open('https://maps.yandex.ru?ll=' + lon + ',' + lat + '&spn=0.03,0.03&pt=' + lon + ',' + lat + '&l=sat')
+
+  def showZoomEarthMap(self):
+    lat = self.ui.wptView.selectedIndexes()[gpx.LAT].data()
+    lon = self.ui.wptView.selectedIndexes()[gpx.LON].data()
+    webbrowser.open('https://zoom.earth/#' + lat + ',' + lon + ',15z,map')
+
+  def showOpenCycleMap(self):
+    lat = self.ui.wptView.selectedIndexes()[gpx.LAT].data()
+    lon = self.ui.wptView.selectedIndexes()[gpx.LON].data()
+    webbrowser.open('https://openstreetmap.org/?mlat=' + lat + '&mlon=' + lon + '&zoom=15&layers=C')
+
+  def showOpenTopoMap(self):
+    lat = self.ui.wptView.selectedIndexes()[gpx.LAT].data()
+    lon = self.ui.wptView.selectedIndexes()[gpx.LON].data()
+    webbrowser.open('https://opentopomap.org/#marker=15/' + lat + '/' + lon)
+
+  def showTopoMap(self):
+    lat = self.ui.wptView.selectedIndexes()[gpx.LAT].data()
+    lon = self.ui.wptView.selectedIndexes()[gpx.LON].data()
+    webbrowser.open('http://loadmap.net/ru?q=' + lat + ' ' + lon + '&z=13&s=0')
 
   def pointStyle(self):
     style = {}
