@@ -17,6 +17,7 @@
 from math import ceil
 import matplotlib
 from matplotlib import rc
+matplotlib.use('Qt5Agg')
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from PyQt5.QtCore import QSortFilterProxyModel
@@ -25,7 +26,6 @@ from PyQt5.QtWidgets import QSizePolicy
 import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import TheConfig
 from gpxviewer.gpxdocument import TheDocument
-matplotlib.use('Qt5Agg')
 
 
 class PlotCanvas(FigureCanvas):
@@ -90,8 +90,8 @@ class PlotCanvas(FigureCanvas):
         self.axes.set_xlabel(self.tr('Time (hours)'))
     self.axes.set_ylabel(self.tr('Altitude (m)'))
 
-    self.axes.set_xlim(xmax=xx[-1])
-    self.axes.set_ylim(ymin=int(TheConfig['ProfileStyle']['MinimumAltitude']), ymax=int(TheConfig['ProfileStyle']['MaximumAltitude']))
+    self.axes.set_xlim(right=xx[-1])
+    self.axes.set_ylim(bottom=int(TheConfig['ProfileStyle']['MinimumAltitude']), top=int(TheConfig['ProfileStyle']['MaximumAltitude']))
 
     if column == gpx.DIST:
       if xx[-1] > 100:

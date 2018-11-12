@@ -4,7 +4,6 @@
 
 == Minor ==
 
-* Revert point names to default.
 * Rename multiple points at once.
 * Add "Set as start point" to the context menu.
 * Button for time resorting.

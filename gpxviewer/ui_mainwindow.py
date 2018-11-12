@@ -26,6 +26,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.wptView = QtWidgets.QTableView(self.wptTab)
         self.wptView.setEnabled(False)
+        self.wptView.setEditTriggers(QtWidgets.QAbstractItemView.DoubleClicked|QtWidgets.QAbstractItemView.EditKeyPressed)
         self.wptView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.wptView.setObjectName("wptView")
         self.wptView.horizontalHeader().setStretchLastSection(True)

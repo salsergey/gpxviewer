@@ -52,7 +52,9 @@ class WptModel(QtCore.QAbstractTableModel):
 
   def data(self, index, role=QtCore.Qt.DisplayRole):
     if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
-      if index.column() == TIME and self.waypoints[index.row()][index.column()] != '':
+      if index.column() == NAME and index.row() in self.changedNames:
+        return self.pointNames[self.changedNames.index(index.row())]
+      elif index.column() == TIME and self.waypoints[index.row()][index.column()] != '':
         return str(self.waypoints[index.row()][index.column()] + timedelta(minutes=TheConfig['ProfileStyle'].getint('TimeZoneOffset')))
       else:
         return str(self.waypoints[index.row()][index.column()])
@@ -90,9 +92,11 @@ class WptModel(QtCore.QAbstractTableModel):
 
   def setData(self, index, value, role):
     if index.isValid() and role == QtCore.Qt.EditRole and value != self.waypoints[index.row()][NAME]:
-      self.waypoints[index.row()][NAME] = value
-      self.changedNames += [index.row()]
-      self.pointNames += [value]
+      if index.row() in self.changedNames:
+        self.pointNames[self.changedNames.index(index.row())] = value
+      else:
+        self.changedNames += [index.row()]
+        self.pointNames += [value]
       self.dataChanged.emit(index, index)
       self.namesChanged.emit(True)
       return True
@@ -162,6 +166,14 @@ class WptModel(QtCore.QAbstractTableModel):
   def setSplitLines(self, IDs, state):
     for i in IDs:
       self.splitStates[i] = state
+
+  def resetNames(self, IDs):
+    for i in IDs:
+      if i in self.changedNames:
+        self.pointNames.pop(self.changedNames.index(i))
+        self.changedNames.remove(i)
+        self.dataChanged.emit(self.index(i, NAME), self.index(i, NAME))
+        self.namesChanged.emit(True)
 
   namesChanged = QtCore.pyqtSignal(bool)
 

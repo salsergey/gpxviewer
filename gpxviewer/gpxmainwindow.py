@@ -91,7 +91,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.ui.actionShowOther.setChecked(TheConfig['MainWindow'].getboolean('ShowDefault'))
 
     TheDocument.gpxparser.warningSent.connect(self.showWarning)
-    TheDocument.gpxparser.wptmodel.namesChanged.connect(self.setProjectChanged)
+    TheDocument.wptmodel.namesChanged.connect(self.setProjectChanged)
     TheDocument.fileNotFound.connect(self.openedFileNotFound)
 
     self.projectSaved = False
@@ -152,8 +152,10 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       actSplit.triggered.connect(self.splitLines)
       actNeglect = QtWidgets.QAction(self.tr('Neglect previous distance'), self)
       actNeglect.triggered.connect(self.neglectDistance)
-      actReset = QtWidgets.QAction(self.tr('Reset'), self)
+      actReset = QtWidgets.QAction(self.tr('Reset appearance'), self)
       actReset.triggered.connect(self.resetPoints)
+      actResetName = QtWidgets.QAction(self.tr('Reset name'), self)
+      actResetName.triggered.connect(self.resetPointNames)
       actStyle = QtWidgets.QAction(QtGui.QIcon.fromTheme('configure', QtGui.QIcon(':/icons/configure.svg')), self.tr('Point style'), self)
       actStyle.triggered.connect(self.pointStyle)
 
@@ -166,6 +168,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       menu.addAction(actNeglect)
       menu.addSeparator()
       menu.addAction(actReset)
+      menu.addAction(actResetName)
       menu.addSeparator()
       menu.addAction(actStyle)
       menu.addSeparator()
@@ -310,6 +313,9 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     TheDocument.wptmodel.setNeglectStates(indexes, False)
     self.includefiltermodel.invalidateFilter()
     self.setProjectChanged(True)
+
+  def resetPointNames(self):
+    TheDocument.wptmodel.resetNames([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selection().indexes() if i.column() == gpx.NAME])
 
   def showGoogleMap(self):
     lat = self.ui.wptView.selectedIndexes()[gpx.LAT].data()
@@ -516,6 +522,17 @@ class GpxMainWindow(QtWidgets.QMainWindow):
           TheDocument.applyToAll = True
 
   def openRecentProject(self):
+    if self.projectChanged and len(TheDocument.doc['GPXFile']) != 0:
+      result = QtWidgets.QMessageBox.information(self, self.tr('Open GPX Viewer project'),
+                                                 self.tr('There are unsaved changes. Do you want to save the project?'),
+                                                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel,
+                                                 QtWidgets.QMessageBox.Yes)
+      if result == QtWidgets.QMessageBox.Yes:
+        if not self.fileSave():
+          return
+      if result == QtWidgets.QMessageBox.Cancel:
+        return
+
     for i, act in enumerate(self.actionsRecent):
       if self.sender() == act:
         self.openGPXProject(TheConfig.recentProjects[i])
