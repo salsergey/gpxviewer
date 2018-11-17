@@ -45,10 +45,16 @@ class WptModel(QtCore.QAbstractTableModel):
     self.pix.fill(QtCore.Qt.transparent)
 
   def rowCount(self, parent=None):
-    return len(self.waypoints)
+    if parent is not None and parent.isValid():
+      return 0
+    else:
+      return len(self.waypoints)
 
   def columnCount(self, parent=None):
-    return len(self.fields)
+    if parent is not None and parent.isValid():
+      return 0
+    else:
+      return len(self.fields)
 
   def data(self, index, role=QtCore.Qt.DisplayRole):
     if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
@@ -98,7 +104,7 @@ class WptModel(QtCore.QAbstractTableModel):
         self.changedNames += [index.row()]
         self.pointNames += [value]
       self.dataChanged.emit(index, index)
-      self.namesChanged.emit(True)
+      self.wptDataChanged.emit(True)
       return True
     else:
       return False
@@ -113,6 +119,12 @@ class WptModel(QtCore.QAbstractTableModel):
     if role == QtCore.Qt.DisplayRole:
       return self.fields[section] if orientation == QtCore.Qt.Horizontal else section + 1
     return None
+
+  def parent(self, index=None):
+    if index is not None:
+      return QtCore.QModelIndex()
+    else:
+      return super(WptModel, self).parent()
 
   def copyToClipboard(self, IDs):
     text = ''
@@ -173,9 +185,9 @@ class WptModel(QtCore.QAbstractTableModel):
         self.pointNames.pop(self.changedNames.index(i))
         self.changedNames.remove(i)
         self.dataChanged.emit(self.index(i, NAME), self.index(i, NAME))
-        self.namesChanged.emit(True)
+        self.wptDataChanged.emit(True)
 
-  namesChanged = QtCore.pyqtSignal(bool)
+  wptDataChanged = QtCore.pyqtSignal(bool)
 
 
 class TrkModel(QtCore.QAbstractTableModel):
@@ -185,10 +197,16 @@ class TrkModel(QtCore.QAbstractTableModel):
     self.resetModel()
 
   def rowCount(self, parent=None):
-    return len(self.tracks)
+    if parent is not None and parent.isValid():
+      return 0
+    else:
+      return len(self.tracks)
 
   def columnCount(self, parent=None):
-    return len(self.fields)
+    if parent is not None and parent.isValid():
+      return 0
+    else:
+      return len(self.fields)
 
   def data(self, index, role=QtCore.Qt.DisplayRole):
     if role == QtCore.Qt.DisplayRole:
@@ -260,7 +278,7 @@ class GpxParser(QtCore.QObject):
                     CAPTION_POSY: int(TheConfig['PointStyle']['CaptionPositionY']),
                     CAPTION_SIZE: int(TheConfig['PointStyle']['CaptionSize'])}
 
-    wptid = len(self.wptmodel.waypoints)
+    wptid = self.wptmodel.rowCount()
     for p in doc.iterfind('.//{%(ns)s}wpt' % ns):
       try:
         point = {}
@@ -299,7 +317,7 @@ class GpxParser(QtCore.QObject):
         self.warningSent.emit(self.tr('File read error'),
                               self.tr('Waypoint ') + (point[NAME] + ' ' if point[NAME] != '' else '') + self.tr('is invalid and will be skipped.', 'Waypoint'))
 
-    trkid = len(self.wptmodel.waypoints)
+    trkid = self.trkmodel.rowCount()
     for t in doc.iterfind('.//{%(ns)s}trk' % ns):
       try:
         track = {}
@@ -366,15 +384,15 @@ class GpxParser(QtCore.QObject):
       if self.wptmodel.includeStates[i] != INC_SKIP and p[TIME] == '':
         includeTracks = False
 
-    if len(self.trkmodel.tracks) != 0 and includeTracks:
+    if self.trkmodel.rowCount() != 0 and includeTracks:
       for tind, track in enumerate(self.trkmodel.tracks):
         if self.trkmodel.includeStates[tind] != INC_SKIP and \
-           (track[TRKTIME] != '' or len(self.wptmodel.waypoints) == len(self.wptmodel.getIndexesWithIncludeState(INC_SKIP))):
+           (track[TRKTIME] != '' or self.wptmodel.rowCount() == len(self.wptmodel.getIndexesWithIncludeState(INC_SKIP))):
           for sind, segment in enumerate(track['SEGMENTS']):
             self.points += zip([tind] * len(segment), [sind] * len(segment), range(len(segment)))
       ind = 0
       i = 0
-      while i < len(self.wptmodel.waypoints):
+      while i < self.wptmodel.rowCount():
         if self.wptmodel.includeStates[i] != INC_SKIP:
           if ind < len(self.points) and self.wptmodel.waypoints[i][TIME] < self.trkmodel.tracks[self.points[ind][0]]['SEGMENTS'][self.points[ind][1]][self.points[ind][2]][TIME] or ind == len(self.points):
             self.points.insert(ind, i)

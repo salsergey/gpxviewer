@@ -38,7 +38,7 @@ class build_dep(Command):
   def run(self):
     for ui_file in os.listdir('ui'):
       print('converting ' + os.path.join('ui', ui_file) + ' -> ' + os.path.join('gpxviewer', 'ui_' + ui_file[:-2] + 'py'))
-      subprocess.call('pyuic5 ' + os.path.join('ui', ui_file) + '>' + os.path.join('gpxviewer', 'ui_' + ui_file[:-2] + 'py'), shell=True)
+      subprocess.call('pyuic5 -o ' + os.path.join('gpxviewer', 'ui_' + ui_file[:-2] + 'py ') + os.path.join('ui', ui_file), shell=True)
 
     for ts_file in os.listdir('data/translations'):
       if ts_file.endswith('.ts'):
@@ -47,7 +47,7 @@ class build_dep(Command):
         subprocess.call('lrelease-qt5 ' + os.path.join('data/translations', ts_file), shell=True)
 
     print('compiling data/gpxviewer.qrc')
-    subprocess.call('pyrcc5 data/gpxviewer.qrc > gpxviewer/rc_gpxviewer.py', shell=True)
+    subprocess.call('pyrcc5 -o gpxviewer/rc_gpxviewer.py data/gpxviewer.qrc', shell=True)
 
 
 if os.name == 'nt':
@@ -63,7 +63,7 @@ else:
 
 setup(
   name='gpxviewer',
-  version='0.9.3',
+  version='0.9.4',
   description='A GPX viewer',
   url='https://bitbucket.org/salsergey/gpxviewer',
   author='Sergey Salnikov',

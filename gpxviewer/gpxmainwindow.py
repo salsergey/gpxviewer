@@ -91,7 +91,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.ui.actionShowOther.setChecked(TheConfig['MainWindow'].getboolean('ShowDefault'))
 
     TheDocument.gpxparser.warningSent.connect(self.showWarning)
-    TheDocument.wptmodel.namesChanged.connect(self.setProjectChanged)
+    TheDocument.wptmodel.wptDataChanged.connect(self.setProjectChanged)
     TheDocument.fileNotFound.connect(self.openedFileNotFound)
 
     self.projectSaved = False
