@@ -59,7 +59,7 @@ class WptModel(QtCore.QAbstractTableModel):
   def data(self, index, role=QtCore.Qt.DisplayRole):
     if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
       if index.column() == NAME and index.row() in self.changedNames:
-        return self.pointNames[self.changedNames.index(index.row())]
+        return self.changedNames[index.row()]
       elif index.column() == TIME and self.waypoints[index.row()][index.column()] != '':
         return str(self.waypoints[index.row()][index.column()] + timedelta(minutes=TheConfig['ProfileStyle'].getint('TimeZoneOffset')))
       else:
@@ -98,11 +98,7 @@ class WptModel(QtCore.QAbstractTableModel):
 
   def setData(self, index, value, role):
     if index.isValid() and role == QtCore.Qt.EditRole and value != self.waypoints[index.row()][NAME]:
-      if index.row() in self.changedNames:
-        self.pointNames[self.changedNames.index(index.row())] = value
-      else:
-        self.changedNames += [index.row()]
-        self.pointNames += [value]
+      self.changedNames[index.row()] = value
       self.dataChanged.emit(index, index)
       self.wptDataChanged.emit(True)
       return True
@@ -156,8 +152,7 @@ class WptModel(QtCore.QAbstractTableModel):
     self.splitStates = []
     self.neglectStates = []
     self.pointStyles = []
-    self.changedNames = []
-    self.pointNames = []
+    self.changedNames = {}
     self.endResetModel()
 
   def setIncludeStates(self, IDs, state, update=True):
@@ -182,8 +177,7 @@ class WptModel(QtCore.QAbstractTableModel):
   def resetNames(self, IDs):
     for i in IDs:
       if i in self.changedNames:
-        self.pointNames.pop(self.changedNames.index(i))
-        self.changedNames.remove(i)
+        del self.changedNames[i]
         self.dataChanged.emit(self.index(i, NAME), self.index(i, NAME))
         self.wptDataChanged.emit(True)
 
@@ -497,7 +491,10 @@ class GpxParser(QtCore.QObject):
         el.text = p[TIME].strftime('%Y-%m-%dT%H:%M:%SZ')
         element.append(el)
         el = ET.Element('name')
-        el.text = p[NAME]
+        if p['ID'] in self.wptmodel.changedNames:
+          el.text = self.wptmodel.changedNames[p['ID']]
+        else:
+          el.text = p[NAME]
         element.append(el)
         if p['CMT'] is not None:
           el = ET.Element('cmt')

@@ -59,8 +59,8 @@ class GpxDocument(QtCore.QObject):
       self.doc['CaptionPositionYs'] = self.wptmodel.getPointStyles(gpx.CAPTION_POSY)
       self.doc['CaptionSizes'] = self.wptmodel.getPointStyles(gpx.CAPTION_SIZE)
 
-      self.doc['ChangedNames'] = self.wptmodel.changedNames
-      self.doc['PointNames'] = self.wptmodel.pointNames
+      self.doc['ChangedNames'] = list(self.wptmodel.changedNames.keys())
+      self.doc['PointNames'] = list(self.wptmodel.changedNames.values())
 
       cfg = GpxConfigParser()
       cfg.read_dict({GPXMAGICK: self.doc})
