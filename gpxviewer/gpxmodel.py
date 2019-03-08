@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2018 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2019 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -16,7 +16,7 @@
 
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
-from math import pi, sin, cos, acos
+from math import pi, sin, cos, acos, modf
 from PyQt5 import QtCore
 from PyQt5.QtGui import QColor, QFont, QGuiApplication, QPixmap, QPainter
 from gpxviewer.configstore import TheConfig
@@ -24,10 +24,10 @@ from gpxviewer.configstore import TheConfig
 
 WPTFIELDS = NAME, LAT, LON, ALT, DIST, TIME, TIMEDELTA, TIME_DAYS = range(8)
 TRKFIELDS = TRKNAME, TRKSEGS, TRKPTS, TRKLEN, TRKTIME, TRKDUR = range(6)
-ValueRole, IDRole, IncludeRole, SplitStateRole, MarkerRole, SplitLineRole, CaptionRole, NeglectRole = range(QtCore.Qt.UserRole, QtCore.Qt.UserRole + 8)
-INCSTATES = INC_DEFAULT, INC_SKIP, INC_MARKER, INC_CAPTION = range(4)
-INCCOLORS = DefaultColor, SkipColor, MarkerColor, CaptionColor = QtCore.Qt.white, QColor(255, 225, 225), QColor(225, 225, 255), QColor(225, 255, 225)
-MARKER_COLOR, MARKER_STYLE, MARKER_SIZE, LINE_COLOR, LINE_STYLE, LINE_WIDTH, CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE = range(9)
+ValueRole, IDRole, IncludeRole, MarkerRole, CaptionRole, SplitLineRole, NeglectRole, MarkerStyleRole, CaptionStyleRole, SplitLineStyleRole = range(QtCore.Qt.UserRole, QtCore.Qt.UserRole + 10)
+SkipColor, MarkerColor, CaptionColor = (QColor(255, 225, 225), QColor(225, 225, 255), QColor(225, 255, 225))
+MARKER_COLOR, MARKER_STYLE, MARKER_SIZE, CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE, LINE_COLOR, LINE_STYLE, LINE_WIDTH = \
+  ('MarkerColor', 'MarkerStyle', 'MarkerSize', 'CaptionPositionX', 'CaptionPositionY', 'CaptionSize', 'SplitLineColor', 'SplitLineStyle', 'SplitLineWidth')
 
 
 class GpxWarning(Exception):
@@ -61,12 +61,25 @@ class WptModel(QtCore.QAbstractTableModel):
       if index.column() == NAME and index.row() in self.changedNames:
         return self.changedNames[index.row()]
       elif index.column() == TIME and self.waypoints[index.row()][index.column()] != '':
-        return str(self.waypoints[index.row()][index.column()] + timedelta(minutes=TheConfig['ProfileStyle'].getint('TimeZoneOffset')))
+        return str(self.waypoints[index.row()][index.column()] + timedelta(minutes=TheConfig.getValue('ProfileStyle', 'TimeZoneOffset')))
+      elif index.column() == LAT or index.column() == LON:
+        if TheConfig.getValue('ProfileStyle', 'CoordinateFormat') == 0:  # Decimal degrees
+          return str(self.waypoints[index.row()][index.column()])
+        elif TheConfig.getValue('ProfileStyle', 'CoordinateFormat') == 1:  # Degrees with decimal minutes
+          min, deg = modf(self.waypoints[index.row()][index.column()])
+          min = round(min * 60, 4)
+          return str(int(deg)) + '° ' + str(min) + '\''
+        else:  # Degrees, minutes, seconds
+          min, deg = modf(self.waypoints[index.row()][index.column()])
+          min = min * 60
+          sec, min = modf(min)
+          sec = round(sec * 60, 2)
+          return str(int(deg)) + '°' + str(int(min)) + '\'' + str(sec) + '"'
       else:
         return str(self.waypoints[index.row()][index.column()])
     elif role == QtCore.Qt.DecorationRole and index.column() == NAME:
-      if index.data(IncludeRole) in {INC_MARKER, INC_CAPTION}:
-        return _markerIcon(index.data(MarkerRole)[MARKER_STYLE], index.data(MarkerRole)[MARKER_COLOR])
+      if index.data(MarkerRole) and index.data(IncludeRole):
+        return _markerIcon(index.data(MarkerStyleRole)[MARKER_STYLE], index.data(MarkerStyleRole)[MARKER_COLOR])
       else:
         return self.pix
     elif role == ValueRole:
@@ -75,18 +88,38 @@ class WptModel(QtCore.QAbstractTableModel):
       return self.waypoints[index.row()]['ID']
     elif role == IncludeRole:
       return self.includeStates[index.row()]
-    elif role == SplitStateRole:
+    elif role == MarkerRole:
+      return self.markerStates[index.row()]
+    elif role == CaptionRole:
+      return self.captionStates[index.row()]
+    elif role == SplitLineRole:
       return self.splitStates[index.row()]
     elif role == NeglectRole:
       return self.neglectStates[index.row()]
-    elif role == MarkerRole:
-      return {k: self.pointStyles[index.row()][k] for k in {MARKER_COLOR, MARKER_STYLE, MARKER_SIZE}}
-    elif role == SplitLineRole:
-      return {k: self.pointStyles[index.row()][k] for k in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}}
-    elif role == CaptionRole:
-      return {k: self.pointStyles[index.row()][k] for k in {CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE}}
+    elif role == MarkerStyleRole:
+      if all([k in self.pointStyles[index.row()] for k in {MARKER_COLOR, MARKER_STYLE, MARKER_SIZE}]):
+        return {k: self.pointStyles[index.row()][k] for k in {MARKER_COLOR, MARKER_STYLE, MARKER_SIZE}}
+      else:
+        return {k: TheConfig.getValue('PointStyle', k) for k in {MARKER_COLOR, MARKER_STYLE, MARKER_SIZE}}
+    elif role == CaptionStyleRole:
+      if all([k in self.pointStyles[index.row()] for k in {CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE}]):
+        return {k: self.pointStyles[index.row()][k] for k in {CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE}}
+      else:
+        return {k: TheConfig.getValue('PointStyle', k) for k in {CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE}}
+    elif role == SplitLineStyleRole:
+      if all([k in self.pointStyles[index.row()] for k in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}]):
+        return {k: self.pointStyles[index.row()][k] for k in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}}
+      else:
+        return {k: TheConfig.getValue('PointStyle', k) for k in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}}
     elif role == QtCore.Qt.BackgroundRole:
-      return INCCOLORS[self.includeStates[index.row()]]
+      if not self.includeStates[index.row()]:
+        return SkipColor
+      elif self.captionStates[index.row()]:
+        return CaptionColor
+      elif self.markerStates[index.row()]:
+        return MarkerColor
+      else:
+        return QtCore.Qt.white
     elif role == QtCore.Qt.FontRole:
       font = QFont()
       if self.splitStates[index.row()]:
@@ -128,27 +161,35 @@ class WptModel(QtCore.QAbstractTableModel):
       text += '\t'.join([self.index(i, f).data() for f in WPTFIELDS]) + '\n'
     QGuiApplication.clipboard().setText(text)
 
-  def getIndexesWithIncludeState(self, state):
-    return [i for i, s in enumerate(self.includeStates) if s == state]
+  def getSkippedPoints(self):
+    return [i for i, s in enumerate(self.includeStates) if not s]
+
+  def getMarkedPoints(self):
+    return [i for i, s in enumerate(self.markerStates) if s]
+
+  def getCaptionedPoints(self):
+    return [i for i, s in enumerate(self.captionStates) if s]
+
+  def getSplitLines(self):
+    return [i for i, s in enumerate(self.splitStates) if s]
 
   def getNeglectStates(self):
     return [i for i, s in enumerate(self.neglectStates) if s]
 
   def getPointStyles(self, key):
     if key in {MARKER_COLOR, MARKER_STYLE, MARKER_SIZE}:
-      return [p[key] for i, p in enumerate(self.pointStyles) if self.includeStates[i] in {INC_MARKER, INC_CAPTION}]
+      return [p[key] for i, p in enumerate(self.pointStyles) if self.markerStates[i]]
+    if key in {CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE}:
+      return [p[key] for i, p in enumerate(self.pointStyles) if self.captionStates[i]]
     if key in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}:
       return [p[key] for i, p in enumerate(self.pointStyles) if self.splitStates[i]]
-    if key in {CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE}:
-      return [p[key] for i, p in enumerate(self.pointStyles) if self.includeStates[i] == INC_CAPTION]
-
-  def getSplitLines(self):
-    return [i for i, s in enumerate(self.splitStates) if s]
 
   def resetModel(self):
     self.beginResetModel()
     self.waypoints = []
     self.includeStates = []
+    self.markerStates = []
+    self.captionStates = []
     self.splitStates = []
     self.neglectStates = []
     self.pointStyles = []
@@ -161,6 +202,27 @@ class WptModel(QtCore.QAbstractTableModel):
     if update:
       self.parent().updatePoints()
 
+  def setMarkerStates(self, IDs, state):
+    for i in IDs:
+      self.markerStates[i] = state
+      for key in {MARKER_COLOR, MARKER_STYLE, MARKER_SIZE}:
+        if key not in self.pointStyles[i]:
+          self.pointStyles[i][key] = TheConfig.getValue('PointStyle', key)
+
+  def setCaptionStates(self, IDs, state):
+    for i in IDs:
+      self.captionStates[i] = state
+      for key in {CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE}:
+        if key not in self.pointStyles[i]:
+          self.pointStyles[i][key] = TheConfig.getValue('PointStyle', key)
+
+  def setSplitLines(self, IDs, state):
+    for i in IDs:
+      self.splitStates[i] = state
+      for key in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}:
+        if key not in self.pointStyles[i]:
+          self.pointStyles[i][key] = TheConfig.getValue('PointStyle', key)
+
   def setNeglectStates(self, IDs, state):
     for i in IDs:
       self.neglectStates[i] = state
@@ -169,10 +231,6 @@ class WptModel(QtCore.QAbstractTableModel):
   def setPointStyle(self, IDs, key, value):
     for i in IDs:
       self.pointStyles[i][key] = value
-
-  def setSplitLines(self, IDs, state):
-    for i in IDs:
-      self.splitStates[i] = state
 
   def resetNames(self, IDs):
     for i in IDs:
@@ -205,13 +263,13 @@ class TrkModel(QtCore.QAbstractTableModel):
   def data(self, index, role=QtCore.Qt.DisplayRole):
     if role == QtCore.Qt.DisplayRole:
       if index.column() == TRKTIME and self.tracks[index.row()][index.column()] != '':
-        return str(self.tracks[index.row()][index.column()] + timedelta(minutes=TheConfig['ProfileStyle'].getint('TimeZoneOffset')))
+        return str(self.tracks[index.row()][index.column()] + timedelta(minutes=TheConfig.getValue('ProfileStyle', 'TimeZoneOffset')))
       else:
         return str(self.tracks[index.row()][index.column()])
     elif role == IncludeRole:
       return self.includeStates[index.row()]
     elif role == QtCore.Qt.BackgroundRole:
-      return INCCOLORS[self.includeStates[index.row()]]
+      return QtCore.Qt.white if self.includeStates[index.row()] else SkipColor
     return None
 
   def headerData(self, section, orientation, role):
@@ -225,8 +283,8 @@ class TrkModel(QtCore.QAbstractTableModel):
       text += '\t'.join([self.index(i, f).data() for f in TRKFIELDS]) + '\n'
     QGuiApplication.clipboard().setText(text)
 
-  def getIndexesWithIncludeState(self, state):
-    return [i for i, s in enumerate(self.includeStates) if s == state]
+  def getSkippedTracks(self):
+    return [i for i, s in enumerate(self.includeStates) if not s]
 
   def resetModel(self):
     self.beginResetModel()
@@ -262,21 +320,17 @@ class GpxParser(QtCore.QObject):
       raise GpxWarning(filename + self.tr(' is an invalid GPX file.'))
     ns = {'ns': doc.getroot().tag.split('}')[0][1:]}
 
-    defaultStyle = {MARKER_COLOR: int(TheConfig['PointStyle']['MarkerColor']),
-                    MARKER_STYLE: TheConfig['PointStyle']['MarkerStyle'],
-                    MARKER_SIZE: int(TheConfig['PointStyle']['MarkerSize']),
-                    LINE_COLOR: int(TheConfig['PointStyle']['SplitLineColor']),
-                    LINE_STYLE: TheConfig['PointStyle']['SplitLineStyle'],
-                    LINE_WIDTH: float(TheConfig['PointStyle']['SplitLineWidth']),
-                    CAPTION_POSX: int(TheConfig['PointStyle']['CaptionPositionX']),
-                    CAPTION_POSY: int(TheConfig['PointStyle']['CaptionPositionY']),
-                    CAPTION_SIZE: int(TheConfig['PointStyle']['CaptionSize'])}
+    tag = 'name'
+    if TheConfig.getValue('ProfileStyle', 'ReadNameFromTag') == 1:  # Comment
+      tag = 'cmt'
+    elif TheConfig.getValue('ProfileStyle', 'ReadNameFromTag') == 2:  # Description
+      tag = 'desc'
 
     wptid = self.wptmodel.rowCount()
     for p in doc.iterfind('.//{%(ns)s}wpt' % ns):
       try:
         point = {}
-        name = p.findtext('{%(ns)s}name' % ns)
+        name = p.findtext(('{%(ns)s}' + tag) % ns)
         point[NAME] = name.strip() if name is not None else ''
         point[LAT] = float(p.get('lat'))
         point[LON] = float(p.get('lon'))
@@ -300,10 +354,12 @@ class GpxParser(QtCore.QObject):
 
         self.wptmodel.beginInsertRows(QtCore.QModelIndex(), wptid, wptid)
         self.wptmodel.waypoints += [point]
-        self.wptmodel.includeStates += [INC_DEFAULT]
+        self.wptmodel.includeStates += [True]
+        self.wptmodel.markerStates += [False]
+        self.wptmodel.captionStates += [False]
         self.wptmodel.splitStates += [False]
         self.wptmodel.neglectStates += [False]
-        self.wptmodel.pointStyles += [defaultStyle.copy()]
+        self.wptmodel.pointStyles += [{}]
         self.wptmodel.endInsertRows()
         wptid += 1
 
@@ -360,7 +416,7 @@ class GpxParser(QtCore.QObject):
 
         self.trkmodel.beginInsertRows(QtCore.QModelIndex(), trkid, trkid)
         self.trkmodel.tracks += [track]
-        self.trkmodel.includeStates += [INC_DEFAULT]
+        self.trkmodel.includeStates += [True]
         self.trkmodel.endInsertRows()
         trkid += 1
 
@@ -375,19 +431,19 @@ class GpxParser(QtCore.QObject):
     self.points = []
     includeTracks = True
     for i, p in enumerate(self.wptmodel.waypoints):
-      if self.wptmodel.includeStates[i] != INC_SKIP and p[TIME] == '':
+      if self.wptmodel.includeStates[i] and p[TIME] == '':
         includeTracks = False
 
     if self.trkmodel.rowCount() != 0 and includeTracks:
       for tind, track in enumerate(self.trkmodel.tracks):
-        if self.trkmodel.includeStates[tind] != INC_SKIP and \
-           (track[TRKTIME] != '' or self.wptmodel.rowCount() == len(self.wptmodel.getIndexesWithIncludeState(INC_SKIP))):
+        if self.trkmodel.includeStates[tind] and \
+           (track[TRKTIME] != '' or self.wptmodel.rowCount() == len(self.wptmodel.getSkippedPoints())):
           for sind, segment in enumerate(track['SEGMENTS']):
             self.points += zip([tind] * len(segment), [sind] * len(segment), range(len(segment)))
       ind = 0
       i = 0
       while i < self.wptmodel.rowCount():
-        if self.wptmodel.includeStates[i] != INC_SKIP:
+        if self.wptmodel.includeStates[i]:
           if ind < len(self.points) and self.wptmodel.waypoints[i][TIME] < self.trkmodel.tracks[self.points[ind][0]]['SEGMENTS'][self.points[ind][1]][self.points[ind][2]][TIME] or ind == len(self.points):
             self.points.insert(ind, i)
             i += 1
@@ -396,7 +452,7 @@ class GpxParser(QtCore.QObject):
           i += 1
     else:
       for i, p in enumerate(self.wptmodel.waypoints):
-        if self.wptmodel.includeStates[i] != INC_SKIP:
+        if self.wptmodel.includeStates[i]:
           self.points += [i]
 
     self.updateDistance()
@@ -406,7 +462,7 @@ class GpxParser(QtCore.QObject):
     prev_lat = None
     prev_lon = None
     dist = 0.0
-    dist_coeff = float(TheConfig['ProfileStyle']['DistanceCoefficient'])
+    dist_coeff = TheConfig.getValue('ProfileStyle', 'DistanceCoefficient')
 
     for p in self.points:
       if type(p) == int:
@@ -426,7 +482,7 @@ class GpxParser(QtCore.QObject):
         prev_lat = lat
         prev_lon = lon
 
-    for i in self.wptmodel.getIndexesWithIncludeState(INC_SKIP):
+    for i in self.wptmodel.getSkippedPoints():
       self.wptmodel.waypoints[i][DIST] = ''
 
     for i in self.trkmodel.tracks:
@@ -435,16 +491,16 @@ class GpxParser(QtCore.QObject):
   def updateTimeDifference(self):
     start_dt = None
     for i, p in enumerate(self.wptmodel.waypoints):
-      if self.wptmodel.includeStates[i] != INC_SKIP and p[TIME] != '':
+      if self.wptmodel.includeStates[i] and p[TIME] != '':
         start_dt = p[TIME]
         break
     for i, track in enumerate(self.trkmodel.tracks):
-      if self.trkmodel.includeStates[i] != INC_SKIP and track[TRKTIME] != '' and (start_dt is None or track[TRKTIME] < start_dt):
+      if self.trkmodel.includeStates[i] and track[TRKTIME] != '' and (start_dt is None or track[TRKTIME] < start_dt):
         start_dt = track[TRKTIME]
         break
 
     for i, p in enumerate(self.wptmodel.waypoints):
-      if self.wptmodel.includeStates[i] != INC_SKIP and p[TIME] != '':
+      if self.wptmodel.includeStates[i] and p[TIME] != '':
         p[TIMEDELTA] = p[TIME] - start_dt
         p[TIME_DAYS] = round(p[TIMEDELTA].days + p[TIMEDELTA].seconds / 60.0 / 60.0 / 24.0, 3)
       else:
@@ -452,7 +508,7 @@ class GpxParser(QtCore.QObject):
         p[TIME_DAYS] = ''
 
     for i, track in enumerate(self.trkmodel.tracks):
-      if self.trkmodel.includeStates[i] != INC_SKIP:
+      if self.trkmodel.includeStates[i]:
         for seg in track['SEGMENTS']:
           for p in seg:
             if p[TIME] != '':
@@ -473,7 +529,7 @@ class GpxParser(QtCore.QObject):
     maxlat = 0
     maxlon = -180
     for p, s in zip(self.wptmodel.waypoints, self.wptmodel.includeStates):
-      if s != INC_SKIP:
+      if s:
         element = ET.Element('wpt', attrib={'lat': str(p[LAT]), 'lon': str(p[LON])})
         root.append(element)
         if p[LAT] < minlat:
@@ -510,7 +566,7 @@ class GpxParser(QtCore.QObject):
           element.append(el)
 
     for track, s in zip(self.trkmodel.tracks, self.trkmodel.includeStates):
-      if s != INC_SKIP:
+      if s:
         elTrk = ET.Element('trk')
         root.append(elTrk)
         el = ET.Element('name')
@@ -568,8 +624,14 @@ class GpxSortFilterModel(QtCore.QSortFilterProxyModel):
   def __init__(self, parent):
     super(GpxSortFilterModel, self).__init__(parent)
 
+    self.includeSkipped = True
+    self.includeMarked = True
+    self.includeCaptioned = True
+    self.includeMarkedCaptioned = True
+    self.includeOther = True
+
   def lessThan(self, left, right):
-    if (left.column() == right.column() == TIME) or (left.column() == right.column() == TIMEDELTA):
+    if left.column() == right.column() and right.column() != NAME:
       if left.data() != '' and right.data() != '':
         return left.data(ValueRole) < right.data(ValueRole)
       elif right.data() == '':
@@ -578,6 +640,25 @@ class GpxSortFilterModel(QtCore.QSortFilterProxyModel):
         return True
 
     return super(GpxSortFilterModel, self).lessThan(left, right)
+
+  def filterAcceptsRow(self, source_row, source_parent):
+    ind = self.sourceModel().index(source_row, NAME, source_parent)
+    if (ind.data(IncludeRole) or self.includeSkipped) and \
+       (not ind.data(MarkerRole) or ind.data(CaptionRole) or self.includeMarked) and \
+       (not ind.data(CaptionRole) or ind.data(MarkerRole) or self.includeCaptioned) and \
+       (not ind.data(MarkerRole) or not ind.data(CaptionRole) or self.includeMarkedCaptioned) and \
+       (not ind.data(IncludeRole) or ind.data(MarkerRole) or ind.data(CaptionRole) or self.includeOther):
+      return super(GpxSortFilterModel, self).filterAcceptsRow(source_row, source_parent)
+    else:
+      return False
+
+  def setFilterMask(self, skipped, marked, captioned, markedCaptioned, other):
+    self.includeSkipped = skipped
+    self.includeMarked = marked
+    self.includeCaptioned = captioned
+    self.includeMarkedCaptioned = markedCaptioned
+    self.includeOther = other
+    self.invalidateFilter()
 
 
 def _distance(lat1, lon1, lat2, lon2):

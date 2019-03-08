@@ -1,9 +1,13 @@
 syntax: glob
 gpxviewer.kdev4
+gpxviewer.pyproj
 build
 dist
 gpxviewer.egg-info
 __pycache__
 gpxviewer/*.pyc
 WinInstaller.txt
+.vs
 .vscode
+.idea
+.directory

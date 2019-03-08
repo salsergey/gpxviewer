@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2018 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2019 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -66,7 +66,14 @@ class PlotWindow(QtWidgets.QMainWindow):
 
   def getExportFileName(self, dialogTitle):
     filename, filter = QtWidgets.QFileDialog.getSaveFileName(self, dialogTitle, TheConfig['PlotWindow']['SaveProfileDirectory'],
-                                                             self.tr('Encapsulated Postscript (*.eps);;Portable Document Format (*.pdf);;PGF files (*.pgf);;PNG images (*.png);;Postscript files (*.ps);;SVG files (*.svg);;SVGZ files (*.svgz);;All files (*.*)'),
+                                                             self.tr('Encapsulated Postscript (*.eps);;'
+                                                                     'Portable Document Format (*.pdf);;'
+                                                                     'PGF files (*.pgf);;'
+                                                                     'PNG images (*.png);;'
+                                                                     'Postscript files (*.ps);;'
+                                                                     'SVG files (*.svg);;'
+                                                                     'SVGZ files (*.svgz);;'
+                                                                     'All files (*.*)'),
                                                              TheConfig['PlotWindow']['SaveFileExtension'])
 
     if filename != '':

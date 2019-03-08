@@ -117,16 +117,20 @@
     <addaction name="actionShowSkipped"/>
     <addaction name="actionShowMarked"/>
     <addaction name="actionShowCaptioned"/>
+    <addaction name="actionShowMarkedCaptioned"/>
     <addaction name="actionShowOther"/>
+    <addaction name="separator"/>
+    <addaction name="actionResetFilters"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
      <string>&amp;Tools</string>
     </property>
-    <addaction name="actionProfileStyle"/>
     <addaction name="actionDistanceProfile"/>
     <addaction name="actionTimeProfile"/>
     <addaction name="actionStatistics"/>
+    <addaction name="separator"/>
+    <addaction name="actionSettings"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuFilter"/>
@@ -178,7 +182,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionProfileStyle"/>
+   <addaction name="actionSettings"/>
    <addaction name="separator"/>
    <addaction name="actionDistanceProfile"/>
    <addaction name="actionTimeProfile"/>
@@ -204,6 +208,7 @@
     <bool>false</bool>
    </attribute>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionQuit">
    <property name="icon">
     <iconset>
@@ -284,13 +289,13 @@
     <string notr="true">Ctrl+T</string>
    </property>
   </action>
-  <action name="actionProfileStyle">
+  <action name="actionSettings">
    <property name="icon">
     <iconset>
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>&amp;Profile style</string>
+    <string>&amp;Settings...</string>
    </property>
   </action>
   <action name="actionShowSkipped">
@@ -306,7 +311,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show &amp;marked</string>
+    <string>Show &amp;marked only</string>
    </property>
   </action>
   <action name="actionShowCaptioned">
@@ -314,7 +319,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show &amp;captioned</string>
+    <string>Show &amp;captioned only</string>
    </property>
   </action>
   <action name="actionShowOther">
@@ -367,6 +372,19 @@
   <action name="actionClearList">
    <property name="text">
     <string>&amp;Clear list</string>
+   </property>
+  </action>
+  <action name="actionShowMarkedCaptioned">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show marked &amp;and captioned</string>
+   </property>
+  </action>
+  <action name="actionResetFilters">
+   <property name="text">
+    <string>&amp;Reset filters</string>
    </property>
   </action>
  </widget>
@@ -501,10 +519,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionProfileStyle</sender>
+   <sender>actionSettings</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>showProfileStyleOptions()</slot>
+   <slot>showSettings()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -518,7 +536,7 @@
   </connection>
   <connection>
    <sender>actionShowSkipped</sender>
-   <signal>triggered(bool)</signal>
+   <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>showSkipped(bool)</slot>
    <hints>
@@ -534,7 +552,7 @@
   </connection>
   <connection>
    <sender>actionShowMarked</sender>
-   <signal>triggered(bool)</signal>
+   <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>showMarked(bool)</slot>
    <hints>
@@ -550,7 +568,7 @@
   </connection>
   <connection>
    <sender>actionShowOther</sender>
-   <signal>triggered(bool)</signal>
+   <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>showOther(bool)</slot>
    <hints>
@@ -566,7 +584,7 @@
   </connection>
   <connection>
    <sender>actionShowCaptioned</sender>
-   <signal>triggered(bool)</signal>
+   <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>showCaptioned(bool)</slot>
    <hints>
@@ -676,6 +694,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionShowMarkedCaptioned</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>showMarkedCaptioned(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionResetFilters</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>resetFilters()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>fileOpen()</slot>
@@ -685,7 +735,7 @@
   <slot>fileSave()</slot>
   <slot>fileSaveAs()</slot>
   <slot>fileLoadGPXFile()</slot>
-  <slot>showProfileStyleOptions()</slot>
+  <slot>showSettings()</slot>
   <slot>showSkipped(bool)</slot>
   <slot>showMarked(bool)</slot>
   <slot>showCaptioned(bool)</slot>
@@ -696,5 +746,7 @@
   <slot>showStatistics()</slot>
   <slot>fileSaveGPXFileAs()</slot>
   <slot>clearRecentList()</slot>
+  <slot>showMarkedCaptioned(bool)</slot>
+  <slot>resetFilters()</slot>
  </slots>
 </ui>

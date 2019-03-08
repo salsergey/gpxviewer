@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'ui/statwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.12
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_StatWindow(object):
     def setupUi(self, StatWindow):
@@ -34,20 +35,20 @@ class Ui_StatWindow(object):
         self.statWidget.setHorizontalHeaderItem(4, item)
         self.statWidget.horizontalHeader().setStretchLastSection(True)
         self.verticalLayout_5.addWidget(self.statWidget)
-        self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox.setAlignment(QtCore.Qt.AlignCenter)
-        self.groupBox.setObjectName("groupBox")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.groupBox)
+        self.totalGroupBox = QtWidgets.QGroupBox(self.centralwidget)
+        self.totalGroupBox.setAlignment(QtCore.Qt.AlignCenter)
+        self.totalGroupBox.setObjectName("totalGroupBox")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.totalGroupBox)
         self.horizontalLayout.setObjectName("horizontalLayout")
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
-        self.label = QtWidgets.QLabel(self.groupBox)
+        self.label = QtWidgets.QLabel(self.totalGroupBox)
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName("label")
         self.verticalLayout.addWidget(self.label)
-        self.labelDist = QtWidgets.QLabel(self.groupBox)
+        self.labelDist = QtWidgets.QLabel(self.totalGroupBox)
         self.labelDist.setText("")
         self.labelDist.setAlignment(QtCore.Qt.AlignCenter)
         self.labelDist.setObjectName("labelDist")
@@ -57,11 +58,11 @@ class Ui_StatWindow(object):
         self.horizontalLayout.addItem(spacerItem1)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.label_2 = QtWidgets.QLabel(self.groupBox)
+        self.label_2 = QtWidgets.QLabel(self.totalGroupBox)
         self.label_2.setAlignment(QtCore.Qt.AlignCenter)
         self.label_2.setObjectName("label_2")
         self.verticalLayout_2.addWidget(self.label_2)
-        self.labelRaise = QtWidgets.QLabel(self.groupBox)
+        self.labelRaise = QtWidgets.QLabel(self.totalGroupBox)
         self.labelRaise.setText("")
         self.labelRaise.setAlignment(QtCore.Qt.AlignCenter)
         self.labelRaise.setObjectName("labelRaise")
@@ -71,11 +72,11 @@ class Ui_StatWindow(object):
         self.horizontalLayout.addItem(spacerItem2)
         self.verticalLayout_3 = QtWidgets.QVBoxLayout()
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.label_3 = QtWidgets.QLabel(self.groupBox)
+        self.label_3 = QtWidgets.QLabel(self.totalGroupBox)
         self.label_3.setAlignment(QtCore.Qt.AlignCenter)
         self.label_3.setObjectName("label_3")
         self.verticalLayout_3.addWidget(self.label_3)
-        self.labelDrop = QtWidgets.QLabel(self.groupBox)
+        self.labelDrop = QtWidgets.QLabel(self.totalGroupBox)
         self.labelDrop.setText("")
         self.labelDrop.setAlignment(QtCore.Qt.AlignCenter)
         self.labelDrop.setObjectName("labelDrop")
@@ -85,11 +86,11 @@ class Ui_StatWindow(object):
         self.horizontalLayout.addItem(spacerItem3)
         self.verticalLayout_4 = QtWidgets.QVBoxLayout()
         self.verticalLayout_4.setObjectName("verticalLayout_4")
-        self.label_4 = QtWidgets.QLabel(self.groupBox)
+        self.label_4 = QtWidgets.QLabel(self.totalGroupBox)
         self.label_4.setAlignment(QtCore.Qt.AlignCenter)
         self.label_4.setObjectName("label_4")
         self.verticalLayout_4.addWidget(self.label_4)
-        self.labelTime = QtWidgets.QLabel(self.groupBox)
+        self.labelTime = QtWidgets.QLabel(self.totalGroupBox)
         self.labelTime.setText("")
         self.labelTime.setAlignment(QtCore.Qt.AlignCenter)
         self.labelTime.setObjectName("labelTime")
@@ -97,7 +98,7 @@ class Ui_StatWindow(object):
         self.horizontalLayout.addLayout(self.verticalLayout_4)
         spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem4)
-        self.verticalLayout_5.addWidget(self.groupBox)
+        self.verticalLayout_5.addWidget(self.totalGroupBox)
         StatWindow.setCentralWidget(self.centralwidget)
         self.toolBar = QtWidgets.QToolBar(StatWindow)
         self.toolBar.setWindowTitle("toolBar")
@@ -126,10 +127,13 @@ class Ui_StatWindow(object):
         item.setText(_translate("StatWindow", "Elevation descent"))
         item = self.statWidget.horizontalHeaderItem(4)
         item.setText(_translate("StatWindow", "Time"))
-        self.groupBox.setTitle(_translate("StatWindow", "Total"))
+        self.totalGroupBox.setToolTip(_translate("StatWindow", "Total statistics for selected segments"))
+        self.totalGroupBox.setTitle(_translate("StatWindow", "Total"))
         self.label.setText(_translate("StatWindow", "Distance"))
         self.label_2.setText(_translate("StatWindow", "Elevation ascent"))
         self.label_3.setText(_translate("StatWindow", "Elevation descent"))
         self.label_4.setText(_translate("StatWindow", "Time"))
         self.actionBySplittingLines.setText(_translate("StatWindow", "By splitting lines"))
+        self.actionBySplittingLines.setToolTip(_translate("StatWindow", "Divide into segments by splitting lines (or by regular expression)"))
+
 

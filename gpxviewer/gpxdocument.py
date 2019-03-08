@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2018 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2019 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -21,6 +21,7 @@ from gpxviewer.configstore import GpxConfigParser, TheConfig
 
 
 GPXMAGICK = '9e27ea8e'
+FORMAT_VERSION = 2
 
 
 class GpxDocument(QtCore.QObject):
@@ -34,16 +35,18 @@ class GpxDocument(QtCore.QObject):
 
   def saveFile(self, filename):
     with open(filename, 'w', encoding='utf-8') as file:
+      self.doc['FormatVersion'] = FORMAT_VERSION
+
       # Number of points/tracks to check the validity of the files
       self.doc['NumberOfPoints'] = self.wptmodel.rowCount()
       self.doc['NumberOfTracks'] = self.trkmodel.rowCount()
 
-      self.doc['SkipPoints'] = self.wptmodel.getIndexesWithIncludeState(gpx.INC_SKIP)
-      self.doc['MarkerPoints'] = self.wptmodel.getIndexesWithIncludeState(gpx.INC_MARKER)
-      self.doc['CaptionPoints'] = self.wptmodel.getIndexesWithIncludeState(gpx.INC_CAPTION)
+      self.doc['SkipPoints'] = self.wptmodel.getSkippedPoints()
+      self.doc['MarkerPoints'] = self.wptmodel.getMarkedPoints()
+      self.doc['CaptionPoints'] = self.wptmodel.getCaptionedPoints()
       self.doc['SplitLines'] = self.wptmodel.getSplitLines()
       self.doc['NeglectDistances'] = self.wptmodel.getNeglectStates()
-      self.doc['SkipTracks'] = self.trkmodel.getIndexesWithIncludeState(gpx.INC_SKIP)
+      self.doc['SkipTracks'] = self.trkmodel.getSkippedTracks()
 
       self.doc.update(TheConfig['ProfileStyle'])
 
@@ -76,6 +79,11 @@ class GpxDocument(QtCore.QObject):
     if GPXMAGICK in cfg:
       self.doc.clear()
       self.doc.update(cfg.items(GPXMAGICK))
+      # Determine format version (was not stored for version 1)
+      formatVersion = 1
+      if 'FormatVersion' in self.doc:
+        formatVersion = self.doc['FormatVersion']
+
       self.gpxparser.resetModels()
       # Fix to handle legacy files
       if type(self.doc['GPXFile']) == str:
@@ -101,17 +109,20 @@ class GpxDocument(QtCore.QObject):
         raise gpx.GpxWarning(QtCore.QCoreApplication.translate('GpxDocument', 'One of the files has wrong number of valid waypoints or tracks. This file is likely to be damaged or changed from outside.'))
 
       if 'SkipPoints' in self.doc:
-        self.wptmodel.setIncludeStates(self.doc['SkipPoints'], gpx.INC_SKIP, False)
+        self.wptmodel.setIncludeStates(self.doc['SkipPoints'], False, False)
       if 'MarkerPoints' in self.doc:
-        self.wptmodel.setIncludeStates(self.doc['MarkerPoints'], gpx.INC_MARKER, False)
+        self.wptmodel.setMarkerStates(self.doc['MarkerPoints'], True)
       if 'CaptionPoints' in self.doc:
-        self.wptmodel.setIncludeStates(self.doc['CaptionPoints'], gpx.INC_CAPTION, False)
+        self.wptmodel.setCaptionStates(self.doc['CaptionPoints'], True)
+        # Handle old version, where all captioned points had markers too.
+        if formatVersion == 1:
+          self.wptmodel.setMarkerStates(self.doc['CaptionPoints'], True)
       if 'SplitLines' in self.doc:
         self.wptmodel.setSplitLines(self.doc['SplitLines'], True)
       if 'NeglectDistances' in self.doc:
         self.wptmodel.setNeglectStates(self.doc['NeglectDistances'], True)
       if 'SkipTracks' in self.doc:
-        self.trkmodel.setIncludeStates(self.doc['SkipTracks'], gpx.INC_SKIP, False)
+        self.trkmodel.setIncludeStates(self.doc['SkipTracks'], False, False)
 
       if 'ProfileColor' in self.doc:
         TheConfig['ProfileStyle']['ProfileColor'] = self.doc['ProfileColor']
@@ -129,29 +140,35 @@ class GpxDocument(QtCore.QObject):
         TheConfig['ProfileStyle']['TimeZoneOffset'] = self.doc['TimeZoneOffset']
       if 'SelectedPointsOnly' in self.doc:
         TheConfig['ProfileStyle']['SelectedPointsOnly'] = self.doc['SelectedPointsOnly']
+      if 'ReadNameFromTag' in self.doc:
+        TheConfig['ProfileStyle']['ReadNameFromTag'] = self.doc['ReadNameFromTag']
+      if 'CoordinateFormat' in self.doc:
+        TheConfig['ProfileStyle']['CoordinateFormat'] = self.doc['CoordinateFormat']
 
       # After distance coefficient is set
       self.gpxparser.updatePoints()
 
-      if 'MarkerPoints' in self.doc and 'CaptionPoints' in self.doc and 'MarkerColors' in self.doc:
-        for i, m in zip(sorted(self.doc['MarkerPoints'] + self.doc['CaptionPoints']), self.doc['MarkerColors']):
-          self.wptmodel.setPointStyle([i], gpx.MARKER_COLOR, m)
-      if 'MarkerPoints' in self.doc and 'CaptionPoints' in self.doc and 'MarkerStyles' in self.doc:
-        for i, m in zip(sorted(self.doc['MarkerPoints'] + self.doc['CaptionPoints']), self.doc['MarkerStyles']):
-          self.wptmodel.setPointStyle([i], gpx.MARKER_STYLE, m)
-      if 'MarkerPoints' in self.doc and 'CaptionPoints' in self.doc and 'MarkerSizes' in self.doc:
-        for i, m in zip(sorted(self.doc['MarkerPoints'] + self.doc['CaptionPoints']), self.doc['MarkerSizes']):
-          self.wptmodel.setPointStyle([i], gpx.MARKER_SIZE, m)
-
-      if 'SplitLines' in self.doc and 'SplitLineColors' in self.doc:
-        for i, m in zip(self.doc['SplitLines'], self.doc['SplitLineColors']):
-          self.wptmodel.setPointStyle([i], gpx.LINE_COLOR, m)
-      if 'SplitLines' in self.doc and 'SplitLineStyles' in self.doc:
-        for i, m in zip(self.doc['SplitLines'], self.doc['SplitLineStyles']):
-          self.wptmodel.setPointStyle([i], gpx.LINE_STYLE, m)
-      if 'SplitLines' in self.doc and 'SplitLineWidths' in self.doc:
-        for i, m in zip(self.doc['SplitLines'], self.doc['SplitLineWidths']):
-          self.wptmodel.setPointStyle([i], gpx.LINE_WIDTH, m)
+      # Handle old version, where all captioned points had markers too.
+      if formatVersion == 1:
+        if 'MarkerPoints' in self.doc and 'CaptionPoints' in self.doc and 'MarkerColors' in self.doc:
+          for i, m in zip(sorted(self.doc['MarkerPoints'] + self.doc['CaptionPoints']), self.doc['MarkerColors']):
+            self.wptmodel.setPointStyle([i], gpx.MARKER_COLOR, m)
+        if 'MarkerPoints' in self.doc and 'CaptionPoints' in self.doc and 'MarkerStyles' in self.doc:
+          for i, m in zip(sorted(self.doc['MarkerPoints'] + self.doc['CaptionPoints']), self.doc['MarkerStyles']):
+            self.wptmodel.setPointStyle([i], gpx.MARKER_STYLE, m)
+        if 'MarkerPoints' in self.doc and 'CaptionPoints' in self.doc and 'MarkerSizes' in self.doc:
+          for i, m in zip(sorted(self.doc['MarkerPoints'] + self.doc['CaptionPoints']), self.doc['MarkerSizes']):
+            self.wptmodel.setPointStyle([i], gpx.MARKER_SIZE, m)
+      else:
+        if 'MarkerPoints' in self.doc and 'MarkerColors' in self.doc:
+          for i, m in zip(self.doc['MarkerPoints'], self.doc['MarkerColors']):
+            self.wptmodel.setPointStyle([i], gpx.MARKER_COLOR, m)
+        if 'MarkerPoints' in self.doc and 'MarkerStyles' in self.doc:
+          for i, m in zip(self.doc['MarkerPoints'], self.doc['MarkerStyles']):
+            self.wptmodel.setPointStyle([i], gpx.MARKER_STYLE, m)
+        if 'MarkerPoints' in self.doc and 'MarkerSizes' in self.doc:
+          for i, m in zip(self.doc['MarkerPoints'], self.doc['MarkerSizes']):
+            self.wptmodel.setPointStyle([i], gpx.MARKER_SIZE, m)
 
       if 'CaptionPoints' in self.doc and 'CaptionPositionXs' in self.doc:
         for i, m in zip(self.doc['CaptionPoints'], self.doc['CaptionPositionXs']):
@@ -162,6 +179,16 @@ class GpxDocument(QtCore.QObject):
       if 'CaptionPoints' in self.doc and 'CaptionSizes' in self.doc:
         for i, m in zip(self.doc['CaptionPoints'], self.doc['CaptionSizes']):
           self.wptmodel.setPointStyle([i], gpx.CAPTION_SIZE, m)
+
+      if 'SplitLines' in self.doc and 'SplitLineColors' in self.doc:
+        for i, m in zip(self.doc['SplitLines'], self.doc['SplitLineColors']):
+          self.wptmodel.setPointStyle([i], gpx.LINE_COLOR, m)
+      if 'SplitLines' in self.doc and 'SplitLineStyles' in self.doc:
+        for i, m in zip(self.doc['SplitLines'], self.doc['SplitLineStyles']):
+          self.wptmodel.setPointStyle([i], gpx.LINE_STYLE, m)
+      if 'SplitLines' in self.doc and 'SplitLineWidths' in self.doc:
+        for i, m in zip(self.doc['SplitLines'], self.doc['SplitLineWidths']):
+          self.wptmodel.setPointStyle([i], gpx.LINE_WIDTH, m)
 
       if 'ChangedNames' in self.doc and 'PointNames' in self.doc:
         for i, n in zip(self.doc['ChangedNames'], self.doc['PointNames']):

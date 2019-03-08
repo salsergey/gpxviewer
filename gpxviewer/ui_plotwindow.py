@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'ui/plotwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.12
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_PlotWindow(object):
     def setupUi(self, PlotWindow):
@@ -47,5 +48,6 @@ class Ui_PlotWindow(object):
         self.actExportCurrentSize.setToolTip(_translate("PlotWindow", "Export current size"))
         self.actExportSelectedSize.setText(_translate("PlotWindow", "Export selected size"))
         self.actExportSelectedSize.setToolTip(_translate("PlotWindow", "Export selected size"))
+
 
 from gpxviewer.plotcanvas import PlotCanvas

@@ -57,7 +57,10 @@
      </widget>
     </item>
     <item>
-     <widget class="QGroupBox" name="groupBox">
+     <widget class="QGroupBox" name="totalGroupBox">
+      <property name="toolTip">
+       <string>Total statistics for selected segments</string>
+      </property>
       <property name="title">
        <string>Total</string>
       </property>
@@ -252,6 +255,9 @@
    </property>
    <property name="text">
     <string>By splitting lines</string>
+   </property>
+   <property name="toolTip">
+    <string>Divide into segments by splitting lines (or by regular expression)</string>
    </property>
   </action>
  </widget>

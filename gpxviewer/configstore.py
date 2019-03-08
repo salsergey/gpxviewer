@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2018 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2019 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -16,8 +16,8 @@
 
 import configparser
 import os
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor
+from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtGui import qRgba
 
 
 class GpxConfigParser(configparser.ConfigParser):
@@ -40,50 +40,53 @@ class ConfigStore(configparser.ConfigParser):
     super(ConfigStore, self).__init__()
     self.recentProjects = []
 
-    defaults = {'MainWindow': {'WindowWidth': '1024',
-                               'WindowHeight': '768',
+    defaults = {'MainWindow': {'WindowWidth': 1200,
+                               'WindowHeight': 800,
                                'LoadGPXDirectory': os.path.expanduser('~'),
                                'ProjectDirectory': os.path.expanduser('~'),
-                               'ShowDefault': 'True',
-                               'ShowSkipped': 'True',
-                               'ShowMarked': 'True',
-                               'ShowCaptioned': 'True',
+                               'ShowDefault': True,
+                               'ShowSkipped': True,
+                               'ShowMarked': True,
+                               'ShowCaptioned': True,
+                               'ShowMarkedCaptioned': True,
                                'RecentProjects': [],
                                'MaxRecentProjects': 10},
-                'PlotWindow': {'WindowWidth': '1024',
-                               'WindowHeight': '768',
+                'PlotWindow': {'WindowWidth': 1200,
+                               'WindowHeight': 800,
                                'SaveProfileDirectory': os.path.expanduser('~'),
-                               'SaveFileExtension': 'PNG images (*.png)',
-                               'SaveProfileWidth': '1280',
-                               'SaveProfileHeight': '1024'},
-                'StatWindow': {'WindowWidth': '1024',
-                               'WindowHeight': '768',
+                               'SaveFileExtension': QCoreApplication.translate('ConfigStore', 'PNG images (*.png)'),
+                               'SaveProfileWidth': 1280,
+                               'SaveProfileHeight': 1024},
+                'StatWindow': {'WindowWidth': 800,
+                               'WindowHeight': 800,
                                'BySplittingLines': True},
-                'ProfileStyle': {'ProfileColor': QColor(Qt.blue).rgba(),
-                                 'FillColor': QColor(Qt.white).rgba(),
-                                 'ProfileWidth': '1',
-                                 'MinimumAltitude': '0',
-                                 'MaximumAltitude': '1000',
-                                 'DistanceCoefficient': '1',
-                                 'TimeZoneOffset': '420',
-                                 'SelectedPointsOnly': False},
+                'ProfileStyle': {'ProfileColor': qRgba(255, 0, 0, 100),
+                                 'FillColor': qRgba(255, 0, 0, 50),
+                                 'ProfileWidth': 1.0,
+                                 'MinimumAltitude': 0,
+                                 'MaximumAltitude': 1000,
+                                 'DistanceCoefficient': 1.0,
+                                 'TimeZoneOffset': 420,
+                                 'SelectedPointsOnly': False,
+                                 'ReadNameFromTag': 0,
+                                 'CoordinateFormat': 0},
                 'PointStyle': {'MarkerColorEnabled': True,
-                               'MarkerColor': QColor(Qt.blue).rgba(),
+                               'MarkerColor': qRgba(255, 0, 0, 200),
                                'MarkerStyleEnabled': True,
                                'MarkerStyle': '.',
                                'MarkerSizeEnabled': True,
-                               'MarkerSize': '5',
-                               'SplitLineColorEnabled': True,
-                               'SplitLineColor': QColor(Qt.red).rgba(),
-                               'SplitLineStyleEnabled': True,
-                               'SplitLineStyle': '-',
-                               'SplitLineWidthEnabled': True,
-                               'SplitLineWidth': '1',
+                               'MarkerSize': 5,
                                'CaptionPositionEnabled': True,
-                               'CaptionPositionX': '0',
-                               'CaptionPositionY': '5',
+                               'CaptionPositionX': 0,
+                               'CaptionPositionY': 5,
                                'CaptionSizeEnabled': True,
-                               'CaptionSize': '12'}}
+                               'CaptionSize': 12,
+                               'SplitLineColorEnabled': True,
+                               'SplitLineColor': qRgba(255, 0, 0, 100),
+                               'SplitLineStyleEnabled': True,
+                               'SplitLineStyle': '--',
+                               'SplitLineWidthEnabled': True,
+                               'SplitLineWidth': 1.0}}
     self.read_dict(defaults)
 
     if os.name == 'nt':
@@ -101,6 +104,33 @@ class ConfigStore(configparser.ConfigParser):
     with open(self.configfile, 'w') as cfg:
       self['MainWindow']['RecentProjects'] = str(self.recentProjects)
       self.write(cfg)
+
+  def getValue(self, group, key):
+    if group == 'ProfileStyle':
+      if key in {'ProfileColor', 'FillColor', 'MinimumAltitude', 'MaximumAltitude',
+                 'TimeZoneOffset', 'ReadNameFromTag', 'CoordinateFormat'}:
+        return int(self['ProfileStyle'][key])
+      elif key in {'ProfileWidth', 'DistanceCoefficient'}:
+        return float(self['ProfileStyle'][key])
+      elif key in {'SelectedPointsOnly'}:
+        return self['ProfileStyle'].getboolean(key)
+      else:
+        return self['ProfileStyle'][key]
+
+    elif group == 'PointStyle':
+      if key in {'MarkerColor', 'MarkerSize', 'CaptionPositionX', 'CaptionPositionY', 'CaptionSize', 'SplitLineColor'}:
+        return int(self['PointStyle'][key])
+      elif key in {'SplitLineWidth'}:
+        return float(self['PointStyle'][key])
+      elif key in {'MarkerColorEnabled', 'MarkerStyleEnabled', 'MarkerSizeEnabled',
+                   'CaptionPositionEnabled', 'CaptionSizeEnabled',
+                   'SplitLineColorEnabled', 'SplitLineStyleEnabled', 'SplitLineWidthEnabled'}:
+        return self['PointStyle'].getboolean(key)
+      else:
+        return self['PointStyle'][key]
+
+    else:
+      return self['PointStyle'][key]
 
 
 TheConfig = ConfigStore()

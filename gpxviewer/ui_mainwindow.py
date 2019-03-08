@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'ui/mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.12
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -77,6 +78,9 @@ class Ui_MainWindow(object):
         self.filterToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         self.filterToolBar.setObjectName("filterToolBar")
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.filterToolBar)
+        self.statusBar = QtWidgets.QStatusBar(MainWindow)
+        self.statusBar.setObjectName("statusBar")
+        MainWindow.setStatusBar(self.statusBar)
         self.actionQuit = QtWidgets.QAction(MainWindow)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("."), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -106,9 +110,9 @@ class Ui_MainWindow(object):
         self.actionTimeProfile.setIcon(icon)
         self.actionTimeProfile.setShortcut("Ctrl+T")
         self.actionTimeProfile.setObjectName("actionTimeProfile")
-        self.actionProfileStyle = QtWidgets.QAction(MainWindow)
-        self.actionProfileStyle.setIcon(icon)
-        self.actionProfileStyle.setObjectName("actionProfileStyle")
+        self.actionSettings = QtWidgets.QAction(MainWindow)
+        self.actionSettings.setIcon(icon)
+        self.actionSettings.setObjectName("actionSettings")
         self.actionShowSkipped = QtWidgets.QAction(MainWindow)
         self.actionShowSkipped.setCheckable(True)
         self.actionShowSkipped.setObjectName("actionShowSkipped")
@@ -137,6 +141,11 @@ class Ui_MainWindow(object):
         self.actionSaveGPXfileAs.setObjectName("actionSaveGPXfileAs")
         self.actionClearList = QtWidgets.QAction(MainWindow)
         self.actionClearList.setObjectName("actionClearList")
+        self.actionShowMarkedCaptioned = QtWidgets.QAction(MainWindow)
+        self.actionShowMarkedCaptioned.setCheckable(True)
+        self.actionShowMarkedCaptioned.setObjectName("actionShowMarkedCaptioned")
+        self.actionResetFilters = QtWidgets.QAction(MainWindow)
+        self.actionResetFilters.setObjectName("actionResetFilters")
         self.menuRecentProjects.addAction(self.actionClearList)
         self.menuFile.addAction(self.actionLoadGPXfile)
         self.menuFile.addAction(self.actionSaveGPXfileAs)
@@ -156,11 +165,15 @@ class Ui_MainWindow(object):
         self.menuFilter.addAction(self.actionShowSkipped)
         self.menuFilter.addAction(self.actionShowMarked)
         self.menuFilter.addAction(self.actionShowCaptioned)
+        self.menuFilter.addAction(self.actionShowMarkedCaptioned)
         self.menuFilter.addAction(self.actionShowOther)
-        self.menuTools.addAction(self.actionProfileStyle)
+        self.menuFilter.addSeparator()
+        self.menuFilter.addAction(self.actionResetFilters)
         self.menuTools.addAction(self.actionDistanceProfile)
         self.menuTools.addAction(self.actionTimeProfile)
         self.menuTools.addAction(self.actionStatistics)
+        self.menuTools.addSeparator()
+        self.menuTools.addAction(self.actionSettings)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuFilter.menuAction())
         self.menubar.addAction(self.menuTools.menuAction())
@@ -171,7 +184,7 @@ class Ui_MainWindow(object):
         self.fileToolBar.addAction(self.actionSave)
         self.fileToolBar.addAction(self.actionSaveAs)
         self.fileToolBar.addSeparator()
-        self.toolsToolBar.addAction(self.actionProfileStyle)
+        self.toolsToolBar.addAction(self.actionSettings)
         self.toolsToolBar.addSeparator()
         self.toolsToolBar.addAction(self.actionDistanceProfile)
         self.toolsToolBar.addAction(self.actionTimeProfile)
@@ -187,17 +200,19 @@ class Ui_MainWindow(object):
         self.actionSave.triggered.connect(MainWindow.fileSave)
         self.actionSaveAs.triggered.connect(MainWindow.fileSaveAs)
         self.actionLoadGPXfile.triggered.connect(MainWindow.fileLoadGPXFile)
-        self.actionProfileStyle.triggered.connect(MainWindow.showProfileStyleOptions)
-        self.actionShowSkipped.triggered['bool'].connect(MainWindow.showSkipped)
-        self.actionShowMarked.triggered['bool'].connect(MainWindow.showMarked)
-        self.actionShowOther.triggered['bool'].connect(MainWindow.showOther)
-        self.actionShowCaptioned.triggered['bool'].connect(MainWindow.showCaptioned)
+        self.actionSettings.triggered.connect(MainWindow.showSettings)
+        self.actionShowSkipped.toggled['bool'].connect(MainWindow.showSkipped)
+        self.actionShowMarked.toggled['bool'].connect(MainWindow.showMarked)
+        self.actionShowOther.toggled['bool'].connect(MainWindow.showOther)
+        self.actionShowCaptioned.toggled['bool'].connect(MainWindow.showCaptioned)
         self.actionGpxViewerHelp.triggered.connect(MainWindow.gpxViewerHelp)
         self.actionAboutGPXViewer.triggered.connect(MainWindow.aboutGPXViewer)
         self.actionNew.triggered.connect(MainWindow.fileNew)
         self.actionStatistics.triggered.connect(MainWindow.showStatistics)
         self.actionSaveGPXfileAs.triggered.connect(MainWindow.fileSaveGPXFileAs)
         self.actionClearList.triggered.connect(MainWindow.clearRecentList)
+        self.actionShowMarkedCaptioned.toggled['bool'].connect(MainWindow.showMarkedCaptioned)
+        self.actionResetFilters.triggered.connect(MainWindow.resetFilters)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -220,10 +235,10 @@ class Ui_MainWindow(object):
         self.actionLoadGPXfile.setText(_translate("MainWindow", "&Load GPX file"))
         self.actionDistanceProfile.setText(_translate("MainWindow", "&Distance profile"))
         self.actionTimeProfile.setText(_translate("MainWindow", "&Time profile"))
-        self.actionProfileStyle.setText(_translate("MainWindow", "&Profile style"))
+        self.actionSettings.setText(_translate("MainWindow", "&Settings..."))
         self.actionShowSkipped.setText(_translate("MainWindow", "&Show skipped"))
-        self.actionShowMarked.setText(_translate("MainWindow", "Show &marked"))
-        self.actionShowCaptioned.setText(_translate("MainWindow", "Show &captioned"))
+        self.actionShowMarked.setText(_translate("MainWindow", "Show &marked only"))
+        self.actionShowCaptioned.setText(_translate("MainWindow", "Show &captioned only"))
         self.actionShowOther.setText(_translate("MainWindow", "Show &other"))
         self.actionGpxViewerHelp.setText(_translate("MainWindow", "GPX Viewer &Help"))
         self.actionAboutGPXViewer.setText(_translate("MainWindow", "About &GPX Viewer"))
@@ -231,4 +246,7 @@ class Ui_MainWindow(object):
         self.actionStatistics.setText(_translate("MainWindow", "&Statistics"))
         self.actionSaveGPXfileAs.setText(_translate("MainWindow", "Save &GPX file as..."))
         self.actionClearList.setText(_translate("MainWindow", "&Clear list"))
+        self.actionShowMarkedCaptioned.setText(_translate("MainWindow", "Show marked &and captioned"))
+        self.actionResetFilters.setText(_translate("MainWindow", "&Reset filters"))
+
 

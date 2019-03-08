@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2018 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2019 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -52,20 +52,20 @@ class PlotCanvas(FigureCanvas):
     zeroDist = 0
     for p in TheDocument.gpxparser.points:
       if type(p) == int:
-        if p in wptRows or len(wptRows) == 0:
+        if (p in wptRows or len(wptRows) == 0) and (column == gpx.DIST or TheDocument.wptmodel.index(p, column).data() != ''):
           xx += [float(TheDocument.wptmodel.index(p, column).data()) - zeroDist]
           yy += [float(TheDocument.wptmodel.index(p, gpx.ALT).data())]
           if len(xx) == 1:
             zeroDist = xx[0]
             xx[0] = 0
-          if TheDocument.wptmodel.index(p, 0).data(gpx.IncludeRole) in {gpx.INC_MARKER, gpx.INC_CAPTION}:
-            markers += [(xx[-1], yy[-1], TheDocument.wptmodel.index(p, 0).data(gpx.MarkerRole))]
-          if TheDocument.wptmodel.index(p, 0).data(gpx.SplitStateRole):
-            splitLines += [(xx[-1], yy[-1], TheDocument.wptmodel.index(p, 0).data(gpx.SplitLineRole))]
+          if TheDocument.wptmodel.index(p, 0).data(gpx.MarkerRole):
+            markers += [(xx[-1], yy[-1], TheDocument.wptmodel.index(p, 0).data(gpx.MarkerStyleRole))]
+          if TheDocument.wptmodel.index(p, 0).data(gpx.SplitLineRole):
+            splitLines += [(xx[-1], yy[-1], TheDocument.wptmodel.index(p, 0).data(gpx.SplitLineStyleRole))]
           if p != 0 and TheDocument.wptmodel.index(p, 0).data(gpx.NeglectRole):
             neglectPoints += [xx[-1]]
-          if TheDocument.wptmodel.index(p, 0).data(gpx.IncludeRole) == gpx.INC_CAPTION:
-            captions += [(p, xx[-1], yy[-1], TheDocument.wptmodel.index(p, 0).data(gpx.CaptionRole))]
+          if TheDocument.wptmodel.index(p, 0).data(gpx.CaptionRole):
+            captions += [(p, xx[-1], yy[-1], TheDocument.wptmodel.index(p, 0).data(gpx.CaptionStyleRole))]
       elif p[0] in trkRows or len(trkRows) == 0 and len(wptRows) == 0:
         if column == gpx.DIST or TheDocument.trkmodel.index(p[0], gpx.TRKTIME).data() != '':
           xx += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][column]) - zeroDist]
@@ -78,7 +78,7 @@ class PlotCanvas(FigureCanvas):
     self.axes.clear()
     self.axes.grid(axis='y', linestyle='--', linewidth=0.5)
     if column == gpx.DIST:
-      dist_coeff = float(TheConfig['ProfileStyle']['DistanceCoefficient'])
+      dist_coeff = TheConfig.getValue('ProfileStyle', 'DistanceCoefficient')
       if dist_coeff == 1.0:
         self.axes.set_xlabel(self.tr('Distance (km)'))
       else:
@@ -91,7 +91,7 @@ class PlotCanvas(FigureCanvas):
     self.axes.set_ylabel(self.tr('Altitude (m)'))
 
     self.axes.set_xlim(right=xx[-1])
-    self.axes.set_ylim(bottom=int(TheConfig['ProfileStyle']['MinimumAltitude']), top=int(TheConfig['ProfileStyle']['MaximumAltitude']))
+    self.axes.set_ylim(bottom=TheConfig.getValue('ProfileStyle', 'MinimumAltitude'), top=TheConfig.getValue('ProfileStyle', 'MaximumAltitude'))
 
     if column == gpx.DIST:
       if xx[-1] > 100:
@@ -111,13 +111,16 @@ class PlotCanvas(FigureCanvas):
         self.axes.set_xticklabels([str(t) for t in range(int(ceil(24 * xx[-1])))])
 
     for l in splitLines:
-      self.axes.plot([l[0]] * 2, [int(TheConfig['ProfileStyle']['MinimumAltitude']), l[1]],
+      self.axes.plot([l[0]] * 2, [TheConfig.getValue('ProfileStyle', 'MinimumAltitude'), l[1]],
                      linestyle=l[2][gpx.LINE_STYLE], color=_colorTuple(l[2][gpx.LINE_COLOR]), linewidth=l[2][gpx.LINE_WIDTH])
 
-    self.axes.fill_between(xx, int(TheConfig['ProfileStyle']['MinimumAltitude']), yy, color=_colorTuple(int(TheConfig['ProfileStyle']['FillColor'])))
+    self.axes.fill_between(xx, TheConfig.getValue('ProfileStyle', 'MinimumAltitude'),
+                           yy, color=_colorTuple(TheConfig.getValue('ProfileStyle', 'FillColor')))
     for n in range(1, len(neglectPoints)):
-      self.axes.plot(xx[xx.index(neglectPoints[n-1]) + (1 if n > 1 else 0):xx.index(neglectPoints[n]) + 1], yy[xx.index(neglectPoints[n-1]) + (1 if n > 1 else 0):xx.index(neglectPoints[n]) + 1],
-                     color=_colorTuple(int(TheConfig['ProfileStyle']['ProfileColor'])), linewidth=float(TheConfig['ProfileStyle']['ProfileWidth']))
+      self.axes.plot(xx[xx.index(neglectPoints[n-1]) + (1 if n > 1 else 0):xx.index(neglectPoints[n]) + 1],
+                     yy[xx.index(neglectPoints[n-1]) + (1 if n > 1 else 0):xx.index(neglectPoints[n]) + 1],
+                     color=_colorTuple(TheConfig.getValue('ProfileStyle', 'ProfileColor')),
+                     linewidth=TheConfig.getValue('ProfileStyle', 'ProfileWidth'))
 
     for m in markers:
       self.axes.plot(m[0], m[1], marker=m[2][gpx.MARKER_STYLE], color=_colorTuple(m[2][gpx.MARKER_COLOR]), markersize=m[2][gpx.MARKER_SIZE])

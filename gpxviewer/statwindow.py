@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2017 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2017-2019 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -87,27 +87,27 @@ class StatWindow(QtWidgets.QMainWindow):
     alt_drop = 0
 
     for i in range(TheDocument.wptmodel.rowCount()):
-      if TheDocument.wptmodel.index(i, 0).data(gpx.IncludeRole) != gpx.INC_SKIP:
+      if TheDocument.wptmodel.index(i, 0).data(gpx.IncludeRole):
         point_start = TheDocument.wptmodel.waypoints[i]
         point_prev = point_start
         break
     for i in range(TheDocument.wptmodel.rowCount() - 1, -1, -1):
-      if TheDocument.wptmodel.index(i, 0).data(gpx.IncludeRole) != gpx.INC_SKIP:
+      if TheDocument.wptmodel.index(i, 0).data(gpx.IncludeRole):
         i_stop = i
         break
 
     segments = []
     for i, p in enumerate(TheDocument.wptmodel.waypoints):
-      if TheDocument.wptmodel.index(i, 0).data(gpx.IncludeRole) != gpx.INC_SKIP:
-        if self.ui.actionBySplittingLines.isChecked() and TheDocument.wptmodel.index(i, 0).data(gpx.SplitStateRole) or \
+      if TheDocument.wptmodel.index(i, 0).data(gpx.IncludeRole):
+        if self.ui.actionBySplittingLines.isChecked() and TheDocument.wptmodel.index(i, 0).data(gpx.SplitLineRole) or \
            not self.ui.actionBySplittingLines.isChecked() and QRegularExpression(self.filterLineEdit.text()).match(p[gpx.NAME]).hasMatch() or \
            i == i_stop:
-             if p['ID'] != point_start['ID']:
-              segments += [i]
+          if p['ID'] != point_start['ID']:
+            segments += [i]
     self.ui.statWidget.setRowCount(len(segments))
 
     for i, p in enumerate(TheDocument.wptmodel.waypoints):
-      if TheDocument.wptmodel.index(i, 0).data(gpx.IncludeRole) != gpx.INC_SKIP:
+      if TheDocument.wptmodel.index(i, 0).data(gpx.IncludeRole):
         if p[gpx.ALT] > point_prev[gpx.ALT]:
           alt_raise += p[gpx.ALT] - point_prev[gpx.ALT]
         else:
@@ -137,8 +137,11 @@ class StatWindow(QtWidgets.QMainWindow):
 
     if self.ui.statWidget.selectionModel().hasSelection():
       rows = [i.row() for i in self.ui.statWidget.selectionModel().selectedRows()]
+      self.ui.totalGroupBox.setTitle(self.tr('Total (for selected segments)'))
     else:
       rows = range(self.ui.statWidget.rowCount())
+      self.ui.totalGroupBox.setTitle(self.tr('Total'))
+
     for i in rows:
       total_dist += round(float(self.ui.statWidget.item(i, DIST).data(Qt.DisplayRole)), 3)
       total_raise += int(self.ui.statWidget.item(i, RAISE).data(Qt.DisplayRole))

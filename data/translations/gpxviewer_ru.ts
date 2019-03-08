@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="2.0" language="ru_RU" sourcelanguage="">
 <context>
+    <name>ConfigStore</name>
+    <message>
+        <location filename="../../gpxviewer/configstore.py" line="57"/>
+        <source>PNG images (*.png)</source>
+        <translation>Изображения PNG (*.png)</translation>
+    </message>
+</context>
+<context>
     <name>GpxDocument</name>
     <message>
-        <location filename="../../gpxviewer/gpxdocument.py" line="171"/>
+        <location filename="../../gpxviewer/gpxdocument.py" line="198"/>
         <source>This file in not a valid GPX Viewer project file.</source>
         <translation>Этот файл не является файлом проекта GPX Viewer.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxdocument.py" line="102"/>
+        <location filename="../../gpxviewer/gpxdocument.py" line="110"/>
         <source>One of the files has wrong number of valid waypoints or tracks. This file is likely to be damaged or changed from outside.</source>
         <translation>Один из файлов содержит неправильное количество маршрутных точек или треков. Вероятно, этот файл повреждён или изменён извне.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxdocument.py" line="97"/>
+        <location filename="../../gpxviewer/gpxdocument.py" line="105"/>
         <source>One of GPX files doesn&apos;t exist. This project can&apos;t be opened.</source>
         <translation>Один из GPX файлов не существует. Невозможно открыть проект.</translation>
     </message>
@@ -21,187 +29,355 @@
 <context>
     <name>GpxMainWindow</name>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="59"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="64"/>
         <source>Filter by name:</source>
         <translation>Фильтр по названию:</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="62"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="67"/>
         <source>Enter regular expression</source>
         <translation>Регулярное выражение</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="153"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="175"/>
         <source>Neglect previous distance</source>
         <translation>Не учитывать предыдущее расстояние</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="205"/>
-        <source>Reset</source>
-        <translation>Сброс</translation>
-    </message>
-    <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="159"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="194"/>
         <source>Point style</source>
         <translation>Стиль точек</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="275"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="326"/>
         <source>GPX Viewer Help</source>
         <translation>Справка GPX Viewer</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="246"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="294"/>
         <source>Version</source>
         <translation>Версия</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="247"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="295"/>
         <source>Using</source>
         <translation>Используется</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="251"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="299"/>
         <source>License:</source>
         <translation>Лицензия:</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="252"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="300"/>
         <source>About GPX Viewer</source>
         <translation>О GPX Viewer</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="546"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="655"/>
         <source>Distance Profile</source>
         <translation>Профиль по расстоянию</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="571"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="680"/>
         <source>Time Profile</source>
         <translation>Профиль по времени</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="516"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="616"/>
         <source>Open GPX file</source>
         <translation>Открыть GPX файл</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="442"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="535"/>
         <source>Open project file</source>
         <translation>Открыть файл проекта</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="458"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="554"/>
         <source>Save project file as</source>
         <translation>Сохранить файл проекта как</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="145"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="148"/>
         <source>Skip points</source>
         <translation>Пропустить точки</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="147"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="154"/>
         <source>Points with markers</source>
         <translation>Точки с маркерами</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="149"/>
-        <source>Points with captions and markers</source>
-        <translation>Точки с подписями и маркерами</translation>
-    </message>
-    <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="151"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="168"/>
         <source>Points with splitting lines</source>
         <translation>Точки с разделительными линиями</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="126"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="129"/>
         <source>Close GPX Viewer</source>
         <translation>Зактыть GPX Viewer</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="526"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="626"/>
         <source>There are unsaved changes. Do you want to save the project?</source>
         <translation>Есть несохранённые изменения. Вы хотите сохранить проект?</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="401"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="494"/>
         <source>Load GPX file</source>
         <translation>Загрузить GPX файл</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="526"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="626"/>
         <source>Open GPX Viewer project</source>
         <translation>Открыть проект GPX Viewer</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="516"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="616"/>
         <source>GPX XML (*.gpx);;All files (*)</source>
         <translation>GPX XML (*.gpx);;Все файлы (*.*)</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="513"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="642"/>
         <source>File read error</source>
         <translation>Ошибка чтения файла</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="458"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="554"/>
         <source>GPX Viewer Projects (*.gpxv);;All files (*)</source>
         <translation>Проекты GPX Viewer (*.gpxv);;Все файлы (*.*)</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="489"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="589"/>
         <source>Multiple GPX files</source>
         <translation>Несколько GPX файлов</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="424"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="517"/>
         <source>Save GPX file as</source>
         <translation>Сохранить GPX файл как</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="581"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="690"/>
         <source>Not enouph points.</source>
         <translation>Недостаточно точек.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="421"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="514"/>
         <source>The GPX file will be empty.</source>
         <translation>GPX файл будет пуст.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="472"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="572"/>
         <source>The project is empty.</source>
         <translation>Проект пуст.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="472"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="572"/>
         <source>Save error</source>
         <translation>Ошибка сохранения</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="568"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="677"/>
         <source>Plot error</source>
         <translation>Ошибка отрисовки</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="581"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="690"/>
         <source>Statistics error</source>
         <translation>Ошибка расчёта статистики</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="203"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="247"/>
         <source>Skip tracks</source>
         <translation>Пропустить треки</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="568"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="677"/>
         <source>Not enouph points or tracks.</source>
         <translation>Недостаточно точек или треков.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="255"/>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="642"/>
+        <source>The file </source>
+        <translation>Файл </translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="613"/>
+        <source> doesn&apos;t exist.
+
+Do you want to choose another location of this file?</source>
+        <translation> не существует.
+
+Вы хотите выбрать другое расположение этого файла?</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="213"/>
+        <source>Google Maps</source>
+        <translation>Карты Google</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="216"/>
+        <source>Yandex Maps</source>
+        <translation>Карты Yandex</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="219"/>
+        <source>Zoom Earth</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="222"/>
+        <source>OpenCycleMap</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="225"/>
+        <source>OpenTopoMap</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="228"/>
+        <source>Loadmap.net</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="232"/>
+        <source>Show on map</source>
+        <translation>Показать на карте</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="190"/>
+        <source>Reset name</source>
+        <translation>Сбросить название</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="182"/>
+        <source>Reset appearance</source>
+        <translation>Сбросить внешний вид</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="161"/>
+        <source>Points with captions</source>
+        <translation>Точки с подписями</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="187"/>
+        <source>Rename...</source>
+        <translation>Переименовать...</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="642"/>
+        <source> doesn&apos;t exist.
+
+Do you want to remove it from recent projects?</source>
+        <translation> не существует.
+
+Вы хотите удалить его из недавних проектов?</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="248"/>
+        <source>Skip these tracks when plotting profiles or calculating statistics</source>
+        <translation>Пропустить эти треки при построении профилей или подсчёте статистики</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="149"/>
+        <source>Skip these waypoints when plotting profiles or calculating statistics</source>
+        <translation>Пропустить эти точки при построении профилей или подсчёте статистики</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="155"/>
+        <source>Add markers to these waypoints when plotting profiles</source>
+        <translation>Добавить маркеры к этим точкам при построении профилей</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="162"/>
+        <source>Add captions to these waypoints when plotting profiles</source>
+        <translation>Добавить подписи к этим точкам при построении профилей</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="169"/>
+        <source>Add splitting lines to these waypoints when plotting profiles</source>
+        <translation>Добавить разделительные линии к этим точкам при построении профилей</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="176"/>
+        <source>Neglect distance before these waypoints when plotting profiles</source>
+        <translation>Не учитывать расстояние перед этими точками при построении профилей</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="183"/>
+        <source>Reset appearance of these waypoints</source>
+        <translation>Сбросить внешний вид этих точек</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="188"/>
+        <source>Rename these waypoints</source>
+        <translation>Переименовать эти точки</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="191"/>
+        <source>Reset the names of these waypoints</source>
+        <translation>Сбросить названия этих точек к исходным значениям</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="214"/>
+        <source>Show this waypoint on the website maps.google.com</source>
+        <translation>Показать эту точку на сайте maps.google.com</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="217"/>
+        <source>Show this waypoint on the website maps.yandex.ru</source>
+        <translation>Показать эту точку на сайте maps.yandex.ru</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="220"/>
+        <source>Show this waypoint on the website zoom.earth</source>
+        <translation>Показать эту точку на сайте zoom.earth</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="223"/>
+        <source>Show this waypoint on the website openstreetmap.org</source>
+        <translation>Показать эту точку на сайте openstreetmap.org</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="226"/>
+        <source>Show this waypoint on the website opentopomap.org</source>
+        <translation>Показать эту точку на сайте opentopomap.org</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="229"/>
+        <source>Show this waypoint on the website loadmap.net</source>
+        <translation>Показать эту точку на сайте loadmap.net</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="195"/>
+        <source>Change the style of these waypoints when plotting profiles</source>
+        <translation>Изменить стиль этих точек при построении профилей</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="380"/>
+        <source>Rename waypoints</source>
+        <translation>Переименование точек</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="382"/>
+        <source>Enter new name for </source>
+        <translation>Введите новое название для </translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="382"/>
+        <source> waypoints:</source>
+        <translation> точек:</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="391"/>
+        <source>Several symbols &quot;#&quot; will be replaced by sequential numbers starting from:</source>
+        <translation>Несколько символов &quot;#&quot; будут заменены порядковым номером, начиная с:</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmainwindow.py" line="303"/>
         <source>Notation:&lt;br&gt;
                            &lt;font color=red&gt;Red&lt;/font&gt; - skipped points&lt;br&gt;
                            &lt;font color=blue&gt;Blue&lt;/font&gt; - marked points&lt;br&gt;
@@ -214,6 +390,9 @@
                            Ctrl+P - Show distance profile&lt;br&gt;
                            Ctrl+T - Show time profile&lt;br&gt;
                            Ctrl+I - Show statistics&lt;br&gt;
+                           F2 - Rename multiple points.
+                           Several symbols &quot;#&quot; are replaced by sequential numbers.
+                           The number of digits equals to the amount of symbols &quot;#&quot;.&lt;br&gt;
                            &lt;br&gt;
                            Several cases are possible when plotting a profile:
                            &lt;ul&gt;
@@ -233,105 +412,49 @@
                            Ctrl+P - Показать профиль по расстоянию&lt;br&gt;
                            Ctrl+T - Показать профиль по времени &lt;br&gt;
                            Ctrl+I - Показать статистику&lt;br&gt;
+                           F2 - Переименовать несколько точек.
+                           Несколько символов &quot;#&quot; заменяются порядковым номером.
+                           Количество знаков равно количеству символов &quot;#&quot;.&lt;br&gt;
                            &lt;br&gt;
-                           При рисовании профиля возможно несколько случаев:
+                           При построении профиля возможно несколько случаев:
                            &lt;ul&gt;
                            &lt;li&gt;Все непропущенные точки имеют отметки времени: учитываются точки и треки с отметками времени&lt;/li&gt;
                            &lt;li&gt;Есть точки без отметок времени: учитываются только точки, треки пропускаются&lt;/li&gt;
                            &lt;li&gt;Нет точек: учитываются все непропущенные треки&lt;/li&gt;
                            &lt;/ul&gt;</translation>
     </message>
-    <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="513"/>
-        <source>The file </source>
-        <translation>Файл </translation>
-    </message>
-    <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="513"/>
-        <source> doesn&apos;t exist.
-
-Do you want to choose another location of this file?</source>
-        <translation> не существует.
-
-Вы хотите выбрать другое расположение этого файла?</translation>
-    </message>
-    <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="176"/>
-        <source>Google Maps</source>
-        <translation>Карты Google</translation>
-    </message>
-    <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="178"/>
-        <source>Yandex Maps</source>
-        <translation>Карты Yandex</translation>
-    </message>
-    <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="180"/>
-        <source>Zoom Earth</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="182"/>
-        <source>OpenCycleMap</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="184"/>
-        <source>OpenTopoMap</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="186"/>
-        <source>Loadmap.net</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="189"/>
-        <source>Show on map</source>
-        <translation>Показать на карте</translation>
-    </message>
-    <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="157"/>
-        <source>Reset name</source>
-        <translation>Сбросить название</translation>
-    </message>
-    <message>
-        <location filename="../../gpxviewer/gpxmainwindow.py" line="155"/>
-        <source>Reset appearance</source>
-        <translation>Сбросить внешний вид</translation>
-    </message>
 </context>
 <context>
     <name>GpxParser</name>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="270"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="322"/>
         <source> is an invalid GPX file.</source>
         <translation> повреждённый GPX файл.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="324"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="374"/>
         <source>Waypoint </source>
         <translation>Маршрутная точка </translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="385"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="435"/>
         <source>Track </source>
         <translation>Трек </translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="324"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="374"/>
         <source>is invalid and will be skipped.</source>
         <comment>Waypoint</comment>
         <translation>повреждена и будет пропущена.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="385"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="435"/>
         <source>is invalid and will be skipped.</source>
         <comment>Track</comment>
         <translation>повреждён и будет пропущен.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="385"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="435"/>
         <source>File read error</source>
         <translation>Ошибка чтения файла</translation>
     </message>
@@ -339,149 +462,159 @@ Do you want to choose another location of this file?</source>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="209"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="224"/>
         <source>&amp;Help</source>
         <translation>&amp;Справка</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="215"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="230"/>
         <source>&amp;Quit</source>
         <translation>&amp;Выход</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="216"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="231"/>
         <source>&amp;Open project</source>
         <translation>&amp;Открыть проект</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="217"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="232"/>
         <source>&amp;About Qt</source>
         <translation>&amp;О Qt</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="218"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="233"/>
         <source>&amp;Save project</source>
         <translation>&amp;Сохранить проект</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="219"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="234"/>
         <source>Save project &amp;as...</source>
         <translation>Сохранить проект &amp;как...</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="220"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="235"/>
         <source>&amp;Load GPX file</source>
         <translation>&amp;Загрузить GPX файл</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="224"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="239"/>
         <source>&amp;Show skipped</source>
         <translation>&amp;Показывать пропущенные</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="225"/>
-        <source>Show &amp;marked</source>
-        <translation>Показывать &amp;маркированные</translation>
-    </message>
-    <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="226"/>
-        <source>Show &amp;captioned</source>
-        <translation>Показывать &amp;подписанные</translation>
-    </message>
-    <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="227"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="242"/>
         <source>Show &amp;other</source>
         <translation>Показывать &amp;остальные</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="207"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="222"/>
         <source>&amp;File</source>
         <translation>&amp;Файл</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="210"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="225"/>
         <source>F&amp;ilter</source>
         <translation>Ф&amp;ильтр</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="221"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="236"/>
         <source>&amp;Distance profile</source>
         <translation>&amp;Профиль по расстоянию</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="222"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="237"/>
         <source>&amp;Time profile</source>
         <translation>Профиль по &amp;времени</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="228"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="243"/>
         <source>GPX Viewer &amp;Help</source>
         <translation>&amp;Справка GPX Viewer</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="229"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="244"/>
         <source>About &amp;GPX Viewer</source>
         <translation>О &amp;GPX Viewer</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="205"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="220"/>
         <source>Waypoints</source>
         <translation>Маршрутные точки</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="230"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="245"/>
         <source>&amp;New project</source>
         <translation>&amp;Новый проект</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="231"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="246"/>
         <source>&amp;Statistics</source>
         <translation>&amp;Статистика</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="232"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="247"/>
         <source>Save &amp;GPX file as...</source>
         <translation>Сохранить &amp;GPX файл как...</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="206"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="221"/>
         <source>Tracks</source>
         <translation>Треки</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="212"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="227"/>
         <source>File</source>
         <translation>Файл</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="213"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="228"/>
         <source>Tools</source>
         <translation>Инструменты</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="214"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="229"/>
         <source>Filter</source>
         <translation>Фильтр</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="211"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="226"/>
         <source>&amp;Tools</source>
         <translation>&amp;Инструменты</translation>
     </message>
     <message>
         <location filename="../../gpxviewer/ui_mainwindow.py" line="223"/>
-        <source>&amp;Profile style</source>
-        <translation>&amp;Стиль профиля</translation>
-    </message>
-    <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="208"/>
         <source>&amp;Recent projects</source>
         <translation>&amp;Недавние проекты</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_mainwindow.py" line="233"/>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="248"/>
         <source>&amp;Clear list</source>
         <translation>&amp;Очистить список</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="249"/>
+        <source>Show marked &amp;and captioned</source>
+        <translation>Показывать маркированные &amp;и подписанные</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="240"/>
+        <source>Show &amp;marked only</source>
+        <translation>Показывать только &amp;маркированные</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="241"/>
+        <source>Show &amp;captioned only</source>
+        <translation>Показывать только п&amp;одписанные</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="250"/>
+        <source>&amp;Reset filters</source>
+        <translation>&amp;Сбросить фильтры</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_mainwindow.py" line="238"/>
+        <source>&amp;Settings...</source>
+        <translation>&amp;Настройки...</translation>
     </message>
 </context>
 <context>
@@ -520,12 +653,12 @@ Do you want to choose another location of this file?</source>
 <context>
     <name>PlotWindow</name>
     <message>
-        <location filename="../../gpxviewer/ui_plotwindow.py" line="47"/>
+        <location filename="../../gpxviewer/ui_plotwindow.py" line="48"/>
         <source>Export current size</source>
         <translation>Экспорт текущего размера</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_plotwindow.py" line="49"/>
+        <location filename="../../gpxviewer/ui_plotwindow.py" line="50"/>
         <source>Export selected size</source>
         <translation>Экспорт выбранного размера</translation>
     </message>
@@ -535,12 +668,12 @@ Do you want to choose another location of this file?</source>
         <translation>Размер для экспорта:</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotviewer.py" line="83"/>
+        <location filename="../../gpxviewer/plotviewer.py" line="90"/>
         <source>Export profile of the current size</source>
         <translation>Экспортировать профиль текущего размера</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotviewer.py" line="89"/>
+        <location filename="../../gpxviewer/plotviewer.py" line="96"/>
         <source>Export profile of the selected size</source>
         <translation>Экспортировать профиль выбранного размера</translation>
     </message>
@@ -686,32 +819,32 @@ Do you want to choose another location of this file?</source>
 <context>
     <name>StatWindow</name>
     <message>
-        <location filename="../../gpxviewer/ui_statwindow.py" line="120"/>
+        <location filename="../../gpxviewer/ui_statwindow.py" line="121"/>
         <source>Name</source>
         <translation>Название</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_statwindow.py" line="130"/>
+        <location filename="../../gpxviewer/ui_statwindow.py" line="132"/>
         <source>Distance</source>
         <translation>Расстояние</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_statwindow.py" line="133"/>
+        <location filename="../../gpxviewer/ui_statwindow.py" line="135"/>
         <source>Time</source>
         <translation>Время</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_statwindow.py" line="129"/>
+        <location filename="../../gpxviewer/ui_statwindow.py" line="131"/>
         <source>Total</source>
         <translation>Всего</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_statwindow.py" line="118"/>
+        <location filename="../../gpxviewer/ui_statwindow.py" line="119"/>
         <source>Statistics</source>
         <translation>Статистика</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_statwindow.py" line="134"/>
+        <location filename="../../gpxviewer/ui_statwindow.py" line="136"/>
         <source>By splitting lines</source>
         <translation>По разделительным линиям</translation>
     </message>
@@ -726,45 +859,60 @@ Do you want to choose another location of this file?</source>
         <translation>Регулярное выражение</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_statwindow.py" line="131"/>
+        <location filename="../../gpxviewer/ui_statwindow.py" line="133"/>
         <source>Elevation ascent</source>
         <translation>Набор высоты</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_statwindow.py" line="132"/>
+        <location filename="../../gpxviewer/ui_statwindow.py" line="134"/>
         <source>Elevation descent</source>
         <translation>Сброс высоты</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_statwindow.py" line="137"/>
+        <source>Divide into segments by splitting lines (or by regular expression)</source>
+        <translation>Разделить на сегменты по разделительным линиям (или по регулярному выражению)</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_statwindow.py" line="130"/>
+        <source>Total statistics for selected segments</source>
+        <translation>Общая статистика по выделенным сегментам</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/statwindow.py" line="140"/>
+        <source>Total (for selected segments)</source>
+        <translation>Всего (для выделенных сегментов)</translation>
     </message>
 </context>
 <context>
     <name>TrkModel</name>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="197"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="249"/>
         <source>Name</source>
         <translation>Название</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="197"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="249"/>
         <source>Length</source>
         <translation>Длина</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="197"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="249"/>
         <source>Time</source>
         <translation>Время</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="197"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="249"/>
         <source>Duration</source>
         <translation>Продолжительность</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="197"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="249"/>
         <source>Segments</source>
         <translation>Сегменты</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxmodel.py" line="197"/>
+        <location filename="../../gpxviewer/gpxmodel.py" line="249"/>
         <source>Points</source>
         <translation>Точки</translation>
     </message>
@@ -815,102 +963,192 @@ Do you want to choose another location of this file?</source>
 <context>
     <name>pointConfigDialog</name>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="280"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="275"/>
         <source>Configure point style</source>
         <translation>Настроить стиль точек</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="281"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="278"/>
         <source>Marker style</source>
         <translation>Стиль маркера</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="282"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="280"/>
         <source>Marker color</source>
         <translation>Цвет маркера</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="283"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="282"/>
         <source>Marker size</source>
         <translation>Размер маркера</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="284"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="290"/>
         <source>Split line style</source>
         <translation>Стиль разделительной линии</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="285"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="292"/>
         <source>Split line color</source>
         <translation>Цвет разделительной линии</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="286"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="294"/>
         <source>Split line width</source>
         <translation>Толщина разделительной линии</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="287"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="285"/>
         <source>Caption position (x, y)</source>
         <translation>Положение подписи (x, y)</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="288"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="287"/>
         <source>Caption size</source>
         <translation>Размер подписи</translation>
     </message>
-</context>
-<context>
-    <name>profileConfigDialog</name>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="138"/>
-        <source>Configure profile style</source>
-        <translation>Настроить стиль профиля</translation>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="293"/>
+        <source>Whether to change this property for selected points</source>
+        <translation>Изменять ли это свойство для выделенных точек</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="139"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="276"/>
+        <source>Marker</source>
+        <translation>Маркер</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="283"/>
+        <source>Caption</source>
+        <translation>Подпись</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="288"/>
+        <source>Split line</source>
+        <translation>Разделительная линия</translation>
+    </message>
+</context>
+<context>
+    <name>settingsDialog</name>
+    <message>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="169"/>
+        <source>Settings</source>
+        <translation>Настройки</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="170"/>
         <source>Profile color</source>
         <translation>Цвет профиля</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="140"/>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="171"/>
         <source>Fill color</source>
         <translation>Цвет заполнения</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="141"/>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="172"/>
         <source>Profile width</source>
         <translation>Толщина профиля</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="142"/>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="173"/>
         <source>Minimum altitude</source>
         <translation>Минимальная высота</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="143"/>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="174"/>
         <source>Maximum altitude</source>
         <translation>Максимальная высота</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="145"/>
-        <source>Time zone offset</source>
-        <translation>Сдвиг часового пояса</translation>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="175"/>
+        <source>Use only selected points</source>
+        <translation>Только выделенные точки</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="146"/>
-        <source> min</source>
-        <translation> мин</translation>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="177"/>
+        <source>Profile style</source>
+        <translation>Стиль профиля</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="144"/>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="178"/>
         <source>Distance coefficient</source>
         <translation>Коэффициент расстояния</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_profileconfigdialog.py" line="147"/>
-        <source>Use only selected points</source>
-        <translation>Только выделенные точки</translation>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="179"/>
+        <source>Calculate distance with additional coefficient</source>
+        <translation>Вычислять расстояние с дополнительным коэффициентом</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="180"/>
+        <source>Time zone offset</source>
+        <translation>Сдвиг часового пояса</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="181"/>
+        <source>The difference between your time zone and UTC (used in GPX-files)</source>
+        <translation>Разница между вашим часовым поясом и UTC (используется в GPX-файлах)</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="182"/>
+        <source> min</source>
+        <translation> мин</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="192"/>
+        <source>GPX settings</source>
+        <translation>Настройки GPX</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="188"/>
+        <source>Coordinate format</source>
+        <translation>Формат координат</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="189"/>
+        <source>Decimal degrees</source>
+        <translation>Градусы с десятичными долями</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="191"/>
+        <source>Degrees, minutes, seconds</source>
+        <translation>Градусы, минуты, секунды</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="185"/>
+        <source>Name</source>
+        <translation>Название</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="186"/>
+        <source>Comment</source>
+        <translation>Комментарий</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="187"/>
+        <source>Description</source>
+        <translation>Описание</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="183"/>
+        <source>Point names are in tag</source>
+        <translation>Названия точек в теге</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="190"/>
+        <source>Degrees with minutes</source>
+        <translation>Градусы и минуты</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="184"/>
+        <source>Read point names from one of the tags in GPX file: &lt;name&gt;, &lt;cmt&gt;, &lt;desc&gt;</source>
+        <translation>Читать названия точек из одного из тегов в GPX файле: &lt;name&gt;, &lt;cmt&gt;, &lt;desc&gt;</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_settingsdialog.py" line="176"/>
+        <source>Plot profiles taking into account only selected points and tracks</source>
+        <translation>Строить профили, учитывая только выделенные точки и треки</translation>
     </message>
 </context>
 </TS>

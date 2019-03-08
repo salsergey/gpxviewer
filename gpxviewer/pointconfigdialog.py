@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2017 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2019 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -28,14 +28,14 @@ class PointConfigDialog(QDialog):
     self.setMinimumWidth(420)
     self.style = style
 
-    self.ui.markerColorCheckBox.setChecked(TheConfig['PointStyle'].getboolean('MarkerColorEnabled'))
-    self.ui.markerStyleCheckBox.setChecked(TheConfig['PointStyle'].getboolean('MarkerStyleEnabled'))
-    self.ui.markerSizeCheckBox.setChecked(TheConfig['PointStyle'].getboolean('MarkerSizeEnabled'))
-    self.ui.lineColorCheckBox.setChecked(TheConfig['PointStyle'].getboolean('SplitLineColorEnabled'))
-    self.ui.lineStyleCheckBox.setChecked(TheConfig['PointStyle'].getboolean('SplitLineStyleEnabled'))
-    self.ui.lineWidthCheckBox.setChecked(TheConfig['PointStyle'].getboolean('SplitLineWidthEnabled'))
-    self.ui.captionPositionCheckBox.setChecked(TheConfig['PointStyle'].getboolean('CaptionPositionEnabled'))
-    self.ui.captionSizeCheckBox.setChecked(TheConfig['PointStyle'].getboolean('CaptionSizeEnabled'))
+    self.ui.markerColorCheckBox.setChecked(TheConfig.getValue('PointStyle', 'MarkerColorEnabled'))
+    self.ui.markerStyleCheckBox.setChecked(TheConfig.getValue('PointStyle', 'MarkerStyleEnabled'))
+    self.ui.markerSizeCheckBox.setChecked(TheConfig.getValue('PointStyle', 'MarkerSizeEnabled'))
+    self.ui.lineColorCheckBox.setChecked(TheConfig.getValue('PointStyle', 'SplitLineColorEnabled'))
+    self.ui.lineStyleCheckBox.setChecked(TheConfig.getValue('PointStyle', 'SplitLineStyleEnabled'))
+    self.ui.lineWidthCheckBox.setChecked(TheConfig.getValue('PointStyle', 'SplitLineWidthEnabled'))
+    self.ui.captionPositionCheckBox.setChecked(TheConfig.getValue('PointStyle', 'CaptionPositionEnabled'))
+    self.ui.captionSizeCheckBox.setChecked(TheConfig.getValue('PointStyle', 'CaptionSizeEnabled'))
 
     self.markerStyles = [('.', self.tr('Point')),
                          (',', self.tr('Pixel')),
@@ -64,43 +64,44 @@ class PointConfigDialog(QDialog):
                        ('-.', self.tr('Dash-dot')),
                        (':', self.tr('Dotted'))]
 
-    self.ui.markerColorButton.setColor(self.style[gpx.MARKER_COLOR])
-    self.ui.lineColorButton.setColor(self.style[gpx.LINE_COLOR])
-
     self.ui.markerStyleCombo.addItems([m[1] for m in self.markerStyles])
     for i, m in enumerate(self.markerStyles):
       if m[0] == self.style[gpx.MARKER_STYLE]:
         self.ui.markerStyleCombo.setCurrentIndex(i)
-    self.ui.lineStyleCombo.addItems([m[1] for m in self.lineStyles])
-    for i, m in enumerate(self.lineStyles):
-      if m[0] == self.style[gpx.LINE_STYLE]:
-        self.ui.lineStyleCombo.setCurrentIndex(i)
-
+        break
+    self.ui.markerColorButton.setColor(self.style[gpx.MARKER_COLOR])
     self.ui.markerSizeSpinBox.setValue(self.style[gpx.MARKER_SIZE])
-    self.ui.lineWidthSpinBox.setValue(self.style[gpx.LINE_WIDTH])
 
     self.ui.captionPositionXSpinBox.setValue(self.style[gpx.CAPTION_POSX])
     self.ui.captionPositionYSpinBox.setValue(self.style[gpx.CAPTION_POSY])
     self.ui.captionSizeSpinBox.setValue(self.style[gpx.CAPTION_SIZE])
 
+    self.ui.lineStyleCombo.addItems([m[1] for m in self.lineStyles])
+    for i, m in enumerate(self.lineStyles):
+      if m[0] == self.style[gpx.LINE_STYLE]:
+        self.ui.lineStyleCombo.setCurrentIndex(i)
+        break
+    self.ui.lineColorButton.setColor(self.style[gpx.LINE_COLOR])
+    self.ui.lineWidthSpinBox.setValue(self.style[gpx.LINE_WIDTH])
+
     self.ui.markerColorCheckBox.toggled.connect(self.markerColorEnabled)
     self.ui.markerStyleCheckBox.toggled.connect(self.markerStyleEnabled)
     self.ui.markerSizeCheckBox.toggled.connect(self.markerSizeEnabled)
+    self.ui.captionPositionCheckBox.toggled.connect(self.captionPositionEnabled)
+    self.ui.captionSizeCheckBox.toggled.connect(self.captionSizeEnabled)
     self.ui.lineColorCheckBox.toggled.connect(self.lineColorEnabled)
     self.ui.lineStyleCheckBox.toggled.connect(self.lineStyleEnabled)
     self.ui.lineWidthCheckBox.toggled.connect(self.lineWidthEnabled)
-    self.ui.captionPositionCheckBox.toggled.connect(self.captionPositionEnabled)
-    self.ui.captionSizeCheckBox.toggled.connect(self.captionSizeEnabled)
 
     self.ui.markerColorButton.colorSet.connect(self.setMarkerColor)
     self.ui.markerStyleCombo.activated.connect(self.setMarkerStyle)
     self.ui.markerSizeSpinBox.valueChanged.connect(self.setMarkerSize)
-    self.ui.lineColorButton.colorSet.connect(self.setLineColor)
-    self.ui.lineStyleCombo.activated.connect(self.setLineStyle)
-    self.ui.lineWidthSpinBox.valueChanged.connect(self.setLineWidth)
     self.ui.captionPositionXSpinBox.valueChanged.connect(self.setCaptionPositionX)
     self.ui.captionPositionYSpinBox.valueChanged.connect(self.setCaptionPositionY)
     self.ui.captionSizeSpinBox.valueChanged.connect(self.setCaptionSize)
+    self.ui.lineColorButton.colorSet.connect(self.setLineColor)
+    self.ui.lineStyleCombo.activated.connect(self.setLineStyle)
+    self.ui.lineWidthSpinBox.valueChanged.connect(self.setLineWidth)
 
   def markerColorEnabled(self, enabled):
     TheConfig['PointStyle']['MarkerColorEnabled'] = str(enabled)
@@ -111,6 +112,12 @@ class PointConfigDialog(QDialog):
   def markerSizeEnabled(self, enabled):
     TheConfig['PointStyle']['MarkerSizeEnabled'] = str(enabled)
 
+  def captionPositionEnabled(self, enabled):
+    TheConfig['PointStyle']['CaptionPositionEnabled'] = str(enabled)
+
+  def captionSizeEnabled(self, enabled):
+    TheConfig['PointStyle']['CaptionSizeEnabled'] = str(enabled)
+
   def lineColorEnabled(self, enabled):
     TheConfig['PointStyle']['SplitLineColorEnabled'] = str(enabled)
 
@@ -119,12 +126,6 @@ class PointConfigDialog(QDialog):
 
   def lineWidthEnabled(self, enabled):
     TheConfig['PointStyle']['SplitLineWidthEnabled'] = str(enabled)
-
-  def captionPositionEnabled(self, enabled):
-    TheConfig['PointStyle']['CaptionPositionEnabled'] = str(enabled)
-
-  def captionSizeEnabled(self, enabled):
-    TheConfig['PointStyle']['CaptionSizeEnabled'] = str(enabled)
 
   def setMarkerColor(self):
     self.style[gpx.MARKER_COLOR] = self.ui.markerColorButton.color.rgba()
