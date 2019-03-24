@@ -6,6 +6,7 @@
 
 == Minor ==
 
+* Autoscale max/min altitude.
 * Add "Set as start point" to the context menu.
 * Button for time resorting.
 * Copying a column.

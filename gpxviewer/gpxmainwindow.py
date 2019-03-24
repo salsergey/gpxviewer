@@ -21,8 +21,8 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 import gpxviewer.gpxmodel as gpx
 import gpxviewer.statwindow as stat
 import gpxviewer.plotviewer as plt
-import gpxviewer.pointconfigdialog
-import gpxviewer.settingsdialog
+from gpxviewer import pointconfigdialog
+from gpxviewer import settingsdialog
 from gpxviewer.configstore import TheConfig
 from gpxviewer.gpxdocument import TheDocument
 import gpxviewer.ui_mainwindow
@@ -337,30 +337,25 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     TheDocument.wptmodel.setIncludeStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME],
                                           not self.sender().isChecked())
     self.filterModel.invalidateFilter()
-    self.setProjectChanged(True)
 
   def markerPoints(self):
     TheDocument.wptmodel.setMarkerStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME],
                                          self.sender().isChecked())
     self.filterModel.invalidateFilter()
-    self.setProjectChanged(True)
 
   def captionPoints(self):
     TheDocument.wptmodel.setCaptionStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME],
                                           self.sender().isChecked())
     self.filterModel.invalidateFilter()
-    self.setProjectChanged(True)
 
   def splitLines(self):
     TheDocument.wptmodel.setSplitLines([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME],
                                        self.sender().isChecked())
     self.filterModel.invalidateFilter()
-    self.setProjectChanged(True)
 
   def neglectDistance(self):
     TheDocument.wptmodel.setNeglectStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME],
                                           self.sender().isChecked())
-    self.setProjectChanged(True)
 
   def resetPoints(self):
     indexes = [i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME]
@@ -369,7 +364,6 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     TheDocument.wptmodel.setSplitLines(indexes, False)
     TheDocument.wptmodel.setNeglectStates(indexes, False)
     self.filterModel.invalidateFilter()
-    self.setProjectChanged(True)
 
   def renamePoints(self):
     indexes = [i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME]
@@ -407,7 +401,6 @@ class GpxMainWindow(QtWidgets.QMainWindow):
           digits = len(re.findall('(#+)', name)[0])
           name = re.sub('#+', str(n).zfill(digits), name, 1)
         TheDocument.wptmodel.setData(TheDocument.wptmodel.index(ind, gpx.NAME), name, QtCore.Qt.EditRole)
-      self.setProjectChanged(True)
 
   def resetPointNames(self):
     TheDocument.wptmodel.resetNames([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME])
@@ -447,10 +440,9 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     style.update(self.ui.wptView.currentIndex().data(gpx.MarkerStyleRole))
     style.update(self.ui.wptView.currentIndex().data(gpx.CaptionStyleRole))
     style.update(self.ui.wptView.currentIndex().data(gpx.SplitLineStyleRole))
-    dlg = gpxviewer.pointconfigdialog.PointConfigDialog(self, style)
+    dlg = pointconfigdialog.PointConfigDialog(self, style)
 
     if dlg.exec_() == QtWidgets.QDialog.Accepted:
-      self.setProjectChanged(True)
       TheConfig['PointStyle']['MarkerColor'] = str(dlg.style[gpx.MARKER_COLOR])
       TheConfig['PointStyle']['MarkerStyle'] = dlg.style[gpx.MARKER_STYLE]
       TheConfig['PointStyle']['MarkerSize'] = str(dlg.style[gpx.MARKER_SIZE])
@@ -653,11 +645,11 @@ class GpxMainWindow(QtWidgets.QMainWindow):
       return
 
     self.plot.setWindowTitle(self.tr('Distance Profile'))
+    self.plot.show()
     if TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly'):
       self.plot.plotProfile(gpx.DIST, [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], [i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
     else:
       self.plot.plotProfile(gpx.DIST)
-    self.plot.show()
     self.plot.activateWindow()
 
   def plotTimeProfile(self):
@@ -678,11 +670,11 @@ class GpxMainWindow(QtWidgets.QMainWindow):
         return
 
     self.plot.setWindowTitle(self.tr('Time Profile'))
+    self.plot.show()
     if TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly'):
       self.plot.plotProfile(gpx.TIME_DAYS, [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], [i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
     else:
       self.plot.plotProfile(gpx.TIME_DAYS)
-    self.plot.show()
     self.plot.activateWindow()
 
   def showStatistics(self):
@@ -721,7 +713,7 @@ class GpxMainWindow(QtWidgets.QMainWindow):
     self.ui.actionShowOther.setChecked(True)
 
   def showSettings(self):
-    dlg = gpxviewer.settingsdialog.SettingsDialog(self)
+    dlg = settingsdialog.SettingsDialog(self)
     if dlg.exec_() == QtWidgets.QDialog.Accepted:
       self.setProjectChanged(True)
       TheConfig['ProfileStyle']['ProfileColor'] = str(dlg.settings['ProfileColor'])

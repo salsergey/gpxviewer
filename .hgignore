@@ -1,6 +1,10 @@
 syntax: glob
 gpxviewer.kdev4
 gpxviewer.pyproj
+gpxviewer.creator*
+gpxviewer.config
+gpxviewer.files
+gpxviewer.includes
 build
 dist
 gpxviewer.egg-info

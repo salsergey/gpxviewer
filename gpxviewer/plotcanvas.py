@@ -33,7 +33,7 @@ class PlotCanvas(FigureCanvas):
     # to be able to show cyrillic names
     font = {'family': ['CMU Sans Serif', 'Arial', 'DejaVu Sans'], 'style': 'normal', 'size': 12}
     rc('font', **font)
-    fig = Figure(figsize=(width, height), dpi=dpi, facecolor='w')
+    fig = Figure(figsize=(width, height), dpi=dpi, facecolor='w', tight_layout={'rect': (0, 0, 1, 1)})
     self.axes = fig.add_subplot(111)
 
     FigureCanvas.__init__(self, fig)
@@ -94,7 +94,9 @@ class PlotCanvas(FigureCanvas):
     self.axes.set_ylim(bottom=TheConfig.getValue('ProfileStyle', 'MinimumAltitude'), top=TheConfig.getValue('ProfileStyle', 'MaximumAltitude'))
 
     if column == gpx.DIST:
-      if xx[-1] > 100:
+      if xx[-1] > 200:
+        step = 20
+      elif xx[-1] > 100:
         step = 10
       elif xx[-1] > 50:
         step = 5
@@ -109,6 +111,15 @@ class PlotCanvas(FigureCanvas):
       else:
         self.axes.set_xticks([t / 24 for t in range(int(ceil(24 * xx[-1])))])
         self.axes.set_xticklabels([str(t) for t in range(int(ceil(24 * xx[-1])))])
+
+    ymin, ymax = TheConfig.getValue('ProfileStyle', 'MinimumAltitude'), TheConfig.getValue('ProfileStyle', 'MaximumAltitude')
+    height = ymax - ymin
+    if height >= 2000:
+      self.axes.set_yticks(range(ymin, ymax, 500))
+    elif height >= 1000:
+      self.axes.set_yticks(range(ymin, ymax, 200))
+    else:
+      self.axes.set_yticks(range(ymin, ymax, 100))
 
     for l in splitLines:
       self.axes.plot([l[0]] * 2, [TheConfig.getValue('ProfileStyle', 'MinimumAltitude'), l[1]],
