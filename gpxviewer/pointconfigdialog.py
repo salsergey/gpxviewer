@@ -14,19 +14,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QDialog
 import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import TheConfig
+from gpxviewer.gpxdocument import TheDocument
 import gpxviewer.ui_pointconfigdialog
 
 
 class PointConfigDialog(QDialog):
-  def __init__(self, parent, style):
+  def __init__(self, parent, defaultIndex, indexes=None):
     super(PointConfigDialog, self).__init__(parent)
     self.ui = gpxviewer.ui_pointconfigdialog.Ui_pointConfigDialog()
     self.ui.setupUi(self)
     self.setMinimumWidth(420)
-    self.style = style
+    self.style = {}
+    self.style.update(TheDocument.wptmodel.index(defaultIndex, gpx.NAME).data(gpx.MarkerStyleRole))
+    self.style.update(TheDocument.wptmodel.index(defaultIndex, gpx.NAME).data(gpx.CaptionStyleRole))
+    self.style.update(TheDocument.wptmodel.index(defaultIndex, gpx.NAME).data(gpx.SplitLineStyleRole))
+    self.indexes = indexes if indexes is not None else [defaultIndex]
 
     self.ui.markerColorCheckBox.setChecked(TheConfig.getValue('PointStyle', 'MarkerColorEnabled'))
     self.ui.markerStyleCheckBox.setChecked(TheConfig.getValue('PointStyle', 'MarkerStyleEnabled'))
@@ -103,53 +109,103 @@ class PointConfigDialog(QDialog):
     self.ui.lineStyleCombo.activated.connect(self.setLineStyle)
     self.ui.lineWidthSpinBox.valueChanged.connect(self.setLineWidth)
 
+  def accept(self):
+    super(PointConfigDialog, self).accept()
+
+    TheConfig['PointStyle']['MarkerColor'] = str(self.style[gpx.MARKER_COLOR])
+    TheConfig['PointStyle']['MarkerStyle'] = self.style[gpx.MARKER_STYLE]
+    TheConfig['PointStyle']['MarkerSize'] = str(self.style[gpx.MARKER_SIZE])
+    TheConfig['PointStyle']['CaptionPositionX'] = str(self.style[gpx.CAPTION_POSX])
+    TheConfig['PointStyle']['CaptionPositionY'] = str(self.style[gpx.CAPTION_POSY])
+    TheConfig['PointStyle']['CaptionSize'] = str(self.style[gpx.CAPTION_SIZE])
+    TheConfig['PointStyle']['SplitLineColor'] = str(self.style[gpx.LINE_COLOR])
+    TheConfig['PointStyle']['SplitLineStyle'] = self.style[gpx.LINE_STYLE]
+    TheConfig['PointStyle']['SplitLineWidth'] = str(self.style[gpx.LINE_WIDTH])
+
+    if TheConfig.getValue('PointStyle', 'MarkerColorEnabled'):
+      TheDocument.wptmodel.setPointStyle(self.indexes, gpx.MARKER_COLOR, self.style[gpx.MARKER_COLOR])
+    if TheConfig.getValue('PointStyle', 'MarkerStyleEnabled'):
+      TheDocument.wptmodel.setPointStyle(self.indexes, gpx.MARKER_STYLE, self.style[gpx.MARKER_STYLE])
+    if TheConfig.getValue('PointStyle', 'MarkerSizeEnabled'):
+      TheDocument.wptmodel.setPointStyle(self.indexes, gpx.MARKER_SIZE, self.style[gpx.MARKER_SIZE])
+
+    if TheConfig.getValue('PointStyle', 'CaptionPositionEnabled'):
+      TheDocument.wptmodel.setPointStyle(self.indexes, gpx.CAPTION_POSX, self.style[gpx.CAPTION_POSX])
+      TheDocument.wptmodel.setPointStyle(self.indexes, gpx.CAPTION_POSY, self.style[gpx.CAPTION_POSY])
+    if TheConfig.getValue('PointStyle', 'CaptionSizeEnabled'):
+      TheDocument.wptmodel.setPointStyle(self.indexes, gpx.CAPTION_SIZE, self.style[gpx.CAPTION_SIZE])
+
+    if TheConfig.getValue('PointStyle', 'SplitLineColorEnabled'):
+      TheDocument.wptmodel.setPointStyle(self.indexes, gpx.LINE_COLOR, self.style[gpx.LINE_COLOR])
+    if TheConfig.getValue('PointStyle', 'SplitLineStyleEnabled'):
+      TheDocument.wptmodel.setPointStyle(self.indexes, gpx.LINE_STYLE, self.style[gpx.LINE_STYLE])
+    if TheConfig.getValue('PointStyle', 'SplitLineWidthEnabled'):
+      TheDocument.wptmodel.setPointStyle(self.indexes, gpx.LINE_WIDTH, self.style[gpx.LINE_WIDTH])
+
+  @pyqtSlot(bool)
   def markerColorEnabled(self, enabled):
     TheConfig['PointStyle']['MarkerColorEnabled'] = str(enabled)
 
+  @pyqtSlot(bool)
   def markerStyleEnabled(self, enabled):
     TheConfig['PointStyle']['MarkerStyleEnabled'] = str(enabled)
 
+  @pyqtSlot(bool)
   def markerSizeEnabled(self, enabled):
     TheConfig['PointStyle']['MarkerSizeEnabled'] = str(enabled)
 
+  @pyqtSlot(bool)
   def captionPositionEnabled(self, enabled):
     TheConfig['PointStyle']['CaptionPositionEnabled'] = str(enabled)
 
+  @pyqtSlot(bool)
   def captionSizeEnabled(self, enabled):
     TheConfig['PointStyle']['CaptionSizeEnabled'] = str(enabled)
 
+  @pyqtSlot(bool)
   def lineColorEnabled(self, enabled):
     TheConfig['PointStyle']['SplitLineColorEnabled'] = str(enabled)
 
+  @pyqtSlot(bool)
   def lineStyleEnabled(self, enabled):
     TheConfig['PointStyle']['SplitLineStyleEnabled'] = str(enabled)
 
+  @pyqtSlot(bool)
   def lineWidthEnabled(self, enabled):
     TheConfig['PointStyle']['SplitLineWidthEnabled'] = str(enabled)
 
+  @pyqtSlot()
   def setMarkerColor(self):
     self.style[gpx.MARKER_COLOR] = self.ui.markerColorButton.color.rgba()
 
+  @pyqtSlot()
   def setMarkerStyle(self):
     self.style[gpx.MARKER_STYLE] = self.markerStyles[self.ui.markerStyleCombo.currentIndex()][0]
 
+  @pyqtSlot()
   def setMarkerSize(self):
     self.style[gpx.MARKER_SIZE] = self.ui.markerSizeSpinBox.value()
 
+  @pyqtSlot()
   def setLineColor(self):
     self.style[gpx.LINE_COLOR] = self.ui.lineColorButton.color.rgba()
 
+  @pyqtSlot()
   def setLineStyle(self):
     self.style[gpx.LINE_STYLE] = self.lineStyles[self.ui.lineStyleCombo.currentIndex()][0]
 
+  @pyqtSlot()
   def setLineWidth(self):
     self.style[gpx.LINE_WIDTH] = round(self.ui.lineWidthSpinBox.value(), self.ui.lineWidthSpinBox.decimals())
 
+  @pyqtSlot()
   def setCaptionPositionX(self):
     self.style[gpx.CAPTION_POSX] = self.ui.captionPositionXSpinBox.value()
 
+  @pyqtSlot()
   def setCaptionPositionY(self):
     self.style[gpx.CAPTION_POSY] = self.ui.captionPositionYSpinBox.value()
 
+  @pyqtSlot()
   def setCaptionSize(self):
     self.style[gpx.CAPTION_SIZE] = self.ui.captionSizeSpinBox.value()

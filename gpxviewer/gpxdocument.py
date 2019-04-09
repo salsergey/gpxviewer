@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import configparser
-from PyQt5 import QtCore
+from PyQt5.QtCore import Qt, QCoreApplication, QFileInfo, QObject, pyqtSignal
 import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import GpxConfigParser, TheConfig
 
@@ -24,7 +24,7 @@ GPXMAGICK = '9e27ea8e'
 FORMAT_VERSION = 2
 
 
-class GpxDocument(QtCore.QObject):
+class GpxDocument(QObject):
   def __init__(self, parent=None):
     super(GpxDocument, self).__init__(parent)
     self.gpxparser = gpx.GpxParser()
@@ -74,7 +74,7 @@ class GpxDocument(QtCore.QObject):
     try:
       cfg.read(filename, encoding='utf-8')
     except (configparser.ParsingError, UnicodeDecodeError):
-      raise gpx.GpxWarning(QtCore.QCoreApplication.translate('GpxDocument', 'This file in not a valid GPX Viewer project file.'))
+      raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'This file in not a valid GPX Viewer project file.'))
 
     if GPXMAGICK in cfg:
       self.doc.clear()
@@ -91,7 +91,7 @@ class GpxDocument(QtCore.QObject):
 
       self.applyToAll = False
       for i, file in enumerate(self.doc['GPXFile']):
-        if not QtCore.QFileInfo(file).exists():
+        if not QFileInfo(file).exists():
           self.newFilePath = ''
           self.fileNotFound.emit(file)
           if self.newFilePath != '':
@@ -99,14 +99,14 @@ class GpxDocument(QtCore.QObject):
             file = self.newFilePath
             if self.applyToAll:
               for j in range(i + 1, len(self.doc['GPXFile'])):
-                self.doc['GPXFile'][j] = self.doc['GPXFile'][j].replace(QtCore.QFileInfo(self.doc['GPXFile'][j]).path(), QtCore.QFileInfo(self.newFilePath).path())
+                self.doc['GPXFile'][j] = self.doc['GPXFile'][j].replace(QFileInfo(self.doc['GPXFile'][j]).path(), QFileInfo(self.newFilePath).path())
           else:
-            raise gpx.GpxWarning(QtCore.QCoreApplication.translate('GpxDocument', 'One of GPX files doesn\'t exist. This project can\'t be opened.'))
+            raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'One of GPX files doesn\'t exist. This project can\'t be opened.'))
         self.gpxparser.parse(file)
 
       if ('NumberOfPoints' in self.doc and self.wptmodel.rowCount() != int(self.doc['NumberOfPoints'])) or \
          ('NumberOfTracks' in self.doc and self.trkmodel.rowCount() != int(self.doc['NumberOfTracks'])):
-        raise gpx.GpxWarning(QtCore.QCoreApplication.translate('GpxDocument', 'One of the files has wrong number of valid waypoints or tracks. This file is likely to be damaged or changed from outside.'))
+        raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'One of the files has wrong number of valid waypoints or tracks. This file is likely to be damaged or changed from outside.'))
 
       if 'SkipPoints' in self.doc:
         self.wptmodel.setIncludeStates(self.doc['SkipPoints'], False, False)
@@ -192,11 +192,11 @@ class GpxDocument(QtCore.QObject):
 
       if 'ChangedNames' in self.doc and 'PointNames' in self.doc:
         for i, n in zip(self.doc['ChangedNames'], self.doc['PointNames']):
-          self.wptmodel.setData(self.wptmodel.index(i, gpx.NAME), n, QtCore.Qt.EditRole)
+          self.wptmodel.setData(self.wptmodel.index(i, gpx.NAME), n, Qt.EditRole)
     else:  # GPXMAGICK not in cfg
-      raise gpx.GpxWarning(QtCore.QCoreApplication.translate('GpxDocument', 'This file in not a valid GPX Viewer project file.'))
+      raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'This file in not a valid GPX Viewer project file.'))
 
-  fileNotFound = QtCore.pyqtSignal(str)
+  fileNotFound = pyqtSignal(str)
 
 
 TheDocument = GpxDocument()

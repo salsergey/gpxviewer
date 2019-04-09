@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2017 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2019 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -14,10 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtCore import Qt, QRect, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import qAlpha, QColor, QPainter
+from PyQt5.QtWidgets import QColorDialog, QDialog, QPushButton, QStyle, QStyleOptionButton
 
 
-class ColorChooser(QtWidgets.QPushButton):
+class ColorChooser(QPushButton):
   def __init__(self, parent=None):
     super(ColorChooser, self).__init__(parent)
     self.buttonWidth = 60
@@ -28,9 +30,9 @@ class ColorChooser(QtWidgets.QPushButton):
       super(ColorChooser, self).mousePressEvent(e)
 
   def paintEvent(self, event):
-    optBtn = QtWidgets.QStyleOptionButton()
+    optBtn = QStyleOptionButton()
     optBtn.initFrom(self)
-    optBtn.state = QtWidgets.QStyle.State_Sunken if self.isDown() else QtWidgets.QStyle.State_Raised
+    optBtn.state = QStyle.State_Sunken if self.isDown() else QStyle.State_Raised
     optBtn.rect.setLeft(optBtn.rect.right() - self.buttonWidth)
     label = self.text()[1:] if self.text().startswith('&') else self.text()
     color = self.color
@@ -41,20 +43,21 @@ class ColorChooser(QtWidgets.QPushButton):
                                                                  str(color.blue()) + ',' +
                                                                  str(color.alpha()) + ')}')
 
-    p = QtGui.QPainter(self)
-    p.drawText(QtCore.QRect(0, 0, self.width() - self.buttonWidth, self.height()), QtCore.Qt.AlignVCenter, label)
-    self.style().drawControl(QtWidgets.QStyle.CE_PushButton, optBtn, p, self)
+    p = QPainter(self)
+    p.drawText(QRect(0, 0, self.width() - self.buttonWidth, self.height()), Qt.AlignVCenter, label)
+    self.style().drawControl(QStyle.CE_PushButton, optBtn, p, self)
 
   def setColor(self, rgba):
-    self.color = QtGui.QColor(rgba)
-    self.color.setAlpha(QtGui.qAlpha(rgba))
+    self.color = QColor(rgba)
+    self.color.setAlpha(qAlpha(rgba))
 
+  @pyqtSlot()
   def openColorDialog(self):
-    dlg = QtWidgets.QColorDialog()
-    dlg.setOption(QtWidgets.QColorDialog.ShowAlphaChannel)
+    dlg = QColorDialog()
+    dlg.setOption(QColorDialog.ShowAlphaChannel)
     dlg.setCurrentColor(self.color)
-    if dlg.exec_() == QtWidgets.QDialog.Accepted:
+    if dlg.exec_() == QDialog.Accepted:
       self.color = dlg.currentColor()
       self.colorSet.emit()
 
-  colorSet = QtCore.pyqtSignal()
+  colorSet = pyqtSignal()

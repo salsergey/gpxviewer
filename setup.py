@@ -20,7 +20,7 @@
 import os
 import subprocess
 import sys
-from setuptools import setup, Command
+from setuptools import Command, setup
 
 
 class build_dep(Command):

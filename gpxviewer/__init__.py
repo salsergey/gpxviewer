@@ -20,11 +20,8 @@ from PyQt5.QtCore import QCoreApplication, QLocale, QTranslator
 from PyQt5.QtWidgets import QApplication
 import gpxviewer.rc_gpxviewer
 
-app = None
-
 
 def main():
-  global app
   app = QApplication(sys.argv)
   QCoreApplication.setApplicationVersion('1.0')
 

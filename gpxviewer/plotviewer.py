@@ -14,14 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt, QFileInfo, pyqtSlot
 from PyQt5.QtGui import QIcon, QKeySequence
-from PyQt5.QtCore import Qt, QFileInfo
+from PyQt5.QtWidgets import QFileDialog, QHBoxLayout, QLabel, QMainWindow, QSizePolicy, QSpacerItem, QSpinBox, QWidget
 from gpxviewer.configstore import TheConfig
 import gpxviewer.ui_plotwindow
 
 
-class PlotWindow(QtWidgets.QMainWindow):
+class PlotWindow(QMainWindow):
   def __init__(self, parent=None):
     super(PlotWindow, self).__init__(parent)
     self.ui = gpxviewer.ui_plotwindow.Ui_PlotWindow()
@@ -34,18 +34,18 @@ class PlotWindow(QtWidgets.QMainWindow):
     self.ui.actExportCurrentSize.setShortcut(QKeySequence.Save)
     self.ui.actExportSelectedSize.setShortcut(QKeySequence.SaveAs)
 
-    wdg = QtWidgets.QWidget()
-    wdg.setLayout(QtWidgets.QHBoxLayout())
-    wdg.layout().addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding))
-    wdg.layout().addWidget(QtWidgets.QLabel(self.tr('Set size for export:')))
-    self.widthSpinBox = QtWidgets.QSpinBox()
+    wdg = QWidget()
+    wdg.setLayout(QHBoxLayout())
+    wdg.layout().addItem(QSpacerItem(40, 20, QSizePolicy.Expanding))
+    wdg.layout().addWidget(QLabel(self.tr('Set size for export:')))
+    self.widthSpinBox = QSpinBox()
     self.widthSpinBox.setMaximum(10000)
     self.widthSpinBox.setValue(int(TheConfig['PlotWindow']['SaveProfileWidth']))
-    self.heightSpinBox = QtWidgets.QSpinBox()
+    self.heightSpinBox = QSpinBox()
     self.heightSpinBox.setMaximum(10000)
     self.heightSpinBox.setValue(int(TheConfig['PlotWindow']['SaveProfileHeight']))
     wdg.layout().addWidget(self.widthSpinBox)
-    wdg.layout().addWidget(QtWidgets.QLabel('x'))
+    wdg.layout().addWidget(QLabel('x'))
     wdg.layout().addWidget(self.heightSpinBox)
     self.ui.toolBar.addWidget(wdg)
 
@@ -65,16 +65,16 @@ class PlotWindow(QtWidgets.QMainWindow):
     TheConfig['PlotWindow']['WindowHeight'] = str(event.size().height())
 
   def getExportFileName(self, dialogTitle):
-    filename, filter = QtWidgets.QFileDialog.getSaveFileName(self, dialogTitle, TheConfig['PlotWindow']['SaveProfileDirectory'],
-                                                             self.tr('Encapsulated Postscript (*.eps);;'
-                                                                     'Portable Document Format (*.pdf);;'
-                                                                     'PGF files (*.pgf);;'
-                                                                     'PNG images (*.png);;'
-                                                                     'Postscript files (*.ps);;'
-                                                                     'SVG files (*.svg);;'
-                                                                     'SVGZ files (*.svgz);;'
-                                                                     'All files (*.*)'),
-                                                             TheConfig['PlotWindow']['SaveFileExtension'])
+    filename, filter = QFileDialog.getSaveFileName(self, dialogTitle, TheConfig['PlotWindow']['SaveProfileDirectory'],
+                                                   self.tr('Encapsulated Postscript (*.eps);;'
+                                                           'Portable Document Format (*.pdf);;'
+                                                           'PGF files (*.pgf);;'
+                                                           'PNG images (*.png);;'
+                                                           'Postscript files (*.ps);;'
+                                                           'SVG files (*.svg);;'
+                                                           'SVGZ files (*.svgz);;'
+                                                           'All files (*.*)'),
+                                                   TheConfig['PlotWindow']['SaveFileExtension'])
 
     if filename != '':
       TheConfig['PlotWindow']['SaveProfileDirectory'] = QFileInfo(filename).path()
@@ -98,8 +98,10 @@ class PlotWindow(QtWidgets.QMainWindow):
     if filename != '':
       self.ui.canvasWidget.saveProfile(filename, figsize=(self.widthSpinBox.value(), self.heightSpinBox.value()))
 
+  @pyqtSlot()
   def setExportWidth(self):
     TheConfig['PlotWindow']['SaveProfileWidth'] = str(self.widthSpinBox.value())
 
+  @pyqtSlot()
   def setExportHeight(self):
     TheConfig['PlotWindow']['SaveProfileHeight'] = str(self.heightSpinBox.value())

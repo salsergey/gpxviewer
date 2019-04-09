@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QDialog
 from gpxviewer.configstore import TheConfig
 import gpxviewer.ui_settingsdialog
@@ -59,32 +60,42 @@ class SettingsDialog(QDialog):
     self.ui.nameTagBox.currentIndexChanged.connect(self.setNameTag)
     self.ui.coordinateBox.currentIndexChanged.connect(self.setCoordinateFormat)
 
+  @pyqtSlot()
   def setProfileColor(self):
     self.settings['ProfileColor'] = self.ui.profileColorButton.color.rgba()
 
+  @pyqtSlot()
   def setFillColor(self):
     self.settings['FillColor'] = self.ui.fillColorButton.color.rgba()
 
+  @pyqtSlot()
   def setProfileWidth(self):
     self.settings['ProfileWidth'] = round(self.ui.profileWidthSpinBox.value(), self.ui.profileWidthSpinBox.decimals())
 
+  @pyqtSlot()
   def setMinimumAltitude(self):
     self.settings['MinimumAltitude'] = self.ui.minaltSpinBox.value()
 
+  @pyqtSlot()
   def setMaximumAltitude(self):
     self.settings['MaximumAltitude'] = self.ui.maxaltSpinBox.value()
 
+  @pyqtSlot()
   def setDistanceCoefficient(self):
     self.settings['DistanceCoefficient'] = round(self.ui.distanceCoeffSpinBox.value(), self.ui.distanceCoeffSpinBox.decimals())
 
+  @pyqtSlot()
   def setTimeZoneOffset(self):
     self.settings['TimeZoneOffset'] = self.ui.timezoneSpinBox.value()
 
+  @pyqtSlot()
   def setSelectedPointsOnly(self, enabled):
     self.settings['SelectedPointsOnly'] = enabled
 
+  @pyqtSlot()
   def setNameTag(self):
     self.settings['ReadNameFromTag'] = self.ui.nameTagBox.currentIndex()
 
+  @pyqtSlot()
   def setCoordinateFormat(self):
     self.settings['CoordinateFormat'] = self.ui.coordinateBox.currentIndex()

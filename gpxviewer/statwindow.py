@@ -15,9 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import timedelta
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, QRegularExpression
+from PyQt5.QtCore import Qt, QRegularExpression, pyqtSlot
 from PyQt5.QtGui import QGuiApplication, QIcon
+from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QMainWindow, QSizePolicy, QSpacerItem, QTableWidgetItem, QWidget
 import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import TheConfig
 from gpxviewer.gpxdocument import TheDocument
@@ -27,7 +27,7 @@ import gpxviewer.ui_statwindow
 NAME, DIST, RAISE, DROP, TIME = range(5)
 
 
-class StatWindow(QtWidgets.QMainWindow):
+class StatWindow(QMainWindow):
   def __init__(self, parent=None):
     super(StatWindow, self).__init__(parent)
     self.ui = gpxviewer.ui_statwindow.Ui_StatWindow()
@@ -35,12 +35,12 @@ class StatWindow(QtWidgets.QMainWindow):
 
     self.setWindowIcon(QIcon(':/icons/gpxviewer.svg'))
 
-    wdg = QtWidgets.QWidget()
-    wdg.setLayout(QtWidgets.QHBoxLayout())
-    wdg.layout().addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding))
-    self.filterLabel = QtWidgets.QLabel(self.tr('By name:'))
+    wdg = QWidget()
+    wdg.setLayout(QHBoxLayout())
+    wdg.layout().addItem(QSpacerItem(40, 20, QSizePolicy.Expanding))
+    self.filterLabel = QLabel(self.tr('By name:'))
     wdg.layout().addWidget(self.filterLabel)
-    self.filterLineEdit = QtWidgets.QLineEdit()
+    self.filterLineEdit = QLineEdit()
     self.filterLineEdit.setMinimumWidth(200)
     self.filterLineEdit.setPlaceholderText(self.tr('Enter regular expression'))
     self.filterLineEdit.setClearButtonEnabled(True)
@@ -80,6 +80,7 @@ class StatWindow(QtWidgets.QMainWindow):
     TheConfig['StatWindow']['BySplittingLines'] = str(checked)
     self.updateStatistics()
 
+  @pyqtSlot()
   def updateStatistics(self):
     self.ui.statWidget.clearContents()
     n = 0
@@ -115,11 +116,11 @@ class StatWindow(QtWidgets.QMainWindow):
         point_prev = p
 
         if i in segments:
-          self.ui.statWidget.setItem(n, NAME, QtWidgets.QTableWidgetItem(point_start[gpx.NAME] + ' — ' + p[gpx.NAME]))
-          self.ui.statWidget.setItem(n, DIST, QtWidgets.QTableWidgetItem(str(round(p[gpx.DIST] - point_start[gpx.DIST], 3))))
-          self.ui.statWidget.setItem(n, RAISE, QtWidgets.QTableWidgetItem(str(alt_raise)))
-          self.ui.statWidget.setItem(n, DROP, QtWidgets.QTableWidgetItem(str(alt_drop)))
-          time_item = QtWidgets.QTableWidgetItem(str(p[gpx.TIME] - point_start[gpx.TIME]))
+          self.ui.statWidget.setItem(n, NAME, QTableWidgetItem(point_start[gpx.NAME] + ' — ' + p[gpx.NAME]))
+          self.ui.statWidget.setItem(n, DIST, QTableWidgetItem(str(round(p[gpx.DIST] - point_start[gpx.DIST], 3))))
+          self.ui.statWidget.setItem(n, RAISE, QTableWidgetItem(str(alt_raise)))
+          self.ui.statWidget.setItem(n, DROP, QTableWidgetItem(str(alt_drop)))
+          time_item = QTableWidgetItem(str(p[gpx.TIME] - point_start[gpx.TIME]))
           time_item.setData(Qt.UserRole, p[gpx.TIME] - point_start[gpx.TIME])
           self.ui.statWidget.setItem(n, TIME, time_item)
           point_start = p
@@ -129,6 +130,7 @@ class StatWindow(QtWidgets.QMainWindow):
 
     self.ui.statWidget.resizeColumnsToContents()
 
+  @pyqtSlot()
   def updateTotalStatistics(self):
     total_dist = 0
     total_raise = 0
