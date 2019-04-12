@@ -93,9 +93,9 @@ class GpxMainWindow(QMainWindow):
     self.ui.actionShowMarkedCaptioned.setChecked(TheConfig['MainWindow'].getboolean('ShowMarkedCaptioned'))
     self.ui.actionShowOther.setChecked(TheConfig['MainWindow'].getboolean('ShowDefault'))
 
-    TheDocument.gpxparser.warningSent.connect(self.showWarning)
+    TheDocument.gpxparser.warningSent[str, str].connect(self.showWarning)
     TheDocument.wptmodel.wptDataChanged.connect(self.setProjectChanged)
-    TheDocument.fileNotFound.connect(self.openedFileNotFound)
+    TheDocument.fileNotFound[str].connect(self.openedFileNotFound)
 
     self.projectSaved = False
     self.projectChanged = False
@@ -331,8 +331,9 @@ class GpxMainWindow(QMainWindow):
     msg.setIcon(QMessageBox.Information)
     msg.exec_()
 
+  @pyqtSlot()
   @pyqtSlot(bool)
-  def setProjectChanged(self, value):
+  def setProjectChanged(self, value=True):
     self.projectChanged = value
     self.updateTitleFilename()
 
@@ -462,7 +463,7 @@ class GpxMainWindow(QMainWindow):
   def skipTracks(self):
     TheDocument.trkmodel.setIncludeStates([i.row() for i in self.ui.trkView.selectedIndexes() if i.column() == gpx.TRKNAME],
                                           not self.sender().isChecked())
-    self.setProjectChanged(True)
+    self.setProjectChanged()
 
   def fileNew(self):
     if self.projectChanged and len(TheDocument.doc['GPXFile']) != 0:
@@ -556,7 +557,7 @@ class GpxMainWindow(QMainWindow):
     try:
       TheDocument.gpxparser.parse(filename)
       TheDocument.doc['GPXFile'] += [filename]
-      self.setProjectChanged(True)
+      self.setProjectChanged()
       if not self.projectSaved:
         if len(TheDocument.doc['GPXFile']) > 1:
           self.updateTitleFilename('[ ' + self.tr('Multiple GPX files') + ' ]')

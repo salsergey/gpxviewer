@@ -133,7 +133,7 @@ class WptModel(QAbstractTableModel):
     if index.isValid() and role == Qt.EditRole and value != self.waypoints[index.row()][NAME]:
       self.changedNames[index.row()] = value
       self.dataChanged.emit(index, index)
-      self.wptDataChanged.emit(True)
+      self.wptDataChanged.emit()
       return True
     else:
       return False
@@ -201,7 +201,7 @@ class WptModel(QAbstractTableModel):
       self.includeStates[i] = state
     if update:
       self.parent().updatePoints()
-    self.wptDataChanged.emit(True)
+    self.wptDataChanged.emit()
 
   def setMarkerStates(self, IDs, state):
     for i in IDs:
@@ -209,7 +209,7 @@ class WptModel(QAbstractTableModel):
       for key in {MARKER_COLOR, MARKER_STYLE, MARKER_SIZE}:
         if key not in self.pointStyles[i]:
           self.pointStyles[i][key] = TheConfig.getValue('PointStyle', key)
-    self.wptDataChanged.emit(True)
+    self.wptDataChanged.emit()
 
   def setCaptionStates(self, IDs, state):
     for i in IDs:
@@ -217,7 +217,7 @@ class WptModel(QAbstractTableModel):
       for key in {CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE}:
         if key not in self.pointStyles[i]:
           self.pointStyles[i][key] = TheConfig.getValue('PointStyle', key)
-    self.wptDataChanged.emit(True)
+    self.wptDataChanged.emit()
 
   def setSplitLines(self, IDs, state):
     for i in IDs:
@@ -225,27 +225,27 @@ class WptModel(QAbstractTableModel):
       for key in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}:
         if key not in self.pointStyles[i]:
           self.pointStyles[i][key] = TheConfig.getValue('PointStyle', key)
-    self.wptDataChanged.emit(True)
+    self.wptDataChanged.emit()
 
   def setNeglectStates(self, IDs, state):
     for i in IDs:
       self.neglectStates[i] = state
     self.parent().updateDistance()
-    self.wptDataChanged.emit(True)
+    self.wptDataChanged.emit()
 
   def setPointStyle(self, IDs, key, value):
     for i in IDs:
       self.pointStyles[i][key] = value
-    self.wptDataChanged.emit(True)
+    self.wptDataChanged.emit()
 
   def resetNames(self, IDs):
     for i in IDs:
       if i in self.changedNames:
         del self.changedNames[i]
         self.dataChanged.emit(self.index(i, NAME), self.index(i, NAME))
-        self.wptDataChanged.emit(True)
+        self.wptDataChanged.emit()
 
-  wptDataChanged = pyqtSignal(bool)
+  wptDataChanged = pyqtSignal()
 
 
 class TrkModel(QAbstractTableModel):
