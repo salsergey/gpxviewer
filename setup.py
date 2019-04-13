@@ -70,7 +70,7 @@ setup(
   author_email='salsergey@gmail.com',
   license='GNU GPL3',
   packages=['gpxviewer'],
-  install_requires=['PyQt5', 'qcustomplot>=2'],
+  install_requires=['qcustomplot>=2'],
   data_files=datafiles,
   entry_points={
     'gui_scripts': ['gpxv = gpxviewer:main']
