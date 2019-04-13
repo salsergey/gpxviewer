@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5.QtCore import Qt, QFileInfo, pyqtSlot
+from PyQt5.QtCore import Qt, QFileInfo, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import QFileDialog, QHBoxLayout, QLabel, QMainWindow, QSizePolicy, QSpacerItem, QSpinBox, QWidget
 from gpxviewer.configstore import TheConfig
@@ -51,6 +51,7 @@ class PlotWindow(QMainWindow):
 
     self.widthSpinBox.valueChanged.connect(self.setExportWidth)
     self.heightSpinBox.valueChanged.connect(self.setExportHeight)
+    self.ui.canvasWidget.profileChanged.connect(self.profileChanged)
 
     self.resize(TheConfig['PlotWindow'].getint('WindowWidth'), TheConfig['PlotWindow'].getint('WindowHeight'))
 
@@ -66,14 +67,12 @@ class PlotWindow(QMainWindow):
 
   def getExportFileName(self, dialogTitle):
     filename, filter = QFileDialog.getSaveFileName(self, dialogTitle, TheConfig['PlotWindow']['SaveProfileDirectory'],
-                                                   self.tr('Encapsulated Postscript (*.eps);;'
-                                                           'Portable Document Format (*.pdf);;'
-                                                           'PGF files (*.pgf);;'
-                                                           'PNG images (*.png);;'
-                                                           'Postscript files (*.ps);;'
-                                                           'SVG files (*.svg);;'
-                                                           'SVGZ files (*.svgz);;'
-                                                           'All files (*.*)'),
+                                                   self.tr('BMP images (*.bmp *.BMP);;'
+                                                           'JPEG images (*.jpg *.jpeg *.JPG *.JPEG);;'
+                                                           'Portable Document Format (*.pdf *.PDF);;'
+                                                           'PNG images (*.png *.PNG);;'
+                                                           'TIFF images (*.tif *tiff *.TIF *.TIFF);;'
+                                                           'All files (*)'),
                                                    TheConfig['PlotWindow']['SaveFileExtension'])
 
     if filename != '':
@@ -105,3 +104,5 @@ class PlotWindow(QMainWindow):
   @pyqtSlot()
   def setExportHeight(self):
     TheConfig['PlotWindow']['SaveProfileHeight'] = str(self.heightSpinBox.value())
+
+  profileChanged = pyqtSignal()

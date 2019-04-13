@@ -64,13 +64,13 @@ else:
 setup(
   name='gpxviewer',
   version='1.0',
-  description='A GPX viewer',
+  description='GPX Viewer is an application for viewing GPX files and plotting altitude profiles',
   url='https://bitbucket.org/salsergey/gpxviewer',
   author='Sergey Salnikov',
   author_email='salsergey@gmail.com',
   license='GNU GPL3',
   packages=['gpxviewer'],
-  install_requires=['matplotlib'],
+  install_requires=['PyQt5', 'qcustomplot>=2'],
   data_files=datafiles,
   entry_points={
     'gui_scripts': ['gpxv = gpxviewer:main']

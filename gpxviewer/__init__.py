@@ -23,6 +23,7 @@ import gpxviewer.rc_gpxviewer
 
 def main():
   app = QApplication(sys.argv)
+  QCoreApplication.setApplicationName('GPX Viewer')
   QCoreApplication.setApplicationVersion('1.0')
 
   translator = QTranslator(app)

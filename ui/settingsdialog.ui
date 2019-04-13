@@ -45,7 +45,7 @@
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
          <property name="formAlignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
          </property>
          <item row="0" column="0">
           <widget class="QLabel" name="label_1">
@@ -74,7 +74,7 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="label_3">
            <property name="text">
             <string>Minimum altitude</string>
            </property>
@@ -97,7 +97,7 @@
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="label_4">
            <property name="text">
             <string>Maximum altitude</string>
            </property>
@@ -120,7 +120,10 @@
           </widget>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="label_4">
+          <widget class="QLabel" name="label_5">
+           <property name="toolTip">
+            <string>Plot profiles taking into account only selected points and tracks</string>
+           </property>
            <property name="text">
             <string>Use only selected points</string>
            </property>
@@ -148,7 +151,67 @@
            </property>
           </widget>
          </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="toolTip">
+            <string>Automatically scale minimum/maximum altitudes when plotting profile</string>
+           </property>
+           <property name="text">
+            <string>Autoscale altitudes</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QCheckBox" name="autoscaleAltitudesCheckBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Automatically scale minimum/maximum altitudes when plotting profile</string>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
+           </property>
+          </widget>
+         </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Axes labels font</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QFontComboBox" name="fontFamilyBox"/>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="fontSizeSpinBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Font size</string>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item>
         <spacer name="verticalSpacer">
@@ -179,7 +242,10 @@
           <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
          </property>
          <item row="0" column="0">
-          <widget class="QLabel" name="label_5">
+          <widget class="QLabel" name="label_7">
+           <property name="toolTip">
+            <string>Calculate distance with additional coefficient</string>
+           </property>
            <property name="text">
             <string>Distance coefficient</string>
            </property>
@@ -208,7 +274,10 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="label_6">
+          <widget class="QLabel" name="label_8">
+           <property name="toolTip">
+            <string>The difference between your time zone and UTC (used in GPX-files)</string>
+           </property>
            <property name="text">
             <string>Time zone offset</string>
            </property>
@@ -237,7 +306,10 @@
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="label_7">
+          <widget class="QLabel" name="label_9">
+           <property name="toolTip">
+            <string>Read point names from one of the tags in GPX file: &lt;name&gt;, &lt;cmt&gt;, &lt;desc&gt;</string>
+           </property>
            <property name="text">
             <string>Point names are in tag</string>
            </property>

@@ -60,14 +60,16 @@ class ConfigStore(configparser.ConfigParser):
                 'StatWindow': {'WindowWidth': 800,
                                'WindowHeight': 800,
                                'BySplittingLines': True},
-                'ProfileStyle': {'ProfileColor': qRgba(255, 0, 0, 100),
+                'ProfileStyle': {'ProfileColor': qRgba(255, 0, 0, 150),
                                  'FillColor': qRgba(255, 0, 0, 50),
                                  'ProfileWidth': 1.0,
                                  'MinimumAltitude': 0,
                                  'MaximumAltitude': 1000,
+                                 'SelectedPointsOnly': False,
+                                 'AutoscaleAltitudes': False,
+                                 'FontSize': 12,
                                  'DistanceCoefficient': 1.0,
                                  'TimeZoneOffset': 420,
-                                 'SelectedPointsOnly': False,
                                  'ReadNameFromTag': 0,
                                  'CoordinateFormat': 0},
                 'PointStyle': {'MarkerColorEnabled': True,
@@ -82,11 +84,12 @@ class ConfigStore(configparser.ConfigParser):
                                'CaptionSizeEnabled': True,
                                'CaptionSize': 12,
                                'SplitLineColorEnabled': True,
-                               'SplitLineColor': qRgba(255, 0, 0, 100),
+                               'SplitLineColor': qRgba(255, 0, 0, 150),
                                'SplitLineStyleEnabled': True,
                                'SplitLineStyle': '--',
                                'SplitLineWidthEnabled': True,
                                'SplitLineWidth': 1.0}}
+    defaults['ProfileStyle']['FontFamily'] = 'Arial' if os.name == 'nt' else 'Sans Serif'
     self.read_dict(defaults)
 
     if os.name == 'nt':
@@ -107,12 +110,12 @@ class ConfigStore(configparser.ConfigParser):
 
   def getValue(self, group, key):
     if group == 'ProfileStyle':
-      if key in {'ProfileColor', 'FillColor', 'MinimumAltitude', 'MaximumAltitude',
+      if key in {'ProfileColor', 'FillColor', 'FontSize', 'MinimumAltitude', 'MaximumAltitude',
                  'TimeZoneOffset', 'ReadNameFromTag', 'CoordinateFormat'}:
         return int(self['ProfileStyle'][key])
       elif key in {'ProfileWidth', 'DistanceCoefficient'}:
         return float(self['ProfileStyle'][key])
-      elif key in {'SelectedPointsOnly'}:
+      elif key in {'SelectedPointsOnly', 'AutoscaleAltitudes'}:
         return self['ProfileStyle'].getboolean(key)
       else:
         return self['ProfileStyle'][key]

@@ -106,6 +106,7 @@ class GpxMainWindow(QMainWindow):
     self.resize(TheConfig['MainWindow'].getint('WindowWidth'), TheConfig['MainWindow'].getint('WindowHeight'))
 
     self.plot = plt.PlotWindow()
+    self.plot.profileChanged.connect(self.setProjectChanged)
     self.stat = stat.StatWindow()
 
   def aboutQt(self):
@@ -323,6 +324,13 @@ class GpxMainWindow(QMainWindow):
                            <li>All non-skipped points have timestamps: points and tracks with timestamps are taken into account</li>
                            <li>There are points without timestamps: only points are considered, tracks are skipped</li>
                            <li>There are no points: all non-skipped tracks are taken into account</li>
+                           </ul><br>
+                           <br>
+                           Several interactions are possible in profile window:
+                           <ul>
+                           <li>Left/right mouse buttons select markers or captions</li>
+                           <li>Selected captions are moved by up/down/left/right buttons</li>
+                           <li>Mouse wheel over the left axis changes minimum/maximum altitude</li>
                            </ul>''')
     msg = QMessageBox(self)
     msg.setWindowTitle(self.tr('GPX Viewer Help'))
@@ -698,17 +706,7 @@ class GpxMainWindow(QMainWindow):
   def showSettings(self):
     dlg = SettingsDialog(self)
     if dlg.exec_() == QDialog.Accepted:
-      self.setProjectChanged(True)
-      TheConfig['ProfileStyle']['ProfileColor'] = str(dlg.settings['ProfileColor'])
-      TheConfig['ProfileStyle']['FillColor'] = str(dlg.settings['FillColor'])
-      TheConfig['ProfileStyle']['ProfileWidth'] = str(dlg.settings['ProfileWidth'])
-      TheConfig['ProfileStyle']['MinimumAltitude'] = str(dlg.settings['MinimumAltitude'])
-      TheConfig['ProfileStyle']['MaximumAltitude'] = str(dlg.settings['MaximumAltitude'])
-      TheConfig['ProfileStyle']['DistanceCoefficient'] = str(dlg.settings['DistanceCoefficient'])
-      TheConfig['ProfileStyle']['TimeZoneOffset'] = str(dlg.settings['TimeZoneOffset'])
-      TheConfig['ProfileStyle']['SelectedPointsOnly'] = str(dlg.settings['SelectedPointsOnly'])
-      TheConfig['ProfileStyle']['ReadNameFromTag'] = str(dlg.settings['ReadNameFromTag'])
-      TheConfig['ProfileStyle']['CoordinateFormat'] = str(dlg.settings['CoordinateFormat'])
+      self.setProjectChanged()
       TheDocument.gpxparser.updateDistance()
       self.ui.wptView.resizeColumnsToContents()
 
@@ -722,7 +720,7 @@ class GpxMainWindow(QMainWindow):
     self.setProjectChanged(False)
     TheDocument.doc['GPXFile'] = []
     TheDocument.gpxparser.resetModels()
-    self.setWindowTitle('GPX Viewer')
+    self.setWindowTitle(QCoreApplication.applicationName())
     self.ui.wptView.setDisabled(True)
     self.ui.trkView.setDisabled(True)
 
@@ -738,7 +736,7 @@ class GpxMainWindow(QMainWindow):
     if title is not None:
       self.titleFilename = title
     if self.titleFilename is not None:
-      self.setWindowTitle(self.titleFilename + ('*' if self.projectChanged else '') + ' — GPX Viewer')
+      self.setWindowTitle(self.titleFilename + ('*' if self.projectChanged else '') + ' — ' + QCoreApplication.applicationName())
 
   def updateTabs(self):
     self.ui.wptView.setEnabled(TheDocument.wptmodel.rowCount() != 0)
