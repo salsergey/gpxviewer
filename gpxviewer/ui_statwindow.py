@@ -111,7 +111,7 @@ class Ui_StatWindow(object):
         self.toolBar.addAction(self.actionBySplittingLines)
 
         self.retranslateUi(StatWindow)
-        self.actionBySplittingLines.toggled['bool'].connect(StatWindow.BySplittingLinesToggled)
+        self.actionBySplittingLines.toggled['bool'].connect(StatWindow.onBySplittingLinesToggled)
         QtCore.QMetaObject.connectSlotsByName(StatWindow)
 
     def retranslateUi(self, StatWindow):

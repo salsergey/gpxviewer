@@ -39,6 +39,7 @@ class ConfigStore(configparser.ConfigParser):
   def __init__(self):
     super(ConfigStore, self).__init__()
     self.recentProjects = []
+    self.columnsToCopy = []
 
     defaults = {'MainWindow': {'WindowWidth': 1200,
                                'WindowHeight': 800,
@@ -50,7 +51,8 @@ class ConfigStore(configparser.ConfigParser):
                                'ShowCaptioned': True,
                                'ShowMarkedCaptioned': True,
                                'RecentProjects': [],
-                               'MaxRecentProjects': 10},
+                               'MaxRecentProjects': 10,
+                               'ColumnsToCopy': []},
                 'PlotWindow': {'WindowWidth': 1200,
                                'WindowHeight': 800,
                                'SaveProfileDirectory': os.path.expanduser('~'),
@@ -99,6 +101,7 @@ class ConfigStore(configparser.ConfigParser):
     if os.path.exists(self.configfile):
       self.read(self.configfile)
       self.recentProjects = eval(self['MainWindow']['RecentProjects'])
+      self.columnsToCopy = eval(self['MainWindow']['ColumnsToCopy'])
 
   def optionxform(self, optionstr):
     return optionstr
@@ -106,6 +109,7 @@ class ConfigStore(configparser.ConfigParser):
   def save(self):
     with open(self.configfile, 'w') as cfg:
       self['MainWindow']['RecentProjects'] = str(self.recentProjects)
+      self['MainWindow']['ColumnsToCopy'] = str(self.columnsToCopy)
       self.write(cfg)
 
   def getValue(self, group, key):

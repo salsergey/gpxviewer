@@ -74,7 +74,8 @@ class StatWindow(QMainWindow):
     self.updateTotalStatistics()
     super(StatWindow, self).show()
 
-  def BySplittingLinesToggled(self, checked):
+  @pyqtSlot(bool)
+  def onBySplittingLinesToggled(self, checked):
     self.filterLabel.setEnabled(not checked)
     self.filterLineEdit.setEnabled(not checked)
     TheConfig['StatWindow']['BySplittingLines'] = str(checked)

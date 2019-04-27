@@ -38,8 +38,8 @@ class Ui_PlotWindow(object):
         self.toolBar.addAction(self.actExportSelectedSize)
 
         self.retranslateUi(PlotWindow)
-        self.actExportCurrentSize.triggered.connect(PlotWindow.saveCurrentSize)
-        self.actExportSelectedSize.triggered.connect(PlotWindow.saveSelectedSize)
+        self.actExportCurrentSize.triggered.connect(PlotWindow.onSaveCurrentSize)
+        self.actExportSelectedSize.triggered.connect(PlotWindow.onSaveSelectedSize)
         QtCore.QMetaObject.connectSlotsByName(PlotWindow)
 
     def retranslateUi(self, PlotWindow):

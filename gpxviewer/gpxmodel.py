@@ -38,6 +38,10 @@ class GpxWarning(Exception):
 class WptModel(QAbstractTableModel):
   def __init__(self, parent=None):
     super(WptModel, self).__init__(parent)
+    # Workaround to init columns to copy for the first time
+    if len(TheConfig.columnsToCopy) == 0:
+      TheConfig.columnsToCopy = list(WPTFIELDS)
+
     self.fields = [self.tr('Name'), self.tr('Latitude'), self.tr('Longitude'), self.tr('Elevation'),
                    self.tr('Distance'), self.tr('Time'), self.tr('Time difference'), self.tr('Time in days')]
     self.resetModel()
@@ -158,7 +162,7 @@ class WptModel(QAbstractTableModel):
   def copyToClipboard(self, IDs):
     text = ''
     for i in IDs:
-      text += '\t'.join([self.index(i, f).data() for f in WPTFIELDS]) + '\n'
+      text += '\t'.join([self.index(i, f).data() for f in TheConfig.columnsToCopy]) + '\n'
     QGuiApplication.clipboard().setText(text)
 
   def getSkippedPoints(self):

@@ -132,7 +132,21 @@
     <addaction name="separator"/>
     <addaction name="actionSettings"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <widget class="QMenu" name="menuCoLumns">
+     <property name="title">
+      <string>Co&amp;lumns to be copied</string>
+     </property>
+     <addaction name="actionResetColumns"/>
+    </widget>
+    <addaction name="actionCopy"/>
+    <addaction name="menuCoLumns"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuFilter"/>
    <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
@@ -210,10 +224,6 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionQuit">
-   <property name="icon">
-    <iconset>
-     <normaloff>.</normaloff>.</iconset>
-   </property>
    <property name="text">
     <string>&amp;Quit</string>
    </property>
@@ -222,10 +232,6 @@
    </property>
   </action>
   <action name="actionOpen">
-   <property name="icon">
-    <iconset>
-     <normaloff>.</normaloff>.</iconset>
-   </property>
    <property name="text">
     <string>&amp;Open project</string>
    </property>
@@ -236,28 +242,16 @@
    </property>
   </action>
   <action name="actionSave">
-   <property name="icon">
-    <iconset>
-     <normaloff>.</normaloff>.</iconset>
-   </property>
    <property name="text">
     <string>&amp;Save project</string>
    </property>
   </action>
   <action name="actionSaveAs">
-   <property name="icon">
-    <iconset>
-     <normaloff>.</normaloff>.</iconset>
-   </property>
    <property name="text">
     <string>Save project &amp;as...</string>
    </property>
   </action>
   <action name="actionLoadGPXfile">
-   <property name="icon">
-    <iconset>
-     <normaloff>.</normaloff>.</iconset>
-   </property>
    <property name="text">
     <string>&amp;Load GPX file</string>
    </property>
@@ -266,10 +260,6 @@
    </property>
   </action>
   <action name="actionDistanceProfile">
-   <property name="icon">
-    <iconset>
-     <normaloff>.</normaloff>.</iconset>
-   </property>
    <property name="text">
     <string>&amp;Distance profile</string>
    </property>
@@ -278,10 +268,6 @@
    </property>
   </action>
   <action name="actionTimeProfile">
-   <property name="icon">
-    <iconset>
-     <normaloff>.</normaloff>.</iconset>
-   </property>
    <property name="text">
     <string>&amp;Time profile</string>
    </property>
@@ -290,10 +276,6 @@
    </property>
   </action>
   <action name="actionSettings">
-   <property name="icon">
-    <iconset>
-     <normaloff>.</normaloff>.</iconset>
-   </property>
    <property name="text">
     <string>&amp;Settings...</string>
    </property>
@@ -334,9 +316,6 @@
    <property name="text">
     <string>GPX Viewer &amp;Help</string>
    </property>
-   <property name="shortcut">
-    <string notr="true">F1</string>
-   </property>
   </action>
   <action name="actionAboutGPXViewer">
    <property name="text">
@@ -344,19 +323,11 @@
    </property>
   </action>
   <action name="actionNew">
-   <property name="icon">
-    <iconset>
-     <normaloff>.</normaloff>.</iconset>
-   </property>
    <property name="text">
     <string>&amp;New project</string>
    </property>
   </action>
   <action name="actionStatistics">
-   <property name="icon">
-    <iconset>
-     <normaloff>.</normaloff>.</iconset>
-   </property>
    <property name="text">
     <string>&amp;Statistics</string>
    </property>
@@ -387,6 +358,16 @@
     <string>&amp;Reset filters</string>
    </property>
   </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>&amp;Copy</string>
+   </property>
+  </action>
+  <action name="actionResetColumns">
+   <property name="text">
+    <string>&amp;Reset columns</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections>
@@ -410,7 +391,7 @@
    <sender>actionOpen</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>fileOpen()</slot>
+   <slot>onFileOpen()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -426,7 +407,7 @@
    <sender>actionAboutQt</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>aboutQt()</slot>
+   <slot>onAboutQt()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -442,7 +423,7 @@
    <sender>actionDistanceProfile</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>plotDistanceProfile()</slot>
+   <slot>onPlotDistanceProfile()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -458,7 +439,7 @@
    <sender>actionTimeProfile</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>plotTimeProfile()</slot>
+   <slot>onPlotTimeProfile()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -474,7 +455,7 @@
    <sender>actionSave</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>fileSave()</slot>
+   <slot>onFileSave()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -490,7 +471,7 @@
    <sender>actionSaveAs</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>fileSaveAs()</slot>
+   <slot>onFileSaveAs()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -506,7 +487,7 @@
    <sender>actionLoadGPXfile</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>fileLoadGPXFile()</slot>
+   <slot>onFileLoadGPXFile()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -522,7 +503,7 @@
    <sender>actionSettings</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>showSettings()</slot>
+   <slot>onShowSettings()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -538,7 +519,7 @@
    <sender>actionShowSkipped</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>showSkipped(bool)</slot>
+   <slot>onShowSkipped(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -554,7 +535,7 @@
    <sender>actionShowMarked</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>showMarked(bool)</slot>
+   <slot>onShowMarked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -570,7 +551,7 @@
    <sender>actionShowOther</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>showOther(bool)</slot>
+   <slot>onShowOther(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -586,7 +567,7 @@
    <sender>actionShowCaptioned</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>showCaptioned(bool)</slot>
+   <slot>onShowCaptioned(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -602,7 +583,7 @@
    <sender>actionGpxViewerHelp</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>gpxViewerHelp()</slot>
+   <slot>onGpxViewerHelp()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -618,7 +599,7 @@
    <sender>actionAboutGPXViewer</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>aboutGPXViewer()</slot>
+   <slot>onAboutGPXViewer()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -634,7 +615,7 @@
    <sender>actionNew</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>fileNew()</slot>
+   <slot>onFileNew()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -650,7 +631,7 @@
    <sender>actionStatistics</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>showStatistics()</slot>
+   <slot>onShowStatistics()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -666,7 +647,7 @@
    <sender>actionSaveGPXfileAs</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>fileSaveGPXFileAs()</slot>
+   <slot>onFileSaveGPXFileAs()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -682,7 +663,7 @@
    <sender>actionClearList</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>clearRecentList()</slot>
+   <slot>onClearRecentList()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -698,7 +679,7 @@
    <sender>actionShowMarkedCaptioned</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>showMarkedCaptioned(bool)</slot>
+   <slot>onShowMarkedCaptioned(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -714,7 +695,39 @@
    <sender>actionResetFilters</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>resetFilters()</slot>
+   <slot>onResetFilters()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCopy</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onEditCopy()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionResetColumns</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onResetColumns()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -728,25 +741,27 @@
   </connection>
  </connections>
  <slots>
-  <slot>fileOpen()</slot>
-  <slot>aboutQt()</slot>
-  <slot>plotDistanceProfile()</slot>
-  <slot>plotTimeProfile()</slot>
-  <slot>fileSave()</slot>
-  <slot>fileSaveAs()</slot>
-  <slot>fileLoadGPXFile()</slot>
-  <slot>showSettings()</slot>
-  <slot>showSkipped(bool)</slot>
-  <slot>showMarked(bool)</slot>
-  <slot>showCaptioned(bool)</slot>
-  <slot>showOther(bool)</slot>
-  <slot>gpxViewerHelp()</slot>
-  <slot>aboutGPXViewer()</slot>
-  <slot>fileNew()</slot>
-  <slot>showStatistics()</slot>
-  <slot>fileSaveGPXFileAs()</slot>
-  <slot>clearRecentList()</slot>
-  <slot>showMarkedCaptioned(bool)</slot>
-  <slot>resetFilters()</slot>
+  <slot>onFileOpen()</slot>
+  <slot>onAboutQt()</slot>
+  <slot>onPlotDistanceProfile()</slot>
+  <slot>onPlotTimeProfile()</slot>
+  <slot>onFileSave()</slot>
+  <slot>onFileSaveAs()</slot>
+  <slot>onFileLoadGPXFile()</slot>
+  <slot>onShowSettings()</slot>
+  <slot>onShowSkipped(bool)</slot>
+  <slot>onShowMarked(bool)</slot>
+  <slot>onShowCaptioned(bool)</slot>
+  <slot>onShowOther(bool)</slot>
+  <slot>onGpxViewerHelp()</slot>
+  <slot>onAboutGPXViewer()</slot>
+  <slot>onFileNew()</slot>
+  <slot>onShowStatistics()</slot>
+  <slot>onFileSaveGPXFileAs()</slot>
+  <slot>onClearRecentList()</slot>
+  <slot>onShowMarkedCaptioned(bool)</slot>
+  <slot>onResetFilters()</slot>
+  <slot>onResetColumns()</slot>
+  <slot>onEditCopy()</slot>
  </slots>
 </ui>

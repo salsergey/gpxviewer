@@ -85,13 +85,15 @@ class PlotWindow(QMainWindow):
     self.ui.canvasWidget.plotProfile(column, wptRows, trkRows)
     self.ui.centralwidget.setFocus()
 
-  def saveCurrentSize(self):
+  @pyqtSlot()
+  def onSaveCurrentSize(self):
     filename = self.getExportFileName(self.tr('Export profile of the current size'))
 
     if filename != '':
       self.ui.canvasWidget.saveProfile(filename)
 
-  def saveSelectedSize(self):
+  @pyqtSlot()
+  def onSaveSelectedSize(self):
     filename = self.getExportFileName(self.tr('Export profile of the selected size'))
 
     if filename != '':

@@ -267,7 +267,7 @@
    <sender>actionBySplittingLines</sender>
    <signal>toggled(bool)</signal>
    <receiver>StatWindow</receiver>
-   <slot>BySplittingLinesToggled(bool)</slot>
+   <slot>onBySplittingLinesToggled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -281,6 +281,6 @@
   </connection>
  </connections>
  <slots>
-  <slot>BySplittingLinesToggled(bool)</slot>
+  <slot>onBySplittingLinesToggled(bool)</slot>
  </slots>
 </ui>

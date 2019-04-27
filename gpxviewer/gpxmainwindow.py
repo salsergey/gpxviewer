@@ -47,6 +47,7 @@ class GpxMainWindow(QMainWindow):
     self.ui.actionSaveAs.setIcon(QIcon(':/icons/document-save-as.svg'))
     self.ui.menuRecentProjects.setIcon(QIcon(':/icons/document-open-recent.svg'))
     self.ui.actionQuit.setIcon(QIcon(':/icons/application-exit.svg'))
+    self.ui.actionCopy.setIcon(QIcon(':/icons/edit-copy.svg'))
     self.ui.actionSettings.setIcon(QIcon(':/icons/configure.svg'))
     self.ui.actionDistanceProfile.setIcon(QIcon(':/icons/distanceprofile.svg'))
     self.ui.actionTimeProfile.setIcon(QIcon(':/icons/timeprofile.svg'))
@@ -60,6 +61,9 @@ class GpxMainWindow(QMainWindow):
     self.ui.actionSave.setShortcut(QKeySequence.Save)
     self.ui.actionSaveAs.setShortcut(QKeySequence.SaveAs)
     self.ui.actionQuit.setShortcut(QKeySequence.Quit)
+    self.ui.actionCopy.setShortcut(QKeySequence.Copy)
+    self.ui.actionSettings.setShortcut(QKeySequence.Preferences)
+    self.ui.actionGpxViewerHelp.setShortcut(QKeySequence.HelpContents)
 
     wdg = QWidget()
     wdg.setLayout(QHBoxLayout())
@@ -101,15 +105,18 @@ class GpxMainWindow(QMainWindow):
     self.projectChanged = False
     self.titleFilename = None
     self.actionsRecent = []
+    self.actionsColumns = []
 
     self.updateRecentProjects()
+    self.initColumnsToCopy()
     self.resize(TheConfig['MainWindow'].getint('WindowWidth'), TheConfig['MainWindow'].getint('WindowHeight'))
 
     self.plot = plt.PlotWindow()
     self.plot.profileChanged.connect(self.setProjectChanged)
     self.stat = stat.StatWindow()
 
-  def aboutQt(self):
+  @pyqtSlot()
+  def onAboutQt(self):
     QApplication.aboutQt()
 
   def eventFilter(self, obj, event):
@@ -262,11 +269,6 @@ class GpxMainWindow(QMainWindow):
     if event.key() == Qt.Key_F and event.modifiers() == Qt.ControlModifier:
       self.filterLineEdit.setFocus()
       self.filterLineEdit.selectAll()
-    elif event.key() == Qt.Key_C and event.modifiers() == Qt.ControlModifier:
-      if self.ui.tabWidget.currentWidget() == self.ui.wptTab:
-        TheDocument.wptmodel.copyToClipboard([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()])
-      else:
-        TheDocument.trkmodel.copyToClipboard([i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
     elif event.key() == Qt.Key_F2:
       if self.ui.tabWidget.currentWidget() == self.ui.wptTab and self.ui.wptView.selectionModel().hasSelection():
         self.renamePoints()
@@ -293,7 +295,8 @@ class GpxMainWindow(QMainWindow):
     TheConfig['MainWindow']['WindowWidth'] = str(event.size().width())
     TheConfig['MainWindow']['WindowHeight'] = str(event.size().height())
 
-  def aboutGPXViewer(self):
+  @pyqtSlot()
+  def onAboutGPXViewer(self):
     aboutText = '<h3>GPX Viewer</h3><b>' + self.tr('Version') + ' ' + QCoreApplication.applicationVersion() + '</b><br><br>' + \
                 self.tr('Using') + ' Python ' + str(sys.version_info.major) + '.' + str(sys.version_info.minor) + '.' + str(sys.version_info.micro) + ', ' + \
                 'PyQt5 ' + PYQT_VERSION_STR + ', ' + \
@@ -302,7 +305,8 @@ class GpxMainWindow(QMainWindow):
                 self.tr('License:') + ' <a href=http://www.gnu.org/licenses/gpl.html>GNU General Public License, version 3</a>'
     QMessageBox.about(self, self.tr('About GPX Viewer'), aboutText)
 
-  def gpxViewerHelp(self):
+  @pyqtSlot()
+  def onGpxViewerHelp(self):
     aboutText = self.tr('''Notation:<br>
                            <font color=red>Red</font> - skipped points<br>
                            <font color=blue>Blue</font> - marked points<br>
@@ -310,11 +314,6 @@ class GpxMainWindow(QMainWindow):
                            <b>Bold</b> - points with splitting lines<br>
                            <i>Italic</i> - distance before these points is neglected<br>
                            <br>
-                           Useful shortcuts:<br>
-                           Ctrl+C - Copy points to clipboard<br>
-                           Ctrl+P - Show distance profile<br>
-                           Ctrl+T - Show time profile<br>
-                           Ctrl+I - Show statistics<br>
                            F2 - Rename multiple points.
                            Several symbols "#" are replaced by sequential numbers.
                            The number of digits equals to the amount of symbols "#".<br>
@@ -473,7 +472,8 @@ class GpxMainWindow(QMainWindow):
                                           not self.sender().isChecked())
     self.setProjectChanged()
 
-  def fileNew(self):
+  @pyqtSlot()
+  def onFileNew(self):
     if self.projectChanged and len(TheDocument.doc['GPXFile']) != 0:
       result = QMessageBox.information(self, self.tr('Load GPX file'),
                                        self.tr('There are unsaved changes. Do you want to save the project?'),
@@ -486,12 +486,14 @@ class GpxMainWindow(QMainWindow):
 
     self.reset()
 
-  def fileLoadGPXFile(self):
+  @pyqtSlot()
+  def onFileLoadGPXFile(self):
     filenames = QFileDialog.getOpenFileNames(self, self.tr('Open GPX file'), TheConfig['MainWindow']['LoadGPXDirectory'],
                                              self.tr('GPX XML (*.gpx *.GPX);;All files (*)'))[0]
     self.openGPXFiles(filenames)
 
-  def fileSaveGPXFileAs(self):
+  @pyqtSlot()
+  def onFileSaveGPXFileAs(self):
     if TheDocument.wptmodel.rowCount() == len(TheDocument.wptmodel.getSkippedPoints()) and \
        TheDocument.trkmodel.rowCount() == len(TheDocument.trkmodel.getSkippedTracks()):
       QMessageBox.warning(self, self.tr('Save error'), self.tr('The GPX file will be empty.'))
@@ -503,7 +505,8 @@ class GpxMainWindow(QMainWindow):
       TheConfig['MainWindow']['LoadGPXDirectory'] = QFileInfo(filename).path()
       TheDocument.gpxparser.writeToFile(filename)
 
-  def fileOpen(self):
+  @pyqtSlot()
+  def onFileOpen(self):
     if self.projectChanged and len(TheDocument.doc['GPXFile']) != 0:
       result = QMessageBox.information(self, self.tr('Open GPX Viewer project'),
                                        self.tr('There are unsaved changes. Do you want to save the project?'),
@@ -519,7 +522,8 @@ class GpxMainWindow(QMainWindow):
     if filename != '':
       self.openGPXProject(filename)
 
-  def fileSave(self):
+  @pyqtSlot()
+  def onFileSave(self):
     if not self.projectSaved:
       return self.fileSaveAs()
     else:
@@ -531,7 +535,8 @@ class GpxMainWindow(QMainWindow):
     self.setProjectChanged(False)
     return True
 
-  def fileSaveAs(self):
+  @pyqtSlot()
+  def onFileSaveAs(self):
     if len(TheDocument.doc['GPXFile']) != 0:
       filename = QFileDialog.getSaveFileName(self, self.tr('Save project file as'), TheConfig['MainWindow']['ProjectDirectory'],
                                              self.tr('GPX Viewer Projects (*.gpxv *.GPXV);;All files (*)'))[0]
@@ -629,7 +634,20 @@ class GpxMainWindow(QMainWindow):
             del TheConfig.recentProjects[i]
             self.updateRecentProjects()
 
-  def plotDistanceProfile(self):
+  @pyqtSlot()
+  def onEditCopy(self):
+    if self.ui.tabWidget.currentWidget() == self.ui.wptTab:
+      TheDocument.wptmodel.copyToClipboard([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()])
+    else:
+      TheDocument.trkmodel.copyToClipboard([i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
+
+  @pyqtSlot()
+  def onResetColumns(self):
+    TheConfig.columnsToCopy = list(gpx.WPTFIELDS)
+    self.updateColumnsToCopy()
+
+  @pyqtSlot()
+  def onPlotDistanceProfile(self):
     if TheDocument.wptmodel.rowCount() - len(TheDocument.wptmodel.getSkippedPoints()) < 2 and \
        TheDocument.trkmodel.rowCount() == len(TheDocument.trkmodel.getSkippedTracks()):
       QMessageBox.warning(self, self.tr('Plot error'), self.tr('Not enouph points or tracks.'))
@@ -643,7 +661,8 @@ class GpxMainWindow(QMainWindow):
       self.plot.plotProfile(gpx.DIST)
     self.plot.activateWindow()
 
-  def plotTimeProfile(self):
+  @pyqtSlot()
+  def onPlotTimeProfile(self):
     # Check if there are at least two points with timestamps
     n = 0
     for i in range(TheDocument.wptmodel.rowCount()):
@@ -668,7 +687,8 @@ class GpxMainWindow(QMainWindow):
       self.plot.plotProfile(gpx.TIME_DAYS)
     self.plot.activateWindow()
 
-  def showStatistics(self):
+  @pyqtSlot()
+  def onShowStatistics(self):
     if TheDocument.wptmodel.rowCount() - len(TheDocument.wptmodel.getSkippedPoints()) < 2:
       QMessageBox.warning(self, self.tr('Statistics error'), self.tr('Not enouph points.'))
       return
@@ -676,34 +696,41 @@ class GpxMainWindow(QMainWindow):
     self.stat.show()
     self.stat.activateWindow()
 
-  def showSkipped(self, show):
+  @pyqtSlot(bool)
+  def onShowSkipped(self, show):
     TheConfig['MainWindow']['ShowSkipped'] = str(show)
     self.updateIncludeFilter()
 
-  def showMarked(self, show):
+  @pyqtSlot(bool)
+  def onShowMarked(self, show):
     TheConfig['MainWindow']['ShowMarked'] = str(show)
     self.updateIncludeFilter()
 
-  def showCaptioned(self, show):
+  @pyqtSlot(bool)
+  def onShowCaptioned(self, show):
     TheConfig['MainWindow']['ShowCaptioned'] = str(show)
     self.updateIncludeFilter()
 
-  def showMarkedCaptioned(self, show):
+  @pyqtSlot(bool)
+  def onShowMarkedCaptioned(self, show):
     TheConfig['MainWindow']['ShowMarkedCaptioned'] = str(show)
     self.updateIncludeFilter()
 
-  def showOther(self, show):
+  @pyqtSlot(bool)
+  def onShowOther(self, show):
     TheConfig['MainWindow']['ShowDefault'] = str(show)
     self.updateIncludeFilter()
 
-  def resetFilters(self):
+  @pyqtSlot()
+  def onResetFilters(self):
     self.ui.actionShowSkipped.setChecked(True)
     self.ui.actionShowMarked.setChecked(True)
     self.ui.actionShowCaptioned.setChecked(True)
     self.ui.actionShowMarkedCaptioned.setChecked(True)
     self.ui.actionShowOther.setChecked(True)
 
-  def showSettings(self):
+  @pyqtSlot()
+  def onShowSettings(self):
     dlg = SettingsDialog(self)
     if dlg.exec_() == QDialog.Accepted:
       self.setProjectChanged()
@@ -773,9 +800,34 @@ class GpxMainWindow(QMainWindow):
     else:
       self.ui.actionClearList.setDisabled(True)
 
-  def clearRecentList(self):
+  @pyqtSlot()
+  def onClearRecentList(self):
     for act in self.actionsRecent:
       self.ui.menuRecentProjects.removeAction(act)
     self.actionsRecent = []
     TheConfig.recentProjects = []
     self.ui.actionClearList.setDisabled(True)
+
+  def initColumnsToCopy(self):
+    for i, f in enumerate(TheDocument.wptmodel.fields):
+      act = QAction(f, self)
+      act.setCheckable(True)
+      act.triggered[bool].connect(self.columnsToCopyChanged)
+      self.actionsColumns += [act]
+    self.ui.menuCoLumns.insertActions(self.ui.actionResetColumns, self.actionsColumns)
+    self.ui.menuCoLumns.insertSeparator(self.ui.actionResetColumns)
+    self.updateColumnsToCopy()
+
+  def updateColumnsToCopy(self):
+    for i, act in enumerate(self.actionsColumns):
+      act.setChecked(i in TheConfig.columnsToCopy)
+
+  @pyqtSlot(bool)
+  def columnsToCopyChanged(self, checked):
+    for i, act in enumerate(self.actionsColumns):
+      if self.sender() == act:
+        if checked:
+          TheConfig.columnsToCopy += [i]
+          TheConfig.columnsToCopy.sort()
+        else:
+          TheConfig.columnsToCopy.remove(i)
