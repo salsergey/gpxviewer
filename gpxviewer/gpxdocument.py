@@ -134,12 +134,18 @@ class GpxDocument(QObject):
         TheConfig['ProfileStyle']['MinimumAltitude'] = self.doc['MinimumAltitude']
       if 'MaximumAltitude' in self.doc:
         TheConfig['ProfileStyle']['MaximumAltitude'] = self.doc['MaximumAltitude']
+      if 'SelectedPointsOnly' in self.doc:
+        TheConfig['ProfileStyle']['SelectedPointsOnly'] = self.doc['SelectedPointsOnly']
+      if 'AutoscaleAltitudes' in self.doc:
+        TheConfig['ProfileStyle']['AutoscaleAltitudes'] = self.doc['AutoscaleAltitudes']
+      if 'FontSize' in self.doc:
+        TheConfig['ProfileStyle']['FontSize'] = self.doc['FontSize']
+      if 'FontFamily' in self.doc:
+        TheConfig['ProfileStyle']['FontFamily'] = self.doc['FontFamily']
       if 'DistanceCoefficient' in self.doc:
         TheConfig['ProfileStyle']['DistanceCoefficient'] = self.doc['DistanceCoefficient']
       if 'TimeZoneOffset' in self.doc:
         TheConfig['ProfileStyle']['TimeZoneOffset'] = self.doc['TimeZoneOffset']
-      if 'SelectedPointsOnly' in self.doc:
-        TheConfig['ProfileStyle']['SelectedPointsOnly'] = self.doc['SelectedPointsOnly']
       if 'ReadNameFromTag' in self.doc:
         TheConfig['ProfileStyle']['ReadNameFromTag'] = self.doc['ReadNameFromTag']
       if 'CoordinateFormat' in self.doc:
