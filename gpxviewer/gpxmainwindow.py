@@ -141,7 +141,7 @@ class GpxMainWindow(QMainWindow):
                                        self.tr('There are unsaved changes. Do you want to save the project?'),
                                        QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Yes)
       if result == QMessageBox.Yes:
-        if not self.fileSave():
+        if not self.onFileSave():
           event.ignore()
           return
       if result == QMessageBox.Cancel:
@@ -479,7 +479,7 @@ class GpxMainWindow(QMainWindow):
                                        self.tr('There are unsaved changes. Do you want to save the project?'),
                                        QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Yes)
       if result == QMessageBox.Yes:
-        if not self.fileSave():
+        if not self.onFileSave():
           return
       if result == QMessageBox.Cancel:
         return
@@ -512,7 +512,7 @@ class GpxMainWindow(QMainWindow):
                                        self.tr('There are unsaved changes. Do you want to save the project?'),
                                        QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Yes)
       if result == QMessageBox.Yes:
-        if not self.fileSave():
+        if not self.onFileSave():
           return
       if result == QMessageBox.Cancel:
         return
@@ -525,7 +525,7 @@ class GpxMainWindow(QMainWindow):
   @pyqtSlot()
   def onFileSave(self):
     if not self.projectSaved:
-      return self.fileSaveAs()
+      return self.onFileSaveAs()
     else:
       try:
         TheDocument.saveFile(self.projectFile)
@@ -616,7 +616,7 @@ class GpxMainWindow(QMainWindow):
                                        self.tr('There are unsaved changes. Do you want to save the project?'),
                                        QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Yes)
       if result == QMessageBox.Yes:
-        if not self.fileSave():
+        if not self.onFileSave():
           return
       if result == QMessageBox.Cancel:
         return
