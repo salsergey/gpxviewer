@@ -25,7 +25,7 @@ import gpxviewer.gpxmodel as gpx
 import gpxviewer.statwindow as stat
 import gpxviewer.plotviewer as plt
 from gpxviewer.configstore import TheConfig
-from gpxviewer.gpxdocument import TheDocument
+from gpxviewer.gpxdocument import *
 from gpxviewer.pointconfigdialog import PointConfigDialog
 from gpxviewer.settingsdialog import SettingsDialog
 import gpxviewer.ui_mainwindow
@@ -100,6 +100,7 @@ class GpxMainWindow(QMainWindow):
     TheDocument.gpxparser.warningSent[str, str].connect(self.showWarning)
     TheDocument.wptmodel.wptDataChanged.connect(self.setProjectChanged)
     TheDocument.fileNotFound[str].connect(self.openedFileNotFound)
+    TheDocument.askToExtractFiles[list].connect(self.askedExtractFiles)
 
     self.projectSaved = False
     self.projectChanged = False
@@ -150,6 +151,7 @@ class GpxMainWindow(QMainWindow):
 
     self.plot.close()
     self.stat.close()
+    TheDocument.close()
     TheConfig.save()
     super(GpxMainWindow, self).closeEvent(event)
 
@@ -504,6 +506,7 @@ class GpxMainWindow(QMainWindow):
     if filename != '':
       TheConfig['MainWindow']['LoadGPXDirectory'] = QFileInfo(filename).path()
       TheDocument.gpxparser.writeToFile(filename)
+      self.ui.statusBar.showMessage(filename + self.tr(' written.'), 2000)
 
   @pyqtSlot()
   def onFileOpen(self):
@@ -518,7 +521,10 @@ class GpxMainWindow(QMainWindow):
         return
 
     filename = QFileDialog.getOpenFileName(self, self.tr('Open project file'), TheConfig['MainWindow']['ProjectDirectory'],
-                                           self.tr('GPX Viewer Projects (*.gpxv *.GPXV);;All files (*)'))[0]
+                                           self.tr('All GPX Viewer files (*.gpxv *.gpxz *.GPXV *.GPXZ);;'
+                                                   'GPX Viewer projects (*.gpxv *.GPXV);;'
+                                                   'GPX Viewer archives (*.gpxz *.GPXZ);;'
+                                                   'All files (*)'))[0]
     if filename != '':
       self.openGPXProject(filename)
 
@@ -533,22 +539,29 @@ class GpxMainWindow(QMainWindow):
         QMessageBox.warning(self, self.tr('Save error'), e.args[0])
         return False
     self.setProjectChanged(False)
+    self.ui.statusBar.showMessage(self.projectFile + self.tr(' saved.'), 2000)
     return True
 
   @pyqtSlot()
   def onFileSaveAs(self):
     if len(TheDocument.doc['GPXFile']) != 0:
-      filename = QFileDialog.getSaveFileName(self, self.tr('Save project file as'), TheConfig['MainWindow']['ProjectDirectory'],
-                                             self.tr('GPX Viewer Projects (*.gpxv *.GPXV);;All files (*)'))[0]
+      filename, filter = QFileDialog.getSaveFileName(self, self.tr('Save project file as'), TheConfig['MainWindow']['ProjectDirectory'],
+                                                     self.tr('GPX Viewer projects (*.gpxv *.GPXV);;'
+                                                             'GPX Viewer archives (*.gpxz *.GPXZ);;'
+                                                             'All files (*)'),
+                                                     TheConfig['MainWindow']['ProjectExtension'])
       if filename != '':
+        TheDocument.projectType = TYPE_GPXZ if (filter.find('gpxz') != -1 or filename.lower().endswith('.gpxz')) else TYPE_GPXV
         try:
           TheDocument.saveFile(filename)
           self.projectFile = filename
           self.projectSaved = True
           TheConfig['MainWindow']['ProjectDirectory'] = QFileInfo(self.projectFile).path()
+          TheConfig['MainWindow']['ProjectExtension'] = filter
           self.setProjectChanged(False)
           self.updateTitleFilename(self.projectFile)
           self.addRecentProject(self.projectFile)
+          self.ui.statusBar.showMessage(self.projectFile + self.tr(' saved.'), 2000)
           return True
         except OSError as e:
           QMessageBox.warning(self, self.tr('Save error'), e.args[0])
@@ -564,6 +577,8 @@ class GpxMainWindow(QMainWindow):
       self.openGPXFile(f)
     TheDocument.gpxparser.updatePoints()
     self.updateTabs()
+    message = (filenames[0] if len(filenames) == 1 else self.tr('Multiple GPX files')) + self.tr(' loaded.', '', len(filenames))
+    self.ui.statusBar.showMessage(message, 2000)
 
   def openGPXFile(self, filename):
     TheConfig['MainWindow']['LoadGPXDirectory'] = QFileInfo(filename).path()
@@ -592,6 +607,7 @@ class GpxMainWindow(QMainWindow):
       self.updateTitleFilename(self.projectFile)
       self.updateTabs()
       self.addRecentProject(self.projectFile)
+      self.ui.statusBar.showMessage(self.projectFile + self.tr(' opened.'), 2000)
     except gpx.GpxWarning as e:
       self.reset()
       QMessageBox.warning(self, self.tr('File read error'), e.args[0])
@@ -608,6 +624,16 @@ class GpxMainWindow(QMainWindow):
         TheDocument.newFilePath = filename
         if result == QMessageBox.YesToAll:
           TheDocument.applyToAll = True
+
+  @pyqtSlot(list)
+  def askedExtractFiles(self, files):
+    result = QMessageBox.warning(self, self.tr('Extract files?'), self.tr('This project refers to files that could be missing from the filesystem:\n')
+                                                                  + '\n'.join(files)
+                                                                  + self.tr('\n\nDo you want to write these files along with the saved project?\n'
+                                                                            'NOTE: Some files can be overwritten.'),
+                                 QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+    if result == QMessageBox.Yes:
+      TheDocument.doExtractFiles = True
 
   @pyqtSlot()
   def openRecentProject(self):

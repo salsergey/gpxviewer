@@ -55,7 +55,7 @@ if os.name == 'nt':
 else:
   datafiles = [
     (os.path.join(sys.prefix, 'share/applications'), ['data/gpxviewer.desktop']),
-    (os.path.join(sys.prefix, 'share/mime/packages'), ['data/gpxv.xml']),
+    (os.path.join(sys.prefix, 'share/mime/packages'), ['data/gpxviewer.xml']),
     (os.path.join(sys.prefix, 'share/pixmaps'), ['data/icons/gpxviewer.png']),
     (os.path.join(sys.prefix, 'share/icons/hicolor/128x128/mimetypes'), ['data/icons/gpxviewer.png'])
   ]

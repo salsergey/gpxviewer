@@ -36,9 +36,9 @@ def main():
   gpxMainWindow = GpxMainWindow()
   gpxMainWindow.show()
   if len(sys.argv) > 1:
-    if sys.argv[1].endswith('.gpx'):
+    if sys.argv[1].lower().endswith('.gpx'):
       gpxMainWindow.openGPXFiles(sys.argv[1:])
-    if sys.argv[1].endswith('.gpxv'):
+    else:
       gpxMainWindow.openGPXProject(sys.argv[1])
   sys.exit(app.exec_())
 

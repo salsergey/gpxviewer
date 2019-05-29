@@ -6,8 +6,15 @@
     <comment xml:lang="ru">Проект GPX Viewer</comment>
     <icon name="gpxviewer"/>
     <magic priority="99">
-        <match type="string" value="[9e27ea8e]" offset="0"/>
+      <match type="string" offset="0" value="[9e27ea8e]"/>
     </magic>
-    <glob pattern="*.gpxv" />
+    <glob pattern="*.gpxv"/>
+  </mime-type>
+  <mime-type type="application/gpxz">
+    <sub-class-of type="application/zip"/>
+    <comment xml:lang="en">GPX Viewer archive</comment>
+    <comment xml:lang="ru">Архив GPX Viewer</comment>
+    <icon name="gpxviewer"/>
+    <glob pattern="*.gpxz"/>
   </mime-type>
 </mime-info>
