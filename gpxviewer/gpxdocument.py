@@ -111,6 +111,9 @@ class GpxDocument(QObject):
           archive.write(file.name, arcname='doc.gpxv')
 
   def openFile(self, filename):
+    if not QFileInfo(filename).isFile():
+      raise gpx.GpxWarning(QFileInfo(filename).absoluteFilePath() + QCoreApplication.translate('GpxDocument', ' is not a file.'))
+
     cfg = GpxConfigParser()
     curFileName = filename
 
@@ -126,7 +129,7 @@ class GpxDocument(QObject):
           archive.extractall(self.tmpdir)
           curFileName = tmpfile
           if not QFileInfo(curFileName).exists():
-            raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'This file is not a valid GPX Viewer archive.'))
+            raise gpx.GpxWarning(QFileInfo(filename).absoluteFilePath() + QCoreApplication.translate('GpxDocument', ' is not a valid GPX Viewer archive.'))
         self.projectType = TYPE_GPXZ
       except zipfile.BadZipFile:  # filename is not a ZIP archive
         self.projectType = TYPE_GPXV
@@ -134,7 +137,7 @@ class GpxDocument(QObject):
     try:
       cfg.read(curFileName, encoding='utf-8')
     except (configparser.ParsingError, UnicodeDecodeError):
-      raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'This file is not a valid GPX Viewer project.'))
+      raise gpx.GpxWarning(QFileInfo(filename).absoluteFilePath() + QCoreApplication.translate('GpxDocument', ' is not a valid GPX Viewer project.'))
 
     if GPXMAGICK in cfg:
       self.doc.clear()
@@ -263,7 +266,7 @@ class GpxDocument(QObject):
         for i, n in zip(self.doc['ChangedNames'], self.doc['PointNames']):
           self.wptmodel.setData(self.wptmodel.index(i, gpx.NAME), n, Qt.EditRole)
     else:  # GPXMAGICK not in cfg
-      raise gpx.GpxWarning(QCoreApplication.translate('GpxDocument', 'This file is not a valid GPX Viewer project.'))
+      raise gpx.GpxWarning(QFileInfo(filename).absoluteFilePath() + QCoreApplication.translate('GpxDocument', ' is not a valid GPX Viewer project.'))
 
   fileNotFound = pyqtSignal(str)
   askToExtractFiles = pyqtSignal(list)

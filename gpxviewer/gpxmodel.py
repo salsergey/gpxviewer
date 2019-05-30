@@ -17,7 +17,7 @@
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 from math import acos, cos, modf, pi, sin, sqrt
-from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QObject, QPointF, QSortFilterProxyModel, pyqtSignal
+from PyQt5.QtCore import Qt, QAbstractTableModel, QFileInfo, QModelIndex, QObject, QPointF, QSortFilterProxyModel, pyqtSignal
 from PyQt5.QtGui import QColor, QFont, QGuiApplication, QPainter, QPainterPath, QPen, QPixmap, QPolygonF
 from gpxviewer.configstore import TheConfig
 
@@ -326,8 +326,8 @@ class GpxParser(QObject):
   def parse(self, filename):
     try:
       doc = ET.parse(filename)
-    except ET.ParseError:
-      raise GpxWarning(filename + self.tr(' is an invalid GPX file.'))
+    except (ET.ParseError, IsADirectoryError, FileNotFoundError):
+      raise GpxWarning(QFileInfo(filename).absoluteFilePath() + self.tr(' is an invalid GPX file.'))
     ns = {'ns': doc.getroot().tag.split('}')[0][1:]}
 
     tag = 'name'

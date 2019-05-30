@@ -16,24 +16,29 @@
 <context>
     <name>GpxDocument</name>
     <message>
-        <location filename="../../gpxviewer/gpxdocument.py" line="172"/>
+        <location filename="../../gpxviewer/gpxdocument.py" line="175"/>
         <source>One of the files has wrong number of valid waypoints or tracks. This file is likely to be damaged or changed from outside.</source>
         <translation>Один из файлов содержит неправильное количество маршрутных точек или треков. Вероятно, этот файл повреждён или изменён извне.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxdocument.py" line="165"/>
+        <location filename="../../gpxviewer/gpxdocument.py" line="168"/>
         <source>One of GPX files doesn&apos;t exist. This project can&apos;t be opened.</source>
         <translation>Один из GPX файлов не существует. Невозможно открыть проект.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxdocument.py" line="129"/>
-        <source>This file is not a valid GPX Viewer archive.</source>
-        <translation>Этот файл не является архивом GPX Viewer.</translation>
+        <location filename="../../gpxviewer/gpxdocument.py" line="115"/>
+        <source> is not a file.</source>
+        <translation> не является файлом.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/gpxdocument.py" line="266"/>
-        <source>This file is not a valid GPX Viewer project.</source>
-        <translation>Этот файл не является проектом GPX Viewer.</translation>
+        <location filename="../../gpxviewer/gpxdocument.py" line="132"/>
+        <source> is not a valid GPX Viewer archive.</source>
+        <translation> не является архивом GPX Viewer.</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/gpxdocument.py" line="269"/>
+        <source> is not a valid GPX Viewer project.</source>
+        <translation> не является проектом GPX Viewer.</translation>
     </message>
 </context>
 <context>
