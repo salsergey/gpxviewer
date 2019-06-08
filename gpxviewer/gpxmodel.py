@@ -25,7 +25,6 @@ from gpxviewer.configstore import TheConfig
 WPTFIELDS = NAME, LAT, LON, ALT, DIST, TIME, TIMEDELTA, TIME_DAYS = range(8)
 TRKFIELDS = TRKNAME, TRKSEGS, TRKPTS, TRKLEN, TRKTIME, TRKDUR = range(6)
 ValueRole, IDRole, IncludeRole, MarkerRole, CaptionRole, SplitLineRole, NeglectRole, MarkerStyleRole, CaptionStyleRole, SplitLineStyleRole = range(Qt.UserRole, Qt.UserRole + 10)
-SkipColor, MarkerColor, CaptionColor = (QColor(255, 225, 225), QColor(225, 225, 255), QColor(225, 255, 225))
 MARKER_COLOR, MARKER_STYLE, MARKER_SIZE, CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE, LINE_COLOR, LINE_STYLE, LINE_WIDTH = \
   ('MarkerColor', 'MarkerStyle', 'MarkerSize', 'CaptionPositionX', 'CaptionPositionY', 'CaptionSize', 'SplitLineColor', 'SplitLineStyle', 'SplitLineWidth')
 
@@ -47,6 +46,12 @@ class WptModel(QAbstractTableModel):
     self.resetModel()
     self.pix = QPixmap(16, 16)
     self.pix.fill(Qt.transparent)
+
+    # Define colors that should look well for any color theme
+    lightness = max(50, min(240, QGuiApplication.palette().base().color().lightness()))
+    self.SkipColor = QColor.fromHsl(0, lightness, lightness)
+    self.MarkerColor = QColor.fromHsl(240, lightness, lightness)
+    self.CaptionColor = QColor.fromHsl(120, lightness, lightness)
 
   def rowCount(self, parent=None):
     if parent is not None and parent.isValid():
@@ -117,13 +122,13 @@ class WptModel(QAbstractTableModel):
         return {k: TheConfig.getValue('PointStyle', k) for k in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}}
     elif role == Qt.BackgroundRole:
       if not self.includeStates[index.row()]:
-        return SkipColor
+        return self.SkipColor
       elif self.captionStates[index.row()]:
-        return CaptionColor
+        return self.CaptionColor
       elif self.markerStates[index.row()]:
-        return MarkerColor
+        return self.MarkerColor
       else:
-        return Qt.white
+        return QGuiApplication.palette().base().color()
     elif role == Qt.FontRole:
       font = QFont()
       if self.splitStates[index.row()]:
@@ -258,6 +263,10 @@ class TrkModel(QAbstractTableModel):
     self.fields = [self.tr('Name'), self.tr('Segments'), self.tr('Points'), self.tr('Length'), self.tr('Time'), self.tr('Duration')]
     self.resetModel()
 
+    # Define colors that should look well for any color theme
+    lightness = max(50, min(240, QGuiApplication.palette().base().color().lightness()))
+    self.SkipColor = QColor.fromHsl(0, lightness, lightness)
+
   def rowCount(self, parent=None):
     if parent is not None and parent.isValid():
       return 0
@@ -279,7 +288,7 @@ class TrkModel(QAbstractTableModel):
     elif role == IncludeRole:
       return self.includeStates[index.row()]
     elif role == Qt.BackgroundRole:
-      return Qt.white if self.includeStates[index.row()] else SkipColor
+      return QGuiApplication.palette().base().color() if self.includeStates[index.row()] else self.SkipColor
     return None
 
   def headerData(self, section, orientation, role):

@@ -204,6 +204,8 @@ class GpxDocument(QObject):
         TheConfig['ProfileStyle']['SelectedPointsOnly'] = self.doc['SelectedPointsOnly']
       if 'AutoscaleAltitudes' in self.doc:
         TheConfig['ProfileStyle']['AutoscaleAltitudes'] = self.doc['AutoscaleAltitudes']
+      if 'UseSystemTheme' in self.doc:
+        TheConfig['ProfileStyle']['UseSystemTheme'] = self.doc['UseSystemTheme']
       if 'FontSize' in self.doc:
         TheConfig['ProfileStyle']['FontSize'] = self.doc['FontSize']
       if 'FontFamily' in self.doc:

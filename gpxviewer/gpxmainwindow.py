@@ -17,7 +17,7 @@
 import sys
 import re
 import webbrowser
-from PyQt5.QtCore import Qt, QCoreApplication, QEvent, QFileInfo, QT_VERSION_STR, PYQT_VERSION_STR, pyqtSlot
+from PyQt5.QtCore import Qt, QCoreApplication, QEvent, QFileInfo, QFileSelector, QT_VERSION_STR, PYQT_VERSION_STR, pyqtSlot
 from PyQt5.QtGui import QCursor, QIcon, QKeyEvent, QKeySequence
 from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QDialogButtonBox, QFileDialog, QHBoxLayout, QLabel, QLineEdit,
                              QMainWindow, QMenu, QMessageBox, QSizePolicy, QSpacerItem, QSpinBox, QVBoxLayout, QWidget)
@@ -36,25 +36,8 @@ class GpxMainWindow(QMainWindow):
     super(GpxMainWindow, self).__init__()
     self.ui = gpxviewer.ui_mainwindow.Ui_MainWindow()
     self.ui.setupUi(self)
+    self.updateTheme()
     self.ui.wptView.setFocus()
-
-    self.setWindowIcon(QIcon(':/icons/gpxviewer.svg'))
-    self.ui.actionLoadGPXfile.setIcon(QIcon(':/icons/xml-element-new.svg'))
-    self.ui.actionSaveGPXfileAs.setIcon(QIcon(':/icons/document-save-as-template.svg'))
-    self.ui.actionNew.setIcon(QIcon(':/icons/document-new.svg'))
-    self.ui.actionOpen.setIcon(QIcon(':/icons/document-open.svg'))
-    self.ui.actionSave.setIcon(QIcon(':/icons/document-save.svg'))
-    self.ui.actionSaveAs.setIcon(QIcon(':/icons/document-save-as.svg'))
-    self.ui.menuRecentProjects.setIcon(QIcon(':/icons/document-open-recent.svg'))
-    self.ui.actionQuit.setIcon(QIcon(':/icons/application-exit.svg'))
-    self.ui.actionCopy.setIcon(QIcon(':/icons/edit-copy.svg'))
-    self.ui.actionSettings.setIcon(QIcon(':/icons/configure.svg'))
-    self.ui.actionDistanceProfile.setIcon(QIcon(':/icons/distanceprofile.svg'))
-    self.ui.actionTimeProfile.setIcon(QIcon(':/icons/timeprofile.svg'))
-    self.ui.actionStatistics.setIcon(QIcon(':/icons/view-statistics.svg'))
-    self.ui.actionGpxViewerHelp.setIcon(QIcon(':/icons/help-contents.svg'))
-    self.ui.actionAboutQt.setIcon(QIcon.fromTheme('qtlogo', QIcon(':/icons/qtlogo.svg')))
-    self.ui.actionAboutGPXViewer.setIcon(QIcon(':/icons/gpxviewer.svg'))
 
     self.ui.actionNew.setShortcut(QKeySequence.New)
     self.ui.actionOpen.setShortcut(QKeySequence.Open)
@@ -116,6 +99,28 @@ class GpxMainWindow(QMainWindow):
     self.plot.profileChanged.connect(self.setProjectChanged)
     self.stat = stat.StatWindow()
 
+  def updateTheme(self):
+    self.themeSelector = QFileSelector()
+    self.themeSelector.setExtraSelectors([TheConfig['MainWindow']['ColorTheme']])
+
+    self.setWindowIcon(QIcon(':/icons/gpxviewer.svg'))
+    self.ui.actionLoadGPXfile.setIcon(QIcon(self.themeSelector.select(':/icons/xml-element-new.svg')))
+    self.ui.actionSaveGPXfileAs.setIcon(QIcon(self.themeSelector.select(':/icons/document-save-as-template.svg')))
+    self.ui.actionNew.setIcon(QIcon(self.themeSelector.select(':/icons/document-new.svg')))
+    self.ui.actionOpen.setIcon(QIcon(self.themeSelector.select(':/icons/document-open.svg')))
+    self.ui.actionSave.setIcon(QIcon(self.themeSelector.select(':/icons/document-save.svg')))
+    self.ui.actionSaveAs.setIcon(QIcon(self.themeSelector.select(':/icons/document-save-as.svg')))
+    self.ui.menuRecentProjects.setIcon(QIcon(self.themeSelector.select(':/icons/document-open-recent.svg')))
+    self.ui.actionQuit.setIcon(QIcon(':/icons/application-exit.svg'))
+    self.ui.actionCopy.setIcon(QIcon(self.themeSelector.select(':/icons/edit-copy.svg')))
+    self.ui.actionSettings.setIcon(QIcon(self.themeSelector.select(':/icons/configure.svg')))
+    self.ui.actionDistanceProfile.setIcon(QIcon(self.themeSelector.select(':/icons/distanceprofile.svg')))
+    self.ui.actionTimeProfile.setIcon(QIcon(self.themeSelector.select(':/icons/timeprofile.svg')))
+    self.ui.actionStatistics.setIcon(QIcon(self.themeSelector.select(':/icons/view-statistics.svg')))
+    self.ui.actionGpxViewerHelp.setIcon(QIcon(self.themeSelector.select(':/icons/help-contents.svg')))
+    self.ui.actionAboutQt.setIcon(QIcon.fromTheme('qtlogo', QIcon(':/icons/qtlogo.svg')))
+    self.ui.actionAboutGPXViewer.setIcon(QIcon(':/icons/gpxviewer.svg'))
+
   @pyqtSlot()
   def onAboutQt(self):
     QApplication.aboutQt()
@@ -157,53 +162,53 @@ class GpxMainWindow(QMainWindow):
 
   def wptContextMenuEvent(self, event):
     if self.ui.wptView.selectionModel().hasSelection():
-      actSkip = QAction(QIcon(':/icons/waypoint-skip.svg'), self.tr('Skip points'), self)
+      actSkip = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-skip.svg')), self.tr('Skip points'), self)
       actSkip.setStatusTip(self.tr('Skip these waypoints when plotting profiles or calculating statistics'))
       actSkip.setCheckable(True)
       actSkip.setChecked(not self.ui.wptView.currentIndex().data(gpx.IncludeRole))
       actSkip.triggered.connect(self.skipPoints)
 
-      actMarker = QAction(QIcon(':/icons/waypoint-marker.svg'), self.tr('Points with markers'), self)
+      actMarker = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-marker.svg')), self.tr('Points with markers'), self)
       actMarker.setStatusTip(self.tr('Add markers to these waypoints when plotting profiles'))
       actMarker.setDisabled(actSkip.isChecked())
       actMarker.setCheckable(True)
       actMarker.setChecked(self.ui.wptView.currentIndex().data(gpx.MarkerRole))
       actMarker.triggered.connect(self.markerPoints)
 
-      actCaption = QAction(QIcon(':/icons/waypoint-caption.svg'), self.tr('Points with captions'), self)
+      actCaption = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-caption.svg')), self.tr('Points with captions'), self)
       actCaption.setStatusTip(self.tr('Add captions to these waypoints when plotting profiles'))
       actCaption.setDisabled(actSkip.isChecked())
       actCaption.setCheckable(True)
       actCaption.setChecked(self.ui.wptView.currentIndex().data(gpx.CaptionRole))
       actCaption.triggered.connect(self.captionPoints)
 
-      actSplit = QAction(QIcon(':/icons/waypoint-splitline.svg'), self.tr('Points with splitting lines'), self)
+      actSplit = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-splitline.svg')), self.tr('Points with splitting lines'), self)
       actSplit.setStatusTip(self.tr('Add splitting lines to these waypoints when plotting profiles'))
       actSplit.setDisabled(actSkip.isChecked())
       actSplit.setCheckable(True)
       actSplit.setChecked(self.ui.wptView.currentIndex().data(gpx.SplitLineRole))
       actSplit.triggered.connect(self.splitLines)
 
-      actNeglect = QAction(QIcon(':/icons/waypoint-neglect-distance.svg'), self.tr('Neglect previous distance'), self)
+      actNeglect = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-neglect-distance.svg')), self.tr('Neglect previous distance'), self)
       actNeglect.setStatusTip(self.tr('Neglect distance before these waypoints when plotting profiles'))
       actNeglect.setDisabled(actSkip.isChecked())
       actNeglect.setCheckable(True)
       actNeglect.setChecked(self.ui.wptView.currentIndex().data(gpx.NeglectRole))
       actNeglect.triggered.connect(self.neglectDistance)
 
-      actReset = QAction(QIcon(':/icons/edit-clear-all.svg'), self.tr('Reset appearance'), self)
+      actReset = QAction(QIcon(self.themeSelector.select(':/icons/edit-clear-all.svg')), self.tr('Reset appearance'), self)
       actReset.setStatusTip(self.tr('Reset appearance of these waypoints'))
       actReset.setDisabled(actSkip.isChecked())
       actReset.triggered.connect(self.resetPoints)
 
-      actRename = QAction(QIcon(':/icons/edit-rename.svg'), self.tr('Rename...'), self)
+      actRename = QAction(QIcon(self.themeSelector.select(':/icons/edit-rename.svg')), self.tr('Rename...'), self)
       actRename.setStatusTip(self.tr('Rename these waypoints'))
       actRename.triggered.connect(self.renamePoints)
-      actResetName = QAction(QIcon(':/icons/edit-clear.svg'), self.tr('Reset name'), self)
+      actResetName = QAction(QIcon(self.themeSelector.select(':/icons/edit-clear.svg')), self.tr('Reset name'), self)
       actResetName.setStatusTip(self.tr('Reset the names of these waypoints'))
       actResetName.triggered.connect(self.resetPointNames)
 
-      actStyle = QAction(QIcon(':/icons/configure.svg'), self.tr('Point style'), self)
+      actStyle = QAction(QIcon(self.themeSelector.select(':/icons/configure.svg')), self.tr('Point style'), self)
       actStyle.setStatusTip(self.tr('Change the style of these waypoints when plotting profiles'))
       actStyle.triggered.connect(self.pointStyle)
 
@@ -242,7 +247,7 @@ class GpxMainWindow(QMainWindow):
       actShowTopoMap.triggered.connect(self.showTopoMap)
 
       showMapMenu = QMenu(self.tr('Show on map'), self)
-      showMapMenu.setIcon(QIcon(':/icons/internet-services.svg'))
+      showMapMenu.setIcon(QIcon(self.themeSelector.select(':/icons/internet-services.svg')))
       showMapMenu.addAction(actShowGoogleMap)
       showMapMenu.addAction(actShowYandexMap)
       showMapMenu.addAction(actShowZoomEarthMap)
@@ -256,7 +261,7 @@ class GpxMainWindow(QMainWindow):
 
   def trkContextMenuEvent(self, event):
     if self.ui.trkView.selectionModel().hasSelection():
-      actSkip = QAction(QIcon(':/icons/waypoint-skip.svg'), self.tr('Skip tracks'), self)
+      actSkip = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-skip.svg')), self.tr('Skip tracks'), self)
       actSkip.setStatusTip(self.tr('Skip these tracks when plotting profiles or calculating statistics'))
       actSkip.setCheckable(True)
       actSkip.setChecked(not self.ui.trkView.currentIndex().data(gpx.IncludeRole))

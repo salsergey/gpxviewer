@@ -16,7 +16,7 @@
 
 import webbrowser
 from math import ceil
-from PyQt5.QtCore import Qt, QCoreApplication, QEvent, QMargins, QSortFilterProxyModel, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import Qt, QCoreApplication, QEvent, QFileSelector, QMargins, QSortFilterProxyModel, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import qAlpha, QColor, QCursor, QFont, QGuiApplication, QIcon, QPalette, QPen
 from PyQt5.QtWidgets import QAction, QDialog, QMenu, QMessageBox, QSizePolicy
 from qcustomplot import (QCP, QCustomPlot, QCPAxisTickerFixed, QCPDataRange, QCPDataSelection,
@@ -33,6 +33,9 @@ class PlotCanvas(QCustomPlot):
     self.font = QFont()
     self.font.setStyleHint(QFont.SansSerif)
 
+    self.themeSelector = QFileSelector()
+    self.themeSelector.setExtraSelectors([TheConfig['MainWindow']['ColorTheme']])
+
     self.axisRect().setupFullAxesBox(True)
     self.xTicker = AxisTicker(Qt.Horizontal)
     self.xAxis.setTicker(self.xTicker)
@@ -42,11 +45,7 @@ class PlotCanvas(QCustomPlot):
     self.yAxis.setTicker(self.yTicker)
     self.yTicker2 = AxisTicker(Qt.Vertical)
     self.yAxis2.setTicker(self.yTicker2)
-
     self.xAxis.grid().setVisible(False)
-    gridColor = QColor(Qt.gray)
-    gridColor.setAlpha(150)
-    self.yAxis.grid().setPen(QPen(gridColor, 1, Qt.DashLine))
 
     self.addLayer('profile', self.layer('main'), QCustomPlot.limBelow)
 
@@ -117,6 +116,24 @@ class PlotCanvas(QCustomPlot):
       self.maxalt = TheConfig.getValue('ProfileStyle', 'MaximumAltitude')
 
   def updateAxes(self):
+    if TheConfig.getValue('ProfileStyle', 'UseSystemTheme'):
+      textColor = QGuiApplication.palette().text().color()
+      self.setBackground(QGuiApplication.palette().base())
+      gridColor = QGuiApplication.palette().light().color() if TheConfig['MainWindow']['ColorTheme'] == 'dark_theme' else QGuiApplication.palette().mid().color()
+    else:
+      textColor = QColor(Qt.black)
+      self.setBackground(QColor(Qt.white))
+      gridColor = QColor(Qt.gray)
+
+    for axis in {self.xAxis, self.xAxis2, self.yAxis, self.yAxis2}:
+      axis.setBasePen(QPen(textColor))
+      axis.setTickPen(QPen(textColor))
+      axis.setSubTickPen(QPen(textColor))
+      axis.setLabelColor(textColor)
+      axis.setTickLabelColor(textColor)
+    gridColor.setAlpha(150)
+    self.yAxis.grid().setPen(QPen(gridColor, 1, Qt.DashLine))
+
     self.xAxis.setRangeUpper(self.xx[-1])
     self.yAxis.setRange(self.minalt, self.maxalt)
     self.xTicker.setType(self.column)
@@ -227,19 +244,19 @@ class PlotCanvas(QCustomPlot):
     super(PlotCanvas, self).wheelEvent(event)
 
   def contextMenu(self):
-    actMarker = QAction(QIcon(':/icons/waypoint-marker.svg'), self.tr('Points with markers'), self)
+    actMarker = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-marker.svg')), self.tr('Points with markers'), self)
     actMarker.setCheckable(True)
     actMarker.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.MarkerRole))
     actMarker.triggered.connect(self.onMarkerPoints)
-    actCaption = QAction(QIcon(':/icons/waypoint-caption.svg'), self.tr('Points with captions'), self)
+    actCaption = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-caption.svg')), self.tr('Points with captions'), self)
     actCaption.setCheckable(True)
     actCaption.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionRole))
     actCaption.triggered.connect(self.onCaptionPoints)
-    actSplit = QAction(QIcon(':/icons/waypoint-splitline.svg'), self.tr('Points with splitting lines'), self)
+    actSplit = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-splitline.svg')), self.tr('Points with splitting lines'), self)
     actSplit.setCheckable(True)
     actSplit.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.SplitLineRole))
     actSplit.triggered.connect(self.onSplitLines)
-    actStyle = QAction(QIcon(':/icons/configure.svg'), self.tr('Point style'), self)
+    actStyle = QAction(QIcon(self.themeSelector.select(':/icons/configure.svg')), self.tr('Point style'), self)
     actStyle.triggered.connect(self.onPointStyle)
 
     menu = QMenu(self)
@@ -264,7 +281,7 @@ class PlotCanvas(QCustomPlot):
     actShowTopoMap.triggered.connect(self.showTopoMap)
 
     showMapMenu = QMenu(self.tr('Show on map'), self)
-    showMapMenu.setIcon(QIcon(':/icons/internet-services.svg'))
+    showMapMenu.setIcon(QIcon(self.themeSelector.select(':/icons/internet-services.svg')))
     showMapMenu.addAction(actShowGoogleMap)
     showMapMenu.addAction(actShowYandexMap)
     showMapMenu.addAction(actShowZoomEarthMap)
@@ -461,6 +478,10 @@ class CaptionItem(QCPItemText):
     self.font = QFont()
     self.font.setStyleHint(QFont.SansSerif)
     self.font.setFamily(TheConfig.getValue('ProfileStyle', 'FontFamily'))
+    if TheConfig.getValue('ProfileStyle', 'UseSystemTheme'):
+      self.setColor(QGuiApplication.palette().text().color())
+    else:
+      self.setColor(QColor(Qt.black))
     self.setText(TheDocument.wptmodel.index(self.idx, gpx.NAME).data())
 
     self.setClipToAxisRect(False)

@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5.QtCore import Qt, QFileInfo, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import Qt, QFileInfo, QFileSelector, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import QFileDialog, QHBoxLayout, QLabel, QMainWindow, QSizePolicy, QSpacerItem, QSpinBox, QWidget
 from gpxviewer.configstore import TheConfig
@@ -28,8 +28,10 @@ class PlotWindow(QMainWindow):
     self.ui.setupUi(self)
 
     self.setWindowIcon(QIcon(':/icons/gpxviewer.svg'))
-    self.ui.actExportCurrentSize.setIcon(QIcon.fromTheme('document-save', QIcon(':/icons/document-save.svg')))
-    self.ui.actExportSelectedSize.setIcon(QIcon.fromTheme('document-save-as', QIcon(':/icons/document-save-as.svg')))
+    self.themeSelector = QFileSelector()
+    self.themeSelector.setExtraSelectors([TheConfig['MainWindow']['ColorTheme']])
+    self.ui.actExportCurrentSize.setIcon(QIcon(self.themeSelector.select(':/icons/document-save.svg')))
+    self.ui.actExportSelectedSize.setIcon(QIcon(self.themeSelector.select(':/icons/document-save-as.svg')))
 
     self.ui.actExportCurrentSize.setShortcut(QKeySequence.Save)
     self.ui.actExportSelectedSize.setShortcut(QKeySequence.SaveAs)

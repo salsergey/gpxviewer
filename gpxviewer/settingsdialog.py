@@ -34,6 +34,7 @@ class SettingsDialog(QDialog):
     self.settings['MaximumAltitude'] = TheConfig.getValue('ProfileStyle', 'MaximumAltitude')
     self.settings['SelectedPointsOnly'] = TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly')
     self.settings['AutoscaleAltitudes'] = TheConfig.getValue('ProfileStyle', 'AutoscaleAltitudes')
+    self.settings['UseSystemTheme'] = TheConfig.getValue('ProfileStyle', 'UseSystemTheme')
     self.settings['FontFamily'] = TheConfig.getValue('ProfileStyle', 'FontFamily')
     self.settings['FontSize'] = TheConfig.getValue('ProfileStyle', 'FontSize')
     self.settings['DistanceCoefficient'] = TheConfig.getValue('ProfileStyle', 'DistanceCoefficient')
@@ -51,6 +52,7 @@ class SettingsDialog(QDialog):
     self.ui.maxaltSpinBox.setValue(self.settings['MaximumAltitude'])
     self.ui.selectedPointsCheckBox.setChecked(self.settings['SelectedPointsOnly'])
     self.ui.autoscaleAltitudesCheckBox.setChecked(self.settings['AutoscaleAltitudes'])
+    self.ui.useSystemThemeCheckBox.setChecked(self.settings['UseSystemTheme'])
     self.ui.fontFamilyBox.setCurrentText(self.settings['FontFamily'])
     self.ui.fontSizeSpinBox.setValue(self.settings['FontSize'])
     self.ui.distanceCoeffSpinBox.setValue(self.settings['DistanceCoefficient'])
@@ -65,6 +67,7 @@ class SettingsDialog(QDialog):
     self.ui.maxaltSpinBox.valueChanged.connect(self.setMaximumAltitude)
     self.ui.selectedPointsCheckBox.toggled[bool].connect(self.setSelectedPointsOnly)
     self.ui.autoscaleAltitudesCheckBox.toggled[bool].connect(self.setAutoscaleAltitudes)
+    self.ui.useSystemThemeCheckBox.toggled[bool].connect(self.setUseSystemTheme)
     self.ui.fontFamilyBox.currentTextChanged.connect(self.setFontFamily)
     self.ui.fontSizeSpinBox.valueChanged.connect(self.setFontSize)
     self.ui.distanceCoeffSpinBox.valueChanged.connect(self.setDistanceCoefficient)
@@ -82,6 +85,7 @@ class SettingsDialog(QDialog):
     TheConfig['ProfileStyle']['MaximumAltitude'] = str(self.settings['MaximumAltitude'])
     TheConfig['ProfileStyle']['SelectedPointsOnly'] = str(self.settings['SelectedPointsOnly'])
     TheConfig['ProfileStyle']['AutoscaleAltitudes'] = str(self.settings['AutoscaleAltitudes'])
+    TheConfig['ProfileStyle']['UseSystemTheme'] = str(self.settings['UseSystemTheme'])
     TheConfig['ProfileStyle']['FontFamily'] = str(self.settings['FontFamily'])
     TheConfig['ProfileStyle']['FontSize'] = str(self.settings['FontSize'])
     TheConfig['ProfileStyle']['DistanceCoefficient'] = str(self.settings['DistanceCoefficient'])
@@ -118,6 +122,10 @@ class SettingsDialog(QDialog):
   @pyqtSlot(bool)
   def setAutoscaleAltitudes(self, enabled):
     self.settings['AutoscaleAltitudes'] = enabled
+
+  @pyqtSlot(bool)
+  def setUseSystemTheme(self, enabled):
+    self.settings['UseSystemTheme'] = enabled
 
   @pyqtSlot()
   def setFontFamily(self):

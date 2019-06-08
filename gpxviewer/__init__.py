@@ -18,13 +18,19 @@
 import sys
 from PyQt5.QtCore import QCoreApplication, QLocale, QTranslator
 from PyQt5.QtWidgets import QApplication
+from gpxviewer.configstore import TheConfig
 import gpxviewer.rc_gpxviewer
 
 
 def main():
   app = QApplication(sys.argv)
   QCoreApplication.setApplicationName('GPX Viewer')
-  QCoreApplication.setApplicationVersion('1.1')
+  QCoreApplication.setApplicationVersion('1.2')
+
+  if app.palette().window().color().lightness() < app.palette().windowText().color().lightness():
+    TheConfig['MainWindow']['ColorTheme'] = 'dark_theme'
+  else:
+    TheConfig['MainWindow']['ColorTheme'] = 'light_theme'
 
   translator = QTranslator(app)
   translator.load(QLocale(), 'gpxviewer', '_', ':/translations')

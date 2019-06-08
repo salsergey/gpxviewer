@@ -70,6 +70,7 @@ class ConfigStore(configparser.ConfigParser):
                                  'MaximumAltitude': 1000,
                                  'SelectedPointsOnly': False,
                                  'AutoscaleAltitudes': False,
+                                 'UseSystemTheme': False,
                                  'FontSize': 12,
                                  'DistanceCoefficient': 1.0,
                                  'TimeZoneOffset': 420,
@@ -120,7 +121,7 @@ class ConfigStore(configparser.ConfigParser):
         return int(self['ProfileStyle'][key])
       elif key in {'ProfileWidth', 'DistanceCoefficient'}:
         return float(self['ProfileStyle'][key])
-      elif key in {'SelectedPointsOnly', 'AutoscaleAltitudes'}:
+      elif key in {'SelectedPointsOnly', 'AutoscaleAltitudes', 'UseSystemTheme'}:
         return self['ProfileStyle'].getboolean(key)
       else:
         return self['ProfileStyle'][key]
