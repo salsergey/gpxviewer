@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QDialog
 from gpxviewer.configstore import TheConfig
@@ -26,6 +27,10 @@ class SettingsDialog(QDialog):
     self.ui = gpxviewer.ui_settingsdialog.Ui_settingsDialog()
     self.ui.setupUi(self)
     self.setMinimumWidth(260)
+    if os.name == 'nt':
+      self.ui.useSystemThemeLabel.hide()
+      self.ui.useSystemThemeCheckBox.hide()
+
     self.settings = {}
     self.settings['ProfileColor'] = TheConfig.getValue('ProfileStyle', 'ProfileColor')
     self.settings['FillColor'] = TheConfig.getValue('ProfileStyle', 'FillColor')

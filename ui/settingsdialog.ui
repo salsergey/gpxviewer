@@ -184,7 +184,7 @@
           </widget>
          </item>
          <item row="5" column="0">
-          <widget class="QLabel" name="label_7">
+          <widget class="QLabel" name="useSystemThemeLabel">
            <property name="toolTip">
             <string>Use system color theme instead of default light theme</string>
            </property>
