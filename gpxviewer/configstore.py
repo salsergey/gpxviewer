@@ -69,10 +69,12 @@ class ConfigStore(configparser.ConfigParser):
                                  'MinimumAltitude': 0,
                                  'MaximumAltitude': 1000,
                                  'SelectedPointsOnly': False,
+                                 'StartFromZero': True,
                                  'AutoscaleAltitudes': False,
                                  'UseSystemTheme': False,
                                  'FontSize': 12,
                                  'DistanceCoefficient': 1.0,
+                                 'ShowDistanceCoefficient': True,
                                  'TimeZoneOffset': 420,
                                  'ReadNameFromTag': 0,
                                  'CoordinateFormat': 0},
@@ -85,6 +87,8 @@ class ConfigStore(configparser.ConfigParser):
                                'CaptionPositionEnabled': True,
                                'CaptionPositionX': 0,
                                'CaptionPositionY': 5,
+                               'CaptionRotationEnabled': True,
+                               'CaptionRotation': 90,
                                'CaptionSizeEnabled': True,
                                'CaptionSize': 12,
                                'SplitLineColorEnabled': True,
@@ -121,18 +125,18 @@ class ConfigStore(configparser.ConfigParser):
         return int(self['ProfileStyle'][key])
       elif key in {'ProfileWidth', 'DistanceCoefficient'}:
         return float(self['ProfileStyle'][key])
-      elif key in {'SelectedPointsOnly', 'AutoscaleAltitudes', 'UseSystemTheme'}:
+      elif key in {'SelectedPointsOnly', 'StartFromZero', 'AutoscaleAltitudes', 'UseSystemTheme', 'ShowDistanceCoefficient'}:
         return self['ProfileStyle'].getboolean(key)
       else:
         return self['ProfileStyle'][key]
 
     elif group == 'PointStyle':
-      if key in {'MarkerColor', 'MarkerSize', 'CaptionPositionX', 'CaptionPositionY', 'CaptionSize', 'SplitLineColor'}:
+      if key in {'MarkerColor', 'MarkerSize', 'CaptionPositionX', 'CaptionPositionY', 'CaptionRotation', 'CaptionSize', 'SplitLineColor'}:
         return int(self['PointStyle'][key])
       elif key in {'SplitLineWidth'}:
         return float(self['PointStyle'][key])
       elif key in {'MarkerColorEnabled', 'MarkerStyleEnabled', 'MarkerSizeEnabled',
-                   'CaptionPositionEnabled', 'CaptionSizeEnabled',
+                   'CaptionPositionEnabled', 'CaptionRotationEnabled', 'CaptionSizeEnabled',
                    'SplitLineColorEnabled', 'SplitLineStyleEnabled', 'SplitLineWidthEnabled'}:
         return self['PointStyle'].getboolean(key)
       else:

@@ -2,9 +2,10 @@
 
 # Form implementation generated from reading ui file 'ui/statwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.2
+# Created by: PyQt5 UI code generator 5.13.0
 #
 # WARNING! All changes made in this file will be lost!
+
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -135,5 +136,3 @@ class Ui_StatWindow(object):
         self.label_4.setText(_translate("StatWindow", "Time"))
         self.actionBySplittingLines.setText(_translate("StatWindow", "By splitting lines"))
         self.actionBySplittingLines.setToolTip(_translate("StatWindow", "Divide into segments by splitting lines (or by regular expression)"))
-
-

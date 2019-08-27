@@ -25,8 +25,8 @@ from gpxviewer.configstore import TheConfig
 WPTFIELDS = NAME, LAT, LON, ALT, DIST, TIME, TIMEDELTA, TIME_DAYS = range(8)
 TRKFIELDS = TRKNAME, TRKSEGS, TRKPTS, TRKLEN, TRKTIME, TRKDUR = range(6)
 ValueRole, IDRole, IncludeRole, MarkerRole, CaptionRole, SplitLineRole, NeglectRole, MarkerStyleRole, CaptionStyleRole, SplitLineStyleRole = range(Qt.UserRole, Qt.UserRole + 10)
-MARKER_COLOR, MARKER_STYLE, MARKER_SIZE, CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE, LINE_COLOR, LINE_STYLE, LINE_WIDTH = \
-  ('MarkerColor', 'MarkerStyle', 'MarkerSize', 'CaptionPositionX', 'CaptionPositionY', 'CaptionSize', 'SplitLineColor', 'SplitLineStyle', 'SplitLineWidth')
+MARKER_COLOR, MARKER_STYLE, MARKER_SIZE, CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE, LINE_COLOR, LINE_STYLE, LINE_WIDTH = \
+  ('MarkerColor', 'MarkerStyle', 'MarkerSize', 'CaptionPositionX', 'CaptionPositionY', 'CaptionRotation', 'CaptionSize', 'SplitLineColor', 'SplitLineStyle', 'SplitLineWidth')
 
 
 class GpxWarning(Exception):
@@ -111,10 +111,10 @@ class WptModel(QAbstractTableModel):
       else:
         return {k: TheConfig.getValue('PointStyle', k) for k in {MARKER_COLOR, MARKER_STYLE, MARKER_SIZE}}
     elif role == CaptionStyleRole:
-      if all([k in self.pointStyles[index.row()] for k in {CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE}]):
-        return {k: self.pointStyles[index.row()][k] for k in {CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE}}
+      if all([k in self.pointStyles[index.row()] for k in {CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE}]):
+        return {k: self.pointStyles[index.row()][k] for k in {CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE}}
       else:
-        return {k: TheConfig.getValue('PointStyle', k) for k in {CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE}}
+        return {k: TheConfig.getValue('PointStyle', k) for k in {CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE}}
     elif role == SplitLineStyleRole:
       if all([k in self.pointStyles[index.row()] for k in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}]):
         return {k: self.pointStyles[index.row()][k] for k in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}}
@@ -165,10 +165,11 @@ class WptModel(QAbstractTableModel):
       return super(WptModel, self).parent()
 
   def copyToClipboard(self, IDs):
-    text = ''
-    for i in IDs:
-      text += '\t'.join([self.index(i, f).data() for f in TheConfig.columnsToCopy]) + '\n'
-    QGuiApplication.clipboard().setText(text)
+    if len(IDs) > 0:
+      text = ''
+      for i in IDs:
+        text += '\t'.join([self.index(i, f).data() for f in TheConfig.columnsToCopy]) + '\n'
+      QGuiApplication.clipboard().setText(text)
 
   def getSkippedPoints(self):
     return [i for i, s in enumerate(self.includeStates) if not s]
@@ -188,7 +189,7 @@ class WptModel(QAbstractTableModel):
   def getPointStyles(self, key):
     if key in {MARKER_COLOR, MARKER_STYLE, MARKER_SIZE}:
       return [p[key] for i, p in enumerate(self.pointStyles) if self.markerStates[i]]
-    if key in {CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE}:
+    if key in {CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE}:
       return [p[key] for i, p in enumerate(self.pointStyles) if self.captionStates[i]]
     if key in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}:
       return [p[key] for i, p in enumerate(self.pointStyles) if self.splitStates[i]]
@@ -223,7 +224,7 @@ class WptModel(QAbstractTableModel):
   def setCaptionStates(self, IDs, state):
     for i in IDs:
       self.captionStates[i] = state
-      for key in {CAPTION_POSX, CAPTION_POSY, CAPTION_SIZE}:
+      for key in {CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE}:
         if key not in self.pointStyles[i]:
           self.pointStyles[i][key] = TheConfig.getValue('PointStyle', key)
     self.wptDataChanged.emit()
@@ -562,9 +563,10 @@ class GpxParser(QObject):
         el = ET.Element('ele')
         el.text = str(p[ALT])
         element.append(el)
-        el = ET.Element('time')
-        el.text = p[TIME].strftime('%Y-%m-%dT%H:%M:%SZ')
-        element.append(el)
+        if p[TIME] != '':
+          el = ET.Element('time')
+          el.text = p[TIME].strftime('%Y-%m-%dT%H:%M:%SZ')
+          element.append(el)
         el = ET.Element('name')
         if p['ID'] in self.wptmodel.changedNames:
           el.text = self.wptmodel.changedNames[p['ID']]
@@ -747,6 +749,34 @@ def markerPath(style, size):
     path.lineTo(center + r * QPointF(cos(2*pi/3), sin(2*pi/3)))
     path.moveTo(center)
     path.lineTo(center + r * QPointF(cos(4*pi/3), sin(4*pi/3)))
+  elif style == 'ad':
+    path.moveTo(center + r * QPointF(0, 1))
+    path.lineTo(center + 0.7 * r * QPointF(-1, 0))
+    path.moveTo(center + r * QPointF(0, 1))
+    path.lineTo(center + 0.7 * r * QPointF(1, 0))
+    path.moveTo(center + r * QPointF(0, 1))
+    path.lineTo(center + r * QPointF(0, -1))
+  elif style == 'au':
+    path.moveTo(center + r * QPointF(0, -1))
+    path.lineTo(center + 0.7 * r * QPointF(-1, 0))
+    path.moveTo(center + r * QPointF(0, -1))
+    path.lineTo(center + 0.7 * r * QPointF(1, 0))
+    path.moveTo(center + r * QPointF(0, -1))
+    path.lineTo(center + r * QPointF(0, 1))
+  elif style == 'al':
+    path.moveTo(center + r * QPointF(-1, 0))
+    path.lineTo(center + 0.7 * r * QPointF(0, -1))
+    path.moveTo(center + r * QPointF(-1, 0))
+    path.lineTo(center + 0.7 * r * QPointF(0, 1))
+    path.moveTo(center + r * QPointF(-1, 0))
+    path.lineTo(center + r * QPointF(1, 0))
+  elif style == 'ar':
+    path.moveTo(center + r * QPointF(1, 0))
+    path.lineTo(center + 0.7 * r * QPointF(0, -1))
+    path.moveTo(center + r * QPointF(1, 0))
+    path.lineTo(center + 0.7 * r * QPointF(0, 1))
+    path.moveTo(center + r * QPointF(1, 0))
+    path.lineTo(center + r * QPointF(-1, 0))
   elif style == 's':
     path.addRect((1 - sqrt(0.5)) * r, (1 - sqrt(0.5)) * r, sqrt(2.0) * r, sqrt(2.0) * r)
   elif style == 'p':
@@ -813,7 +843,7 @@ def _markerIcon(style, color):
   pix.fill(Qt.transparent)
   p = QPainter(pix)
   p.setRenderHint(QPainter.Antialiasing)
-  if style in {'1', '2', '3', '4', '+', 'x', '_', '|'}:
+  if style in {'1', '2', '3', '4', 'ad', 'au', 'al', 'ar', '+', 'x', '_', '|'}:
     p.setPen(QPen(QColor(color), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
   else:
     p.setPen(QPen(QColor(color), 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))

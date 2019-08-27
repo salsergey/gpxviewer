@@ -397,7 +397,7 @@ class GpxMainWindow(QMainWindow):
 
     dlg = QDialog(self)
     dlg.setWindowTitle(self.tr('Rename waypoints'))
-    vLayout = QVBoxLayout(dlg)
+    vLayout = QVBoxLayout()
     vLayout.addWidget(QLabel(self.tr('Enter new name for ') + str(len(indexes)) + self.tr(' waypoints:')))
     dlg.setLayout(vLayout)
 
@@ -406,7 +406,7 @@ class GpxMainWindow(QMainWindow):
     nameEdit.setSelection(0, len(first_name))
     vLayout.addWidget(nameEdit)
 
-    hLayout = QHBoxLayout(dlg)
+    hLayout = QHBoxLayout()
     hLayout.addWidget(QLabel(self.tr('Several symbols "#" will be replaced by sequential numbers starting from:')))
     vLayout.addLayout(hLayout)
 

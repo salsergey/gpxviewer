@@ -72,6 +72,7 @@ class GpxDocument(QObject):
 
     self.doc['CaptionPositionXs'] = self.wptmodel.getPointStyles(gpx.CAPTION_POSX)
     self.doc['CaptionPositionYs'] = self.wptmodel.getPointStyles(gpx.CAPTION_POSY)
+    self.doc['CaptionRotation'] = self.wptmodel.getPointStyles(gpx.CAPTION_ROTATION)
     self.doc['CaptionSizes'] = self.wptmodel.getPointStyles(gpx.CAPTION_SIZE)
 
     self.doc['ChangedNames'] = list(self.wptmodel.changedNames.keys())
@@ -202,6 +203,8 @@ class GpxDocument(QObject):
         TheConfig['ProfileStyle']['MaximumAltitude'] = self.doc['MaximumAltitude']
       if 'SelectedPointsOnly' in self.doc:
         TheConfig['ProfileStyle']['SelectedPointsOnly'] = self.doc['SelectedPointsOnly']
+      if 'StartFromZero' in self.doc:
+        TheConfig['ProfileStyle']['StartFromZero'] = self.doc['StartFromZero']
       if 'AutoscaleAltitudes' in self.doc:
         TheConfig['ProfileStyle']['AutoscaleAltitudes'] = self.doc['AutoscaleAltitudes']
       if 'UseSystemTheme' in self.doc:
@@ -212,6 +215,8 @@ class GpxDocument(QObject):
         TheConfig['ProfileStyle']['FontFamily'] = self.doc['FontFamily']
       if 'DistanceCoefficient' in self.doc:
         TheConfig['ProfileStyle']['DistanceCoefficient'] = self.doc['DistanceCoefficient']
+      if 'ShowDistanceCoefficient' in self.doc:
+        TheConfig['ProfileStyle']['ShowDistanceCoefficient'] = self.doc['ShowDistanceCoefficient']
       if 'TimeZoneOffset' in self.doc:
         TheConfig['ProfileStyle']['TimeZoneOffset'] = self.doc['TimeZoneOffset']
       if 'ReadNameFromTag' in self.doc:
@@ -250,6 +255,9 @@ class GpxDocument(QObject):
       if 'CaptionPoints' in self.doc and 'CaptionPositionYs' in self.doc:
         for i, m in zip(self.doc['CaptionPoints'], self.doc['CaptionPositionYs']):
           self.wptmodel.setPointStyle([i], gpx.CAPTION_POSY, m)
+      if 'CaptionPoints' in self.doc and 'CaptionRotation' in self.doc:
+        for i, m in zip(self.doc['CaptionPoints'], self.doc['CaptionRotation']):
+          self.wptmodel.setPointStyle([i], gpx.CAPTION_ROTATION, m)
       if 'CaptionPoints' in self.doc and 'CaptionSizes' in self.doc:
         for i, m in zip(self.doc['CaptionPoints'], self.doc['CaptionSizes']):
           self.wptmodel.setPointStyle([i], gpx.CAPTION_SIZE, m)

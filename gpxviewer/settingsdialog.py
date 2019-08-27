@@ -38,11 +38,13 @@ class SettingsDialog(QDialog):
     self.settings['MinimumAltitude'] = TheConfig.getValue('ProfileStyle', 'MinimumAltitude')
     self.settings['MaximumAltitude'] = TheConfig.getValue('ProfileStyle', 'MaximumAltitude')
     self.settings['SelectedPointsOnly'] = TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly')
+    self.settings['StartFromZero'] = TheConfig.getValue('ProfileStyle', 'StartFromZero')
     self.settings['AutoscaleAltitudes'] = TheConfig.getValue('ProfileStyle', 'AutoscaleAltitudes')
     self.settings['UseSystemTheme'] = TheConfig.getValue('ProfileStyle', 'UseSystemTheme')
     self.settings['FontFamily'] = TheConfig.getValue('ProfileStyle', 'FontFamily')
     self.settings['FontSize'] = TheConfig.getValue('ProfileStyle', 'FontSize')
     self.settings['DistanceCoefficient'] = TheConfig.getValue('ProfileStyle', 'DistanceCoefficient')
+    self.settings['ShowDistanceCoefficient'] = TheConfig.getValue('ProfileStyle', 'ShowDistanceCoefficient')
     self.settings['TimeZoneOffset'] = TheConfig.getValue('ProfileStyle', 'TimeZoneOffset')
     self.settings['ReadNameFromTag'] = TheConfig.getValue('ProfileStyle', 'ReadNameFromTag')
     self.settings['CoordinateFormat'] = TheConfig.getValue('ProfileStyle', 'CoordinateFormat')
@@ -56,14 +58,21 @@ class SettingsDialog(QDialog):
     self.ui.minaltSpinBox.setValue(self.settings['MinimumAltitude'])
     self.ui.maxaltSpinBox.setValue(self.settings['MaximumAltitude'])
     self.ui.selectedPointsCheckBox.setChecked(self.settings['SelectedPointsOnly'])
+    self.ui.startFromZeroCheckBox.setChecked(self.settings['StartFromZero'])
     self.ui.autoscaleAltitudesCheckBox.setChecked(self.settings['AutoscaleAltitudes'])
     self.ui.useSystemThemeCheckBox.setChecked(self.settings['UseSystemTheme'])
     self.ui.fontFamilyBox.setCurrentText(self.settings['FontFamily'])
     self.ui.fontSizeSpinBox.setValue(self.settings['FontSize'])
     self.ui.distanceCoeffSpinBox.setValue(self.settings['DistanceCoefficient'])
+    self.ui.showCoefficientCheckBox.setChecked(self.settings['ShowDistanceCoefficient'])
     self.ui.timezoneSpinBox.setValue(self.settings['TimeZoneOffset'])
     self.ui.nameTagBox.setCurrentIndex(self.settings['ReadNameFromTag'])
     self.ui.coordinateBox.setCurrentIndex(self.settings['CoordinateFormat'])
+
+    self.ui.startFromZeroCheckBox.setEnabled(self.settings['SelectedPointsOnly'])
+    self.ui.startFromZeroLabel.setEnabled(self.settings['SelectedPointsOnly'])
+    self.ui.showCoefficientCheckBox.setEnabled(self.settings['DistanceCoefficient'] != 1.0)
+    self.ui.showCoefficientLabel.setEnabled(self.settings['DistanceCoefficient'] != 1.0)
 
     self.ui.profileColorButton.colorSet.connect(self.setProfileColor)
     self.ui.fillColorButton.colorSet.connect(self.setFillColor)
@@ -71,11 +80,13 @@ class SettingsDialog(QDialog):
     self.ui.minaltSpinBox.valueChanged.connect(self.setMinimumAltitude)
     self.ui.maxaltSpinBox.valueChanged.connect(self.setMaximumAltitude)
     self.ui.selectedPointsCheckBox.toggled[bool].connect(self.setSelectedPointsOnly)
+    self.ui.startFromZeroCheckBox.toggled[bool].connect(self.setStartFromZero)
     self.ui.autoscaleAltitudesCheckBox.toggled[bool].connect(self.setAutoscaleAltitudes)
     self.ui.useSystemThemeCheckBox.toggled[bool].connect(self.setUseSystemTheme)
     self.ui.fontFamilyBox.currentTextChanged.connect(self.setFontFamily)
     self.ui.fontSizeSpinBox.valueChanged.connect(self.setFontSize)
     self.ui.distanceCoeffSpinBox.valueChanged.connect(self.setDistanceCoefficient)
+    self.ui.showCoefficientCheckBox.toggled[bool].connect(self.setShowDistanceCoefficient)
     self.ui.timezoneSpinBox.valueChanged.connect(self.setTimeZoneOffset)
     self.ui.nameTagBox.currentIndexChanged.connect(self.setNameTag)
     self.ui.coordinateBox.currentIndexChanged.connect(self.setCoordinateFormat)
@@ -89,11 +100,13 @@ class SettingsDialog(QDialog):
     TheConfig['ProfileStyle']['MinimumAltitude'] = str(self.settings['MinimumAltitude'])
     TheConfig['ProfileStyle']['MaximumAltitude'] = str(self.settings['MaximumAltitude'])
     TheConfig['ProfileStyle']['SelectedPointsOnly'] = str(self.settings['SelectedPointsOnly'])
+    TheConfig['ProfileStyle']['StartFromZero'] = str(self.settings['StartFromZero'])
     TheConfig['ProfileStyle']['AutoscaleAltitudes'] = str(self.settings['AutoscaleAltitudes'])
     TheConfig['ProfileStyle']['UseSystemTheme'] = str(self.settings['UseSystemTheme'])
     TheConfig['ProfileStyle']['FontFamily'] = str(self.settings['FontFamily'])
     TheConfig['ProfileStyle']['FontSize'] = str(self.settings['FontSize'])
     TheConfig['ProfileStyle']['DistanceCoefficient'] = str(self.settings['DistanceCoefficient'])
+    TheConfig['ProfileStyle']['ShowDistanceCoefficient'] = str(self.settings['ShowDistanceCoefficient'])
     TheConfig['ProfileStyle']['TimeZoneOffset'] = str(self.settings['TimeZoneOffset'])
     TheConfig['ProfileStyle']['ReadNameFromTag'] = str(self.settings['ReadNameFromTag'])
     TheConfig['ProfileStyle']['CoordinateFormat'] = str(self.settings['CoordinateFormat'])
@@ -123,6 +136,12 @@ class SettingsDialog(QDialog):
   @pyqtSlot(bool)
   def setSelectedPointsOnly(self, enabled):
     self.settings['SelectedPointsOnly'] = enabled
+    self.ui.startFromZeroCheckBox.setEnabled(self.settings['SelectedPointsOnly'])
+    self.ui.startFromZeroLabel.setEnabled(self.settings['SelectedPointsOnly'])
+
+  @pyqtSlot(bool)
+  def setStartFromZero(self, enabled):
+    self.settings['StartFromZero'] = enabled
 
   @pyqtSlot(bool)
   def setAutoscaleAltitudes(self, enabled):
@@ -143,6 +162,12 @@ class SettingsDialog(QDialog):
   @pyqtSlot()
   def setDistanceCoefficient(self):
     self.settings['DistanceCoefficient'] = round(self.ui.distanceCoeffSpinBox.value(), self.ui.distanceCoeffSpinBox.decimals())
+    self.ui.showCoefficientCheckBox.setEnabled(self.settings['DistanceCoefficient'] != 1.0)
+    self.ui.showCoefficientLabel.setEnabled(self.settings['DistanceCoefficient'] != 1.0)
+
+  @pyqtSlot(bool)
+  def setShowDistanceCoefficient(self, enabled):
+    self.settings['ShowDistanceCoefficient'] = enabled
 
   @pyqtSlot()
   def setTimeZoneOffset(self):

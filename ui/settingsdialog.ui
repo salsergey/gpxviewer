@@ -120,38 +120,6 @@
           </widget>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="toolTip">
-            <string>Plot profiles taking into account only selected points and tracks</string>
-           </property>
-           <property name="text">
-            <string>Use only selected points</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QCheckBox" name="selectedPointsCheckBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Plot profiles taking into account only selected points and tracks</string>
-           </property>
-           <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
           <widget class="QLabel" name="label_6">
            <property name="toolTip">
             <string>Automatically scale minimum/maximum altitudes when plotting profile</string>
@@ -161,7 +129,7 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="3" column="1">
           <widget class="QCheckBox" name="autoscaleAltitudesCheckBox">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -183,7 +151,7 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
+         <item row="4" column="0">
           <widget class="QLabel" name="useSystemThemeLabel">
            <property name="toolTip">
             <string>Use system color theme instead of default light theme</string>
@@ -193,7 +161,7 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="4" column="1">
           <widget class="QCheckBox" name="useSystemThemeCheckBox">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -209,6 +177,90 @@
            </property>
            <property name="toolTip">
             <string>Use system color theme instead of default light theme</string>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="toolTip">
+            <string>Plot profiles taking into account only selected points and tracks</string>
+           </property>
+           <property name="text">
+            <string>Use only selected points</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QCheckBox" name="selectedPointsCheckBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Plot profiles taking into account only selected points and tracks</string>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="startFromZeroLabel">
+             <property name="toolTip">
+              <string>Always start X axis from zero when plotting profile for selected points</string>
+             </property>
+             <property name="text">
+              <string>Start from zero</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="6" column="1">
+          <widget class="QCheckBox" name="startFromZeroCheckBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Always start X axis from zero when plotting profile for selected points</string>
            </property>
            <property name="layoutDirection">
             <enum>Qt::RightToLeft</enum>
@@ -252,7 +304,7 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>0</width>
+           <width>20</width>
            <height>10</height>
           </size>
          </property>
@@ -306,7 +358,59 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="label_9">
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="showCoefficientLabel">
+             <property name="toolTip">
+              <string>Show distance coefficient under the X axis</string>
+             </property>
+             <property name="text">
+              <string>Show coefficient</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="1">
+          <widget class="QCheckBox" name="showCoefficientCheckBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Show distance coefficient under the X axis</string>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_10">
            <property name="toolTip">
             <string>The difference between your time zone and UTC (used in GPX-files)</string>
            </property>
@@ -315,7 +419,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="2" column="1">
           <widget class="QSpinBox" name="timezoneSpinBox">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -337,8 +441,8 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_10">
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_11">
            <property name="toolTip">
             <string>Read point names from one of the tags in GPX file: &lt;name&gt;, &lt;cmt&gt;, &lt;desc&gt;</string>
            </property>
@@ -347,7 +451,7 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
+         <item row="3" column="1">
           <widget class="QComboBox" name="nameTagBox">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">

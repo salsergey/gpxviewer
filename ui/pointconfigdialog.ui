@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>330</width>
-    <height>512</height>
+    <height>552</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -76,7 +76,11 @@
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="markerStyleCombo"/>
+            <widget class="QComboBox" name="markerStyleCombo">
+             <property name="toolTip">
+              <string>The shape of the marker</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -102,6 +106,9 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>The color of the marker</string>
           </property>
           <property name="text">
            <string>Marker color</string>
@@ -158,6 +165,9 @@
            </item>
            <item>
             <widget class="QSpinBox" name="markerSizeSpinBox">
+             <property name="toolTip">
+              <string>The size of the marker</string>
+             </property>
              <property name="minimum">
               <number>1</number>
              </property>
@@ -228,6 +238,9 @@
            </item>
            <item>
             <widget class="QSpinBox" name="captionPositionXSpinBox">
+             <property name="toolTip">
+              <string>The position of the caption</string>
+             </property>
              <property name="minimum">
               <number>-999</number>
              </property>
@@ -238,11 +251,78 @@
            </item>
            <item>
             <widget class="QSpinBox" name="captionPositionYSpinBox">
+             <property name="toolTip">
+              <string>The position of the caption</string>
+             </property>
              <property name="minimum">
               <number>-999</number>
              </property>
              <property name="maximum">
               <number>999</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_15">
+        <item>
+         <widget class="QCheckBox" name="captionRotationCheckBox">
+          <property name="toolTip">
+           <string>Whether to change this property for selected points</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="captionRotationWidget" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_16">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="label_5">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Caption rotation</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="captionRotationSpinBox">
+             <property name="toolTip">
+              <string>The rotation angle of the caption in degrees</string>
+             </property>
+             <property name="minimum">
+              <number>-179</number>
+             </property>
+             <property name="maximum">
+              <number>180</number>
              </property>
             </widget>
            </item>
@@ -299,6 +379,9 @@
            </item>
            <item>
             <widget class="QSpinBox" name="captionSizeSpinBox">
+             <property name="toolTip">
+              <string>The size of the caption</string>
+             </property>
              <property name="minimum">
               <number>1</number>
              </property>
@@ -352,7 +435,7 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="label_5">
+            <widget class="QLabel" name="label_6">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -365,7 +448,11 @@
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="lineStyleCombo"/>
+            <widget class="QComboBox" name="lineStyleCombo">
+             <property name="toolTip">
+              <string>The style of the split line</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -391,6 +478,9 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>The color of the split line</string>
           </property>
           <property name="text">
            <string>Split line color</string>
@@ -433,7 +523,7 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="label_6">
+            <widget class="QLabel" name="label_7">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -447,6 +537,9 @@
            </item>
            <item>
             <widget class="QDoubleSpinBox" name="lineWidthSpinBox">
+             <property name="toolTip">
+              <string>The width of the split line</string>
+             </property>
              <property name="decimals">
               <number>1</number>
              </property>
@@ -507,8 +600,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>180</x>
-     <y>437</y>
+     <x>183</x>
+     <y>545</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -523,8 +616,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>180</x>
-     <y>437</y>
+     <x>183</x>
+     <y>545</y>
     </hint>
     <hint type="destinationlabel">
      <x>253</x>
@@ -555,12 +648,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>25</x>
-     <y>260</y>
+     <x>37</x>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
-     <x>181</x>
-     <y>260</y>
+     <x>227</x>
+     <y>316</y>
     </hint>
    </hints>
   </connection>
@@ -587,12 +680,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>25</x>
-     <y>383</y>
+     <x>37</x>
+     <y>433</y>
     </hint>
     <hint type="destinationlabel">
-     <x>181</x>
-     <y>383</y>
+     <x>227</x>
+     <y>440</y>
     </hint>
    </hints>
   </connection>
@@ -603,12 +696,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>25</x>
-     <y>342</y>
+     <x>37</x>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
-     <x>181</x>
-     <y>342</y>
+     <x>227</x>
+     <y>398</y>
     </hint>
    </hints>
   </connection>
@@ -619,12 +712,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>25</x>
-     <y>424</y>
+     <x>37</x>
+     <y>474</y>
     </hint>
     <hint type="destinationlabel">
-     <x>181</x>
-     <y>424</y>
+     <x>227</x>
+     <y>480</y>
     </hint>
    </hints>
   </connection>
@@ -657,6 +750,22 @@
     <hint type="destinationlabel">
      <x>181</x>
      <y>97</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>captionRotationCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>captionRotationWidget</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>24</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>

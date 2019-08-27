@@ -37,15 +37,16 @@ class PlotCanvas(QCustomPlot):
     self.themeSelector.setExtraSelectors([TheConfig['MainWindow']['ColorTheme']])
 
     self.axisRect().setupFullAxesBox(True)
+    self.xAxis.setTickLabelPadding(10)
+    self.yAxis.setTickLabelPadding(10)
+    self.xAxis.grid().setVisible(False)
+
     self.xTicker = AxisTicker(Qt.Horizontal)
     self.xAxis.setTicker(self.xTicker)
-    self.xTicker2 = AxisTicker(Qt.Horizontal)
-    self.xAxis2.setTicker(self.xTicker2)
+    self.xAxis2.setTicker(self.xTicker)
     self.yTicker = AxisTicker(Qt.Vertical)
     self.yAxis.setTicker(self.yTicker)
-    self.yTicker2 = AxisTicker(Qt.Vertical)
-    self.yAxis2.setTicker(self.yTicker2)
-    self.xAxis.grid().setVisible(False)
+    self.yAxis2.setTicker(self.yTicker)
 
     self.addLayer('profile', self.layer('main'), QCustomPlot.limBelow)
 
@@ -78,19 +79,20 @@ class PlotCanvas(QCustomPlot):
     self.markers = []
     self.captions = []
     self.splitLines = []
-    self.neglectPoints = [0]
+    self.neglectPoints = []
 
   def updatePoints(self, wptRows, trkRows):
-    zeroDist = 0
+    if TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly') and TheConfig.getValue('ProfileStyle', 'StartFromZero') and len(wptRows) != 0:
+      startDist = float(TheDocument.wptmodel.index(wptRows[0], self.column).data())
+    else:
+      startDist = 0
+
     for p in TheDocument.gpxparser.points:
       if type(p) == int:  # points
         if (p in wptRows or len(wptRows) == 0) and (self.column == gpx.DIST or TheDocument.wptmodel.index(p, self.column).data() != ''):
-          self.xx += [float(TheDocument.wptmodel.index(p, self.column).data()) - zeroDist]
+          self.xx += [float(TheDocument.wptmodel.index(p, self.column).data()) - startDist]
           self.yy += [float(TheDocument.wptmodel.index(p, gpx.ALT).data())]
-          if len(self.xx) == 1:
-            zeroDist = self.xx[0]
-            self.xx[0] = 0
-          if p != 0 and TheDocument.wptmodel.index(p, 0).data(gpx.NeglectRole):
+          if p != 0 and self.column == gpx.DIST and TheDocument.wptmodel.index(p, 0).data(gpx.NeglectRole):
             self.neglectPoints += [self.xx[-1]]
           if TheDocument.wptmodel.index(p, 0).data(gpx.SplitLineRole):
             self.splitLines += [SplitLine(self, p, self.xx[-1], self.yy[-1])]
@@ -100,12 +102,9 @@ class PlotCanvas(QCustomPlot):
             self.captions += [CaptionItem(self, p, self.xx[-1], self.yy[-1])]
       elif p[0] in trkRows or len(trkRows) == 0 and len(wptRows) == 0:  # tracks
         if self.column == gpx.DIST or TheDocument.trkmodel.index(p[0], gpx.TRKTIME).data() != '':
-          self.xx += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][self.column]) - zeroDist]
+          self.xx += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][self.column]) - startDist]
           self.yy += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][gpx.ALT])]
-          if len(self.xx) == 1:
-            zeroDist = self.xx[0]
-            self.xx[0] = 0
-    self.neglectPoints += [self.xx[-1]]
+    self.neglectPoints = [self.xx[0]] + self.neglectPoints + [self.xx[-1]]
 
     if TheConfig.getValue('ProfileStyle', 'AutoscaleAltitudes'):
       minalt, maxalt = min(self.yy), max(self.yy)
@@ -134,7 +133,7 @@ class PlotCanvas(QCustomPlot):
     gridColor.setAlpha(150)
     self.yAxis.grid().setPen(QPen(gridColor, 1, Qt.DashLine))
 
-    self.xAxis.setRangeUpper(self.xx[-1])
+    self.xAxis.setRange(self.xx[0], self.xx[-1])
     self.yAxis.setRange(self.minalt, self.maxalt)
     self.xTicker.setType(self.column)
 
@@ -147,12 +146,12 @@ class PlotCanvas(QCustomPlot):
 
     if self.column == gpx.DIST:
       dist_coeff = TheConfig.getValue('ProfileStyle', 'DistanceCoefficient')
-      if dist_coeff == 1.0:
-        self.xAxis.setLabel(self.tr('Distance (km)'))
-      else:
+      if dist_coeff != 1.0 and TheConfig.getValue('ProfileStyle', 'ShowDistanceCoefficient'):
         self.xAxis.setLabel(self.tr('Distance with coefficient ') + str(dist_coeff) + self.tr(' (km)'))
+      else:
+        self.xAxis.setLabel(self.tr('Distance (km)'))
     else:  # time
-      if self.xx[-1] > 1:
+      if self.xx[-1] - self.xx[0] > 1:
         self.xAxis.setLabel(self.tr('Time (days)'))
       else:
         self.xAxis.setLabel(self.tr('Time (hours)'))
@@ -398,43 +397,43 @@ class AxisTicker(QCPAxisTickerFixed):
   def getTickStep(self, range):
     if self.orientation == Qt.Horizontal:
       if self.type == gpx.DIST:
-        if range.upper > 200:
-          return 20
-        elif range.upper > 100:
-          return 10
-        elif range.upper > 50:
-          return 5
-        elif range.upper > 20:
-          return 2
-        else:
-          return 1
+        availableSteps = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100]
       else:  # time
-        if range.upper > 1:  # days
-          return 1
-        else:  # hours
-          return 1.0 / 24
+        availableSteps = [1.0 / 24, 2.0 / 24, 3.0 / 24, 6.0 / 24, 12.0 / 24, 1]
+      return self.pickClosest(range.size() / 10, availableSteps)
     else:  # vertical
-      if range.size() >= 2000:
-        return 500
-      elif range.size() >= 1000:
-        return 200
-      else:
-        return 100
+      availableSteps = [10, 20, 50, 100, 200, 500, 1000]
+      return self.pickClosest(range.size() / 7, availableSteps)
 
   def getSubTickCount(self, tickStep):
     if self.orientation == Qt.Horizontal:
-      if self.type == gpx.DIST and tickStep % 2 == 0:
-        return 1
-      else:
-        return 0
+      if self.type == gpx.DIST:
+        if tickStep in {0.1, 0.5, 1, 5, 10, 50, 100}:
+          return 4
+        else:
+          return 1
+      else:  # time
+        if tickStep == 12.0 / 24:
+          return 3
+        elif tickStep == 3.0 / 24:
+          return 2
+        elif tickStep in {2.0 / 24, 6.0 / 24}:
+          return 1
+        else:
+          return 0
     else:  # vertical
-      return int(tickStep / 100) - 1
+      if tickStep in {10, 50, 100, 500, 1000}:
+        return 4
+      else:
+        return 1
 
   def createLabelVector(self, ticks, locale, formatChar, precision):
-    if self.orientation == Qt.Horizontal and self.type == gpx.TIME_DAYS and ticks[-1] <= 1:  # hours
-      return [str(int(round(24 * t))) for t in ticks]
-    else:
-      return super(AxisTicker, self).createLabelVector(ticks, locale, formatChar, precision)
+    if self.orientation == Qt.Horizontal and self.type == gpx.TIME_DAYS:  # time
+      if ticks[-1] < 1:  # hours
+        return [str(int(round(24 * t))) for t in ticks]
+      elif any([t % 1.0 != 0 for t in ticks]):  # days and hours
+        return [QCoreApplication.translate('PlotCanvas', 'day ') + str(int(t)) + "\n" + str(int(round(24 * t)) % 24).zfill(2) + ":00" for t in ticks]
+    return super(AxisTicker, self).createLabelVector(ticks, locale, formatChar, precision)
 
 
 class MarkerItem(QCPGraph):
@@ -457,7 +456,7 @@ class MarkerItem(QCPGraph):
     scatterStyle = QCPScatterStyle()
     scatterStyle.setCustomPath(gpx.markerPath(markerStyle[gpx.MARKER_STYLE], 2 * markerStyle[gpx.MARKER_SIZE]))  # for better compatibility with matplotlib
     scatterStyle.setBrush(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]))
-    if markerStyle[gpx.MARKER_STYLE] in {'1', '2', '3', '4', '+', 'x', '_', '|'}:
+    if markerStyle[gpx.MARKER_STYLE] in {'1', '2', '3', '4', 'ad', 'au', 'al', 'ar', '+', 'x', '_', '|'}:
       scatterStyle.setPen(QPen(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
     else:
       scatterStyle.setPen(QPen(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]), 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
@@ -465,7 +464,7 @@ class MarkerItem(QCPGraph):
 
     selectedScatterStyle = QCPScatterStyle()
     selectedScatterStyle.setCustomPath(gpx.markerPath(markerStyle[gpx.MARKER_STYLE], 3 * markerStyle[gpx.MARKER_SIZE]))
-    selectedScatterStyle.setPen(QPen(QGuiApplication.palette().color(QPalette.Highlight), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+    selectedScatterStyle.setPen(QPen(QGuiApplication.palette().highlight().color(), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
     self.selectionDecorator().setScatterStyle(selectedScatterStyle)
     self.selectionDecorator().setUsedScatterProperties(QCPScatterStyle.ScatterProperty(QCPScatterStyle.spPen | QCPScatterStyle.spShape))
 
@@ -478,23 +477,25 @@ class CaptionItem(QCPItemText):
     self.font = QFont()
     self.font.setStyleHint(QFont.SansSerif)
     self.font.setFamily(TheConfig.getValue('ProfileStyle', 'FontFamily'))
+    self.setText(TheDocument.wptmodel.index(self.idx, gpx.NAME).data())
+
     if TheConfig.getValue('ProfileStyle', 'UseSystemTheme'):
       self.setColor(QGuiApplication.palette().text().color())
+      self.setSelectedColor(QGuiApplication.palette().highlightedText().color())
     else:
       self.setColor(QColor(Qt.black))
-    self.setText(TheDocument.wptmodel.index(self.idx, gpx.NAME).data())
+      self.setSelectedColor(QColor(Qt.black))
 
     self.setClipToAxisRect(False)
     self.setPadding(QMargins(3, 1, 3, 1))
-    self.setRotation(-90)
+    self.setRotation(-TheDocument.wptmodel.index(self.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_ROTATION])
     self.setPositionAlignment(Qt.AlignLeft | Qt.AlignVCenter)
     self.position.setType(QCPItemPosition.ptPlotCoords)
 
-    fillColor = QGuiApplication.palette().color(QPalette.Highlight)
-    fillColor.setAlpha(100)
+    fillColor = QGuiApplication.palette().highlight().color()
+    fillColor.setAlpha(150)
     self.setSelectedBrush(fillColor)
-    self.setSelectedPen(QGuiApplication.palette().color(QPalette.Highlight))
-    self.setSelectedColor(QColor(Qt.black))
+    self.setSelectedPen(QGuiApplication.palette().highlight().color())
 
   def draw(self, painter):
     self.update()

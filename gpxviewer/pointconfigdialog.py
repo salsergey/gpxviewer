@@ -41,6 +41,7 @@ class PointConfigDialog(QDialog):
     self.ui.lineStyleCheckBox.setChecked(TheConfig.getValue('PointStyle', 'SplitLineStyleEnabled'))
     self.ui.lineWidthCheckBox.setChecked(TheConfig.getValue('PointStyle', 'SplitLineWidthEnabled'))
     self.ui.captionPositionCheckBox.setChecked(TheConfig.getValue('PointStyle', 'CaptionPositionEnabled'))
+    self.ui.captionRotationCheckBox.setChecked(TheConfig.getValue('PointStyle', 'CaptionRotationEnabled'))
     self.ui.captionSizeCheckBox.setChecked(TheConfig.getValue('PointStyle', 'CaptionSizeEnabled'))
 
     self.markerStyles = [('.', self.tr('Point')),
@@ -54,6 +55,10 @@ class PointConfigDialog(QDialog):
                          ('2', self.tr('Tri up')),
                          ('3', self.tr('Tri left')),
                          ('4', self.tr('Tri right')),
+                         ('ad', self.tr('Arrow down')),
+                         ('au', self.tr('Arrow up')),
+                         ('al', self.tr('Arrow left')),
+                         ('ar', self.tr('Arrow right')),
                          ('s', self.tr('Square')),
                          ('p', self.tr('Pentagon')),
                          ('*', self.tr('Star')),
@@ -80,6 +85,7 @@ class PointConfigDialog(QDialog):
 
     self.ui.captionPositionXSpinBox.setValue(self.style[gpx.CAPTION_POSX])
     self.ui.captionPositionYSpinBox.setValue(self.style[gpx.CAPTION_POSY])
+    self.ui.captionRotationSpinBox.setValue(self.style[gpx.CAPTION_ROTATION])
     self.ui.captionSizeSpinBox.setValue(self.style[gpx.CAPTION_SIZE])
 
     self.ui.lineStyleCombo.addItems([m[1] for m in self.lineStyles])
@@ -94,6 +100,7 @@ class PointConfigDialog(QDialog):
     self.ui.markerStyleCheckBox.toggled[bool].connect(self.markerStyleEnabled)
     self.ui.markerSizeCheckBox.toggled[bool].connect(self.markerSizeEnabled)
     self.ui.captionPositionCheckBox.toggled[bool].connect(self.captionPositionEnabled)
+    self.ui.captionRotationCheckBox.toggled[bool].connect(self.captionRotationEnabled)
     self.ui.captionSizeCheckBox.toggled[bool].connect(self.captionSizeEnabled)
     self.ui.lineColorCheckBox.toggled[bool].connect(self.lineColorEnabled)
     self.ui.lineStyleCheckBox.toggled[bool].connect(self.lineStyleEnabled)
@@ -104,6 +111,7 @@ class PointConfigDialog(QDialog):
     self.ui.markerSizeSpinBox.valueChanged.connect(self.setMarkerSize)
     self.ui.captionPositionXSpinBox.valueChanged.connect(self.setCaptionPositionX)
     self.ui.captionPositionYSpinBox.valueChanged.connect(self.setCaptionPositionY)
+    self.ui.captionRotationSpinBox.valueChanged.connect(self.setCaptionRotation)
     self.ui.captionSizeSpinBox.valueChanged.connect(self.setCaptionSize)
     self.ui.lineColorButton.colorSet.connect(self.setLineColor)
     self.ui.lineStyleCombo.activated.connect(self.setLineStyle)
@@ -117,6 +125,7 @@ class PointConfigDialog(QDialog):
     TheConfig['PointStyle']['MarkerSize'] = str(self.style[gpx.MARKER_SIZE])
     TheConfig['PointStyle']['CaptionPositionX'] = str(self.style[gpx.CAPTION_POSX])
     TheConfig['PointStyle']['CaptionPositionY'] = str(self.style[gpx.CAPTION_POSY])
+    TheConfig['PointStyle']['CaptionRotation'] = str(self.style[gpx.CAPTION_ROTATION])
     TheConfig['PointStyle']['CaptionSize'] = str(self.style[gpx.CAPTION_SIZE])
     TheConfig['PointStyle']['SplitLineColor'] = str(self.style[gpx.LINE_COLOR])
     TheConfig['PointStyle']['SplitLineStyle'] = self.style[gpx.LINE_STYLE]
@@ -132,6 +141,8 @@ class PointConfigDialog(QDialog):
     if TheConfig.getValue('PointStyle', 'CaptionPositionEnabled'):
       TheDocument.wptmodel.setPointStyle(self.indexes, gpx.CAPTION_POSX, self.style[gpx.CAPTION_POSX])
       TheDocument.wptmodel.setPointStyle(self.indexes, gpx.CAPTION_POSY, self.style[gpx.CAPTION_POSY])
+    if TheConfig.getValue('PointStyle', 'CaptionRotationEnabled'):
+      TheDocument.wptmodel.setPointStyle(self.indexes, gpx.CAPTION_ROTATION, self.style[gpx.CAPTION_ROTATION])
     if TheConfig.getValue('PointStyle', 'CaptionSizeEnabled'):
       TheDocument.wptmodel.setPointStyle(self.indexes, gpx.CAPTION_SIZE, self.style[gpx.CAPTION_SIZE])
 
@@ -157,6 +168,10 @@ class PointConfigDialog(QDialog):
   @pyqtSlot(bool)
   def captionPositionEnabled(self, enabled):
     TheConfig['PointStyle']['CaptionPositionEnabled'] = str(enabled)
+
+  @pyqtSlot(bool)
+  def captionRotationEnabled(self, enabled):
+    TheConfig['PointStyle']['CaptionRotationEnabled'] = str(enabled)
 
   @pyqtSlot(bool)
   def captionSizeEnabled(self, enabled):
@@ -205,6 +220,10 @@ class PointConfigDialog(QDialog):
   @pyqtSlot()
   def setCaptionPositionY(self):
     self.style[gpx.CAPTION_POSY] = self.ui.captionPositionYSpinBox.value()
+
+  @pyqtSlot()
+  def setCaptionRotation(self):
+    self.style[gpx.CAPTION_ROTATION] = self.ui.captionRotationSpinBox.value()
 
   @pyqtSlot()
   def setCaptionSize(self):

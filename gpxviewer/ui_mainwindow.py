@@ -2,9 +2,10 @@
 
 # Form implementation generated from reading ui file 'ui/mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.2
+# Created by: PyQt5 UI code generator 5.13.0
 #
 # WARNING! All changes made in this file will be lost!
+
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -253,5 +254,3 @@ class Ui_MainWindow(object):
         self.actionResetFilters.setText(_translate("MainWindow", "&Reset filters"))
         self.actionCopy.setText(_translate("MainWindow", "&Copy"))
         self.actionResetColumns.setText(_translate("MainWindow", "&Reset columns"))
-
-
