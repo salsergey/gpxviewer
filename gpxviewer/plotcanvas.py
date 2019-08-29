@@ -15,11 +15,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import webbrowser
+from datetime import timedelta
 from math import ceil
-from PyQt5.QtCore import Qt, QCoreApplication, QEvent, QFileSelector, QMargins, QSortFilterProxyModel, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import (Qt, QCoreApplication, QDate, QDateTime, QEvent, QFileSelector,
+                          QMargins, QSortFilterProxyModel, pyqtSignal, pyqtSlot)
 from PyQt5.QtGui import qAlpha, QColor, QCursor, QFont, QGuiApplication, QIcon, QPalette, QPen
 from PyQt5.QtWidgets import QAction, QDialog, QMenu, QMessageBox, QSizePolicy
-from qcustomplot import (QCP, QCustomPlot, QCPAxisTickerFixed, QCPDataRange, QCPDataSelection,
+from qcustomplot import (QCP, QCustomPlot, QCPAxisTickerDateTime, QCPAxisTickerFixed, QCPDataRange, QCPDataSelection,
                          QCPGraph, QCPItemPosition, QCPItemText, QCPScatterStyle)
 import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import TheConfig
@@ -82,15 +84,21 @@ class PlotCanvas(QCustomPlot):
     self.neglectPoints = []
 
   def updatePoints(self, wptRows, trkRows):
-    if TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly') and TheConfig.getValue('ProfileStyle', 'StartFromZero') and len(wptRows) != 0:
+    if TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly') and TheConfig.getValue('ProfileStyle', 'StartFromZero') \
+       and self.column in {gpx.DIST, gpx.TIME_DAYS} and len(wptRows) != 0:
       startDist = float(TheDocument.wptmodel.index(wptRows[0], self.column).data())
     else:
       startDist = 0
 
     for p in TheDocument.gpxparser.points:
       if type(p) == int:  # points
-        if (p in wptRows or len(wptRows) == 0) and (self.column == gpx.DIST or TheDocument.wptmodel.index(p, self.column).data() != ''):
-          self.xx += [float(TheDocument.wptmodel.index(p, self.column).data()) - startDist]
+        if (p in wptRows or len(wptRows) == 0) \
+           and (self.column == gpx.DIST or TheDocument.wptmodel.index(p, self.column).data() != ''):
+          if self.column in {gpx.DIST, gpx.TIME_DAYS}:
+            self.xx += [float(TheDocument.wptmodel.index(p, self.column).data()) - startDist]
+          else:  # absolute time
+            self.xx += [QCPAxisTickerDateTime.dateTimeToKey(QDateTime.fromString(
+                        TheDocument.wptmodel.index(p, self.column).data(), 'yyyy-MM-dd HH:mm:ss'))]
           self.yy += [float(TheDocument.wptmodel.index(p, gpx.ALT).data())]
           if p != 0 and self.column == gpx.DIST and TheDocument.wptmodel.index(p, 0).data(gpx.NeglectRole):
             self.neglectPoints += [self.xx[-1]]
@@ -102,7 +110,13 @@ class PlotCanvas(QCustomPlot):
             self.captions += [CaptionItem(self, p, self.xx[-1], self.yy[-1])]
       elif p[0] in trkRows or len(trkRows) == 0 and len(wptRows) == 0:  # tracks
         if self.column == gpx.DIST or TheDocument.trkmodel.index(p[0], gpx.TRKTIME).data() != '':
-          self.xx += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][self.column]) - startDist]
+          if self.column in {gpx.DIST, gpx.TIME_DAYS}:
+            self.xx += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][self.column]) - startDist]
+          else:  # absolute time
+            # Convert track time to a proper timezone
+            self.xx += [QCPAxisTickerDateTime.dateTimeToKey(QDateTime.fromString(
+                        str(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][self.column]
+                            + timedelta(minutes=TheConfig.getValue('ProfileStyle', 'TimeZoneOffset'))), 'yyyy-MM-dd HH:mm:ss'))]
           self.yy += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][gpx.ALT])]
     self.neglectPoints = [self.xx[0]] + self.neglectPoints + [self.xx[-1]]
 
@@ -143,6 +157,10 @@ class PlotCanvas(QCustomPlot):
     self.xAxis.setLabelFont(self.font)
     self.yAxis.setTickLabelFont(self.font)
     self.yAxis.setLabelFont(self.font)
+    if self.column == gpx.TIME:
+      self.xAxis.setTickLabelRotation(-90)
+    else:
+      self.xAxis.setTickLabelRotation(0)
 
     if self.column == gpx.DIST:
       dist_coeff = TheConfig.getValue('ProfileStyle', 'DistanceCoefficient')
@@ -393,13 +411,19 @@ class AxisTicker(QCPAxisTickerFixed):
 
   def setType(self, type):
     self.type = type
+    if self.type == gpx.TIME:
+      self.setTickOrigin(QCPAxisTickerDateTime.dateTimeToKey(QDate(2019, 1, 1)))
+    else:
+      self.setTickOrigin(0)
 
   def getTickStep(self, range):
     if self.orientation == Qt.Horizontal:
       if self.type == gpx.DIST:
         availableSteps = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100]
       else:  # time
-        availableSteps = [1.0 / 24, 2.0 / 24, 3.0 / 24, 6.0 / 24, 12.0 / 24, 1]
+        availableSteps = [1.0 / 24, 2.0 / 24, 3.0 / 24, 6.0 / 24, 12.0 / 24, 1, 2]
+        if self.type == gpx.TIME:
+          availableSteps = [s * 24 * 3600 for s in availableSteps]  # convert to seconds
       return self.pickClosest(range.size() / 10, availableSteps)
     else:  # vertical
       availableSteps = [10, 20, 50, 100, 200, 500, 1000]
@@ -413,11 +437,11 @@ class AxisTicker(QCPAxisTickerFixed):
         else:
           return 1
       else:  # time
-        if tickStep == 12.0 / 24:
+        if tickStep in {12.0 / 24, 12.0 * 3600}:
           return 3
-        elif tickStep == 3.0 / 24:
+        elif tickStep in {3.0 / 24, 3.0 * 3600}:
           return 2
-        elif tickStep in {2.0 / 24, 6.0 / 24}:
+        elif tickStep in {2.0 / 24, 6.0 / 24, 2, 2.0 * 3600, 6.0 * 3600, 2 * 24 * 3600}:
           return 1
         else:
           return 0
@@ -428,11 +452,24 @@ class AxisTicker(QCPAxisTickerFixed):
         return 1
 
   def createLabelVector(self, ticks, locale, formatChar, precision):
-    if self.orientation == Qt.Horizontal and self.type == gpx.TIME_DAYS:  # time
-      if ticks[-1] < 1:  # hours
-        return [str(int(round(24 * t))) for t in ticks]
-      elif any([t % 1.0 != 0 for t in ticks]):  # days and hours
-        return [QCoreApplication.translate('PlotCanvas', 'day ') + str(int(t)) + "\n" + str(int(round(24 * t)) % 24).zfill(2) + ":00" for t in ticks]
+    if self.orientation == Qt.Horizontal:
+      if self.type == gpx.TIME_DAYS:
+        if ticks[-1] < 1:  # hours
+          return [str(int(round(24 * t))) for t in ticks]
+        elif any([t % 1.0 != 0 for t in ticks]):  # days and hours
+          if TheConfig.getValue('ProfileStyle', 'ShowHours'):
+            return [QCoreApplication.translate('PlotCanvas', 'day ') + str(int(t)) + "\n"
+                    + str(int(round(24 * t)) % 24).zfill(2) + ":00" for t in ticks]
+          else:
+            return [str(int(t)) if t % 1.0 == 0 else "" for t in ticks]
+      elif self.type == gpx.TIME:
+        if any([QCPAxisTickerDateTime.keyToDateTime(t).toString('HH') != '00' for t in ticks]) \
+           and TheConfig.getValue('ProfileStyle', 'ShowHours'):  # days and hours
+          return [QCPAxisTickerDateTime.keyToDateTime(t).toString('d MMM\nHH:mm') for t in ticks]
+        else:
+          return [QCPAxisTickerDateTime.keyToDateTime(t).toString('d MMM')
+                  if QCPAxisTickerDateTime.keyToDateTime(t).toString('HH') == '00' else "" for t in ticks]
+
     return super(AxisTicker, self).createLabelVector(ticks, locale, formatChar, precision)
 
 

@@ -207,6 +207,10 @@ class GpxDocument(QObject):
         TheConfig['ProfileStyle']['StartFromZero'] = self.doc['StartFromZero']
       if 'AutoscaleAltitudes' in self.doc:
         TheConfig['ProfileStyle']['AutoscaleAltitudes'] = self.doc['AutoscaleAltitudes']
+      if 'ShowHours' in self.doc:
+        TheConfig['ProfileStyle']['ShowHours'] = self.doc['ShowHours']
+      if 'AbsoluteTime' in self.doc:
+        TheConfig['ProfileStyle']['AbsoluteTime'] = self.doc['AbsoluteTime']
       if 'UseSystemTheme' in self.doc:
         TheConfig['ProfileStyle']['UseSystemTheme'] = self.doc['UseSystemTheme']
       if 'FontSize' in self.doc:

@@ -66,11 +66,13 @@ class ConfigStore(configparser.ConfigParser):
                 'ProfileStyle': {'ProfileColor': qRgba(255, 0, 0, 150),
                                  'FillColor': qRgba(255, 0, 0, 50),
                                  'ProfileWidth': 1.0,
-                                 'MinimumAltitude': 0,
-                                 'MaximumAltitude': 1000,
                                  'SelectedPointsOnly': False,
                                  'StartFromZero': True,
+                                 'MinimumAltitude': 0,
+                                 'MaximumAltitude': 1000,
                                  'AutoscaleAltitudes': False,
+                                 'ShowHours': True,
+                                 'AbsoluteTime': False,
                                  'UseSystemTheme': False,
                                  'FontSize': 12,
                                  'DistanceCoefficient': 1.0,
@@ -125,7 +127,7 @@ class ConfigStore(configparser.ConfigParser):
         return int(self['ProfileStyle'][key])
       elif key in {'ProfileWidth', 'DistanceCoefficient'}:
         return float(self['ProfileStyle'][key])
-      elif key in {'SelectedPointsOnly', 'StartFromZero', 'AutoscaleAltitudes', 'UseSystemTheme', 'ShowDistanceCoefficient'}:
+      elif key in {'SelectedPointsOnly', 'StartFromZero', 'AutoscaleAltitudes', 'ShowHours', 'AbsoluteTime', 'UseSystemTheme', 'ShowDistanceCoefficient'}:
         return self['ProfileStyle'].getboolean(key)
       else:
         return self['ProfileStyle'][key]

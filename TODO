@@ -1,12 +1,12 @@
 == Major ==
 
+* Map of the track.
 * Speed graphs.
 * Drag & drop resorting.
 * Drag & drop opening files.
 
 == Minor ==
 
-* Option to show time of the day below the X axis.
 * Add "Set as start point" to the context menu.
 * Button for time resorting.
 * Make movable toolbars.

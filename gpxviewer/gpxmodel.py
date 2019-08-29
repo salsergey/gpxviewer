@@ -357,8 +357,9 @@ class GpxParser(QObject):
         point[ALT] = int(round(float(p.findtext('{%(ns)s}ele' % ns))))
         self.minalt = min(self.minalt, point[ALT])
         self.maxalt = max(self.maxalt, point[ALT])
-        if p.findtext('{%(ns)s}time' % ns) is not None:
-          dt = datetime.strptime(p.findtext('{%(ns)s}time' % ns).strip(), '%Y-%m-%dT%H:%M:%SZ')
+        time = p.findtext('{%(ns)s}time' % ns)
+        if time is not None:
+          dt = datetime.strptime(time.strip(), '%Y-%m-%dT%H:%M:%SZ')
           point[TIME] = dt
         else:
           point[TIME] = ''
@@ -409,8 +410,9 @@ class GpxParser(QObject):
             point[ALT] = int(round(float(p.findtext('{%(ns)s}ele' % ns))))
             self.minalt = min(self.minalt, point[ALT])
             self.maxalt = max(self.maxalt, point[ALT])
-            if p.findtext('{%(ns)s}time' % ns) is not None:
-              dt = datetime.strptime(p.findtext('{%(ns)s}time' % ns).strip(), '%Y-%m-%dT%H:%M:%SZ')
+            time = p.findtext('{%(ns)s}time' % ns)
+            if time is not None:
+              dt = datetime.strptime(time.strip(), '%Y-%m-%dT%H:%M:%SZ')
               point[TIME] = dt
             else:
               point[TIME] = ''

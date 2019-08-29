@@ -1,3 +1,9 @@
+=== Version 1.2 ===
+* Added possibility to show absolute date and time in the X axis labels.
+* Added several new options to settings dialog and point properties dialog.
+* Added support for dark color themes.
+* Added arrow-like marker shapes.
+
 === Version 1.1 ===
 * Added GPX Viewer archive format to store project along with all GPX files.
 * Added possibility to choose columns to be copied to clipboard.

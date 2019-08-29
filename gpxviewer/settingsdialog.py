@@ -40,6 +40,8 @@ class SettingsDialog(QDialog):
     self.settings['SelectedPointsOnly'] = TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly')
     self.settings['StartFromZero'] = TheConfig.getValue('ProfileStyle', 'StartFromZero')
     self.settings['AutoscaleAltitudes'] = TheConfig.getValue('ProfileStyle', 'AutoscaleAltitudes')
+    self.settings['ShowHours'] = TheConfig.getValue('ProfileStyle', 'ShowHours')
+    self.settings['AbsoluteTime'] = TheConfig.getValue('ProfileStyle', 'AbsoluteTime')
     self.settings['UseSystemTheme'] = TheConfig.getValue('ProfileStyle', 'UseSystemTheme')
     self.settings['FontFamily'] = TheConfig.getValue('ProfileStyle', 'FontFamily')
     self.settings['FontSize'] = TheConfig.getValue('ProfileStyle', 'FontSize')
@@ -60,6 +62,8 @@ class SettingsDialog(QDialog):
     self.ui.selectedPointsCheckBox.setChecked(self.settings['SelectedPointsOnly'])
     self.ui.startFromZeroCheckBox.setChecked(self.settings['StartFromZero'])
     self.ui.autoscaleAltitudesCheckBox.setChecked(self.settings['AutoscaleAltitudes'])
+    self.ui.showHoursCheckBox.setChecked(self.settings['ShowHours'])
+    self.ui.absoluteTimeCheckBox.setChecked(self.settings['AbsoluteTime'])
     self.ui.useSystemThemeCheckBox.setChecked(self.settings['UseSystemTheme'])
     self.ui.fontFamilyBox.setCurrentText(self.settings['FontFamily'])
     self.ui.fontSizeSpinBox.setValue(self.settings['FontSize'])
@@ -82,6 +86,8 @@ class SettingsDialog(QDialog):
     self.ui.selectedPointsCheckBox.toggled[bool].connect(self.setSelectedPointsOnly)
     self.ui.startFromZeroCheckBox.toggled[bool].connect(self.setStartFromZero)
     self.ui.autoscaleAltitudesCheckBox.toggled[bool].connect(self.setAutoscaleAltitudes)
+    self.ui.showHoursCheckBox.toggled[bool].connect(self.setShowHours)
+    self.ui.absoluteTimeCheckBox.toggled[bool].connect(self.setAbsoluteTime)
     self.ui.useSystemThemeCheckBox.toggled[bool].connect(self.setUseSystemTheme)
     self.ui.fontFamilyBox.currentTextChanged.connect(self.setFontFamily)
     self.ui.fontSizeSpinBox.valueChanged.connect(self.setFontSize)
@@ -102,6 +108,8 @@ class SettingsDialog(QDialog):
     TheConfig['ProfileStyle']['SelectedPointsOnly'] = str(self.settings['SelectedPointsOnly'])
     TheConfig['ProfileStyle']['StartFromZero'] = str(self.settings['StartFromZero'])
     TheConfig['ProfileStyle']['AutoscaleAltitudes'] = str(self.settings['AutoscaleAltitudes'])
+    TheConfig['ProfileStyle']['ShowHours'] = str(self.settings['ShowHours'])
+    TheConfig['ProfileStyle']['AbsoluteTime'] = str(self.settings['AbsoluteTime'])
     TheConfig['ProfileStyle']['UseSystemTheme'] = str(self.settings['UseSystemTheme'])
     TheConfig['ProfileStyle']['FontFamily'] = str(self.settings['FontFamily'])
     TheConfig['ProfileStyle']['FontSize'] = str(self.settings['FontSize'])
@@ -146,6 +154,14 @@ class SettingsDialog(QDialog):
   @pyqtSlot(bool)
   def setAutoscaleAltitudes(self, enabled):
     self.settings['AutoscaleAltitudes'] = enabled
+
+  @pyqtSlot(bool)
+  def setShowHours(self, enabled):
+    self.settings['ShowHours'] = enabled
+
+  @pyqtSlot(bool)
+  def setAbsoluteTime(self, enabled):
+    self.settings['AbsoluteTime'] = enabled
 
   @pyqtSlot(bool)
   def setUseSystemTheme(self, enabled):

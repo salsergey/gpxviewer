@@ -712,10 +712,11 @@ class GpxMainWindow(QMainWindow):
 
     self.plot.setWindowTitle(self.tr('Time Profile'))
     self.plot.show()
+    column = gpx.TIME if TheConfig.getValue('ProfileStyle', 'AbsoluteTime') else gpx.TIME_DAYS
     if TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly'):
-      self.plot.plotProfile(gpx.TIME_DAYS, [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], [i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
+      self.plot.plotProfile(column, [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], [i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
     else:
-      self.plot.plotProfile(gpx.TIME_DAYS)
+      self.plot.plotProfile(column)
     self.plot.activateWindow()
 
   @pyqtSlot()
