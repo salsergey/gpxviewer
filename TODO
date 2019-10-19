@@ -1,6 +1,7 @@
 == Major ==
 
 * Map of the track.
+* Edit coordinates, altidude (geonames.org), time.
 * Speed graphs.
 * Drag & drop resorting.
 * Drag & drop opening files.

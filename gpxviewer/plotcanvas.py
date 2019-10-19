@@ -21,8 +21,8 @@ from PyQt5.QtCore import (Qt, QCoreApplication, QDate, QDateTime, QEvent, QFileS
                           QMargins, QSortFilterProxyModel, pyqtSignal, pyqtSlot)
 from PyQt5.QtGui import qAlpha, QColor, QCursor, QFont, QGuiApplication, QIcon, QPalette, QPen
 from PyQt5.QtWidgets import QAction, QDialog, QMenu, QMessageBox, QSizePolicy
-from qcustomplot import (QCP, QCustomPlot, QCPAxisTickerDateTime, QCPAxisTickerFixed, QCPDataRange, QCPDataSelection,
-                         QCPGraph, QCPItemPosition, QCPItemText, QCPScatterStyle)
+from QCustomPlot2 import (QCP, QCustomPlot, QCPAxisTickerDateTime, QCPAxisTickerFixed, QCPDataRange, QCPDataSelection,
+                          QCPGraph, QCPItemPosition, QCPItemText, QCPScatterStyle)
 import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import TheConfig
 from gpxviewer.gpxdocument import TheDocument
