@@ -703,7 +703,7 @@ class GpxMainWindow(QMainWindow):
         break
     if n < 2:
       for j in range(TheDocument.trkmodel.rowCount()):
-        if TheDocument.trkmodel.index(j, 0).data(gpx.IncludeRole) and TheDocument.trkmodel.index(i, gpx.TRKTIME).data() != '':
+        if TheDocument.trkmodel.index(j, 0).data(gpx.IncludeRole) and TheDocument.trkmodel.index(j, gpx.TRKTIME).data() != '':
           n = 2
           break
       if n < 2:

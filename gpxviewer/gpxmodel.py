@@ -128,7 +128,7 @@ class WptModel(QAbstractTableModel):
       elif self.markerStates[index.row()]:
         return self.MarkerColor
       else:
-        return QGuiApplication.palette().base().color()
+        return Qt.transparent
     elif role == Qt.FontRole:
       font = QFont()
       if self.splitStates[index.row()]:
@@ -354,12 +354,13 @@ class GpxParser(QObject):
         point[NAME] = name.strip() if name is not None else ''
         point[LAT] = float(p.get('lat'))
         point[LON] = float(p.get('lon'))
-        point[ALT] = int(round(float(p.findtext('{%(ns)s}ele' % ns))))
+        ele = p.findtext('{%(ns)s}ele' % ns)
+        point[ALT] = int(round(float(ele))) if ele is not None else 0
         self.minalt = min(self.minalt, point[ALT])
         self.maxalt = max(self.maxalt, point[ALT])
         time = p.findtext('{%(ns)s}time' % ns)
         if time is not None:
-          dt = datetime.strptime(time.strip(), '%Y-%m-%dT%H:%M:%SZ')
+          dt = datetime.strptime(time[:19].strip(), '%Y-%m-%dT%H:%M:%S')
           point[TIME] = dt
         else:
           point[TIME] = ''
@@ -407,12 +408,13 @@ class GpxParser(QObject):
             point = {}
             point[LAT] = float(p.get('lat'))
             point[LON] = float(p.get('lon'))
-            point[ALT] = int(round(float(p.findtext('{%(ns)s}ele' % ns))))
+            ele = p.findtext('{%(ns)s}ele' % ns)
+            point[ALT] = int(round(float(ele))) if ele is not None else 0
             self.minalt = min(self.minalt, point[ALT])
             self.maxalt = max(self.maxalt, point[ALT])
             time = p.findtext('{%(ns)s}time' % ns)
             if time is not None:
-              dt = datetime.strptime(time.strip(), '%Y-%m-%dT%H:%M:%SZ')
+              dt = datetime.strptime(time[:19].strip(), '%Y-%m-%dT%H:%M:%S')
               point[TIME] = dt
             else:
               point[TIME] = ''
