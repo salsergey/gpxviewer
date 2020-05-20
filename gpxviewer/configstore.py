@@ -78,6 +78,7 @@ class ConfigStore(configparser.ConfigParser):
                                  'DistanceCoefficient': 1.0,
                                  'ShowDistanceCoefficient': True,
                                  'TimeZoneOffset': 420,
+                                 'SortByTime': False,
                                  'ReadNameFromTag': 0,
                                  'CoordinateFormat': 0},
                 'PointStyle': {'MarkerColorEnabled': True,
@@ -127,7 +128,8 @@ class ConfigStore(configparser.ConfigParser):
         return int(self['ProfileStyle'][key])
       elif key in {'ProfileWidth', 'DistanceCoefficient'}:
         return float(self['ProfileStyle'][key])
-      elif key in {'SelectedPointsOnly', 'StartFromZero', 'AutoscaleAltitudes', 'ShowHours', 'AbsoluteTime', 'UseSystemTheme', 'ShowDistanceCoefficient'}:
+      elif key in {'SelectedPointsOnly', 'StartFromZero', 'AutoscaleAltitudes', 'ShowHours',
+                   'AbsoluteTime', 'UseSystemTheme', 'ShowDistanceCoefficient', 'SortByTime'}:
         return self['ProfileStyle'].getboolean(key)
       else:
         return self['ProfileStyle'][key]

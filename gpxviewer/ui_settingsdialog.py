@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/settingsdialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.0
+# Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -242,9 +242,22 @@ class Ui_settingsDialog(object):
         self.timezoneSpinBox.setMaximum(999)
         self.timezoneSpinBox.setObjectName("timezoneSpinBox")
         self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.timezoneSpinBox)
+        self.sortByTimeLabel = QtWidgets.QLabel(self.tabSettings)
+        self.sortByTimeLabel.setObjectName("sortByTimeLabel")
+        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.sortByTimeLabel)
+        self.sortByTimeCheckBox = QtWidgets.QCheckBox(self.tabSettings)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.sortByTimeCheckBox.sizePolicy().hasHeightForWidth())
+        self.sortByTimeCheckBox.setSizePolicy(sizePolicy)
+        self.sortByTimeCheckBox.setMinimumSize(QtCore.QSize(0, 32))
+        self.sortByTimeCheckBox.setLayoutDirection(QtCore.Qt.RightToLeft)
+        self.sortByTimeCheckBox.setObjectName("sortByTimeCheckBox")
+        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.sortByTimeCheckBox)
         self.label_11 = QtWidgets.QLabel(self.tabSettings)
         self.label_11.setObjectName("label_11")
-        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_11)
+        self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.label_11)
         self.nameTagBox = QtWidgets.QComboBox(self.tabSettings)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -255,7 +268,7 @@ class Ui_settingsDialog(object):
         self.nameTagBox.addItem("")
         self.nameTagBox.addItem("")
         self.nameTagBox.addItem("")
-        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.nameTagBox)
+        self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.nameTagBox)
         self.verticalLayout_3.addLayout(self.formLayout_2)
         self.groupBox = QtWidgets.QGroupBox(self.tabSettings)
         self.groupBox.setObjectName("groupBox")
@@ -327,6 +340,9 @@ class Ui_settingsDialog(object):
         self.label_10.setText(_translate("settingsDialog", "Time zone offset"))
         self.timezoneSpinBox.setToolTip(_translate("settingsDialog", "The difference between your time zone and UTC (used in GPX-files)"))
         self.timezoneSpinBox.setSuffix(_translate("settingsDialog", " min"))
+        self.sortByTimeLabel.setToolTip(_translate("settingsDialog", "Sort imported points by time"))
+        self.sortByTimeLabel.setText(_translate("settingsDialog", "Sort by time"))
+        self.sortByTimeCheckBox.setToolTip(_translate("settingsDialog", "Sort imported points by time"))
         self.label_11.setToolTip(_translate("settingsDialog", "Read point names from one of the tags in GPX file: <name>, <cmt>, <desc>"))
         self.label_11.setText(_translate("settingsDialog", "Point names are in tag"))
         self.nameTagBox.setToolTip(_translate("settingsDialog", "Read point names from one of the tags in GPX file: <name>, <cmt>, <desc>"))

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/plotwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.0
+# Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -29,7 +29,7 @@ class Ui_PlotWindow(object):
         PlotWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
         self.actExportCurrentSize = QtWidgets.QAction(PlotWindow)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("."), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("ui/."), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actExportCurrentSize.setIcon(icon)
         self.actExportCurrentSize.setObjectName("actExportCurrentSize")
         self.actExportSelectedSize = QtWidgets.QAction(PlotWindow)

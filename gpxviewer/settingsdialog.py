@@ -54,6 +54,7 @@ class SettingsDialog(QDialog):
     self.ui.distanceCoeffSpinBox.setValue(self.settings['DistanceCoefficient'])
     self.ui.showCoefficientCheckBox.setChecked(self.settings['ShowDistanceCoefficient'])
     self.ui.timezoneSpinBox.setValue(self.settings['TimeZoneOffset'])
+    self.ui.sortByTimeCheckBox.setChecked(self.settings['SortByTime'])
     self.ui.nameTagBox.setCurrentIndex(self.settings['ReadNameFromTag'])
     self.ui.coordinateBox.setCurrentIndex(self.settings['CoordinateFormat'])
 
@@ -78,6 +79,7 @@ class SettingsDialog(QDialog):
     self.ui.distanceCoeffSpinBox.valueChanged.connect(self.setDistanceCoefficient)
     self.ui.showCoefficientCheckBox.toggled[bool].connect(self.setShowDistanceCoefficient)
     self.ui.timezoneSpinBox.valueChanged.connect(self.setTimeZoneOffset)
+    self.ui.sortByTimeCheckBox.toggled[bool].connect(self.setSortByTime)
     self.ui.nameTagBox.currentIndexChanged.connect(self.setNameTag)
     self.ui.coordinateBox.currentIndexChanged.connect(self.setCoordinateFormat)
 
@@ -156,6 +158,10 @@ class SettingsDialog(QDialog):
   @pyqtSlot()
   def setTimeZoneOffset(self):
     self.settings['TimeZoneOffset'] = self.ui.timezoneSpinBox.value()
+
+  @pyqtSlot(bool)
+  def setSortByTime(self, enabled):
+    self.settings['SortByTime'] = enabled
 
   @pyqtSlot()
   def setNameTag(self):

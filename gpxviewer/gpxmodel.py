@@ -346,7 +346,6 @@ class GpxParser(QObject):
     elif TheConfig.getValue('ProfileStyle', 'ReadNameFromTag') == 2:  # Description
       tag = 'desc'
 
-    wptid = self.wptmodel.rowCount()
     for p in doc.iterfind('.//{%(ns)s}wpt' % ns):
       try:
         point = {}
@@ -366,6 +365,14 @@ class GpxParser(QObject):
         point[DIST] = ''
         point[TIMEDELTA] = ''
         point[TIME_DAYS] = ''
+
+        wptid = self.wptmodel.rowCount()
+        # Sort points by time
+        if TheConfig.getValue('ProfileStyle', 'SortByTime') and point[TIME] != '':
+          while wptid > 0 and self.wptmodel.waypoints[wptid - 1][TIME] != '' and point[TIME] < self.wptmodel.waypoints[wptid - 1][TIME]:
+            wptid -= 1
+          for i in range(wptid, self.wptmodel.rowCount()):
+            self.wptmodel.waypoints[i]['ID'] += 1
         point['ID'] = wptid
 
         # Additional fields
@@ -374,15 +381,14 @@ class GpxParser(QObject):
         point['SYM'] = p.findtext('{%(ns)s}sym' % ns)
 
         self.wptmodel.beginInsertRows(QModelIndex(), wptid, wptid)
-        self.wptmodel.waypoints += [point]
-        self.wptmodel.includeStates += [True]
-        self.wptmodel.markerStates += [False]
-        self.wptmodel.captionStates += [False]
-        self.wptmodel.splitStates += [False]
-        self.wptmodel.neglectStates += [False]
-        self.wptmodel.pointStyles += [{}]
+        self.wptmodel.waypoints.insert(wptid, point)
+        self.wptmodel.includeStates.insert(wptid, True)
+        self.wptmodel.markerStates.insert(wptid, False)
+        self.wptmodel.captionStates.insert(wptid, False)
+        self.wptmodel.splitStates.insert(wptid, False)
+        self.wptmodel.neglectStates.insert(wptid, False)
+        self.wptmodel.pointStyles.insert(wptid, {})
         self.wptmodel.endInsertRows()
-        wptid += 1
 
       except (TypeError, ValueError):
         self.warningSent.emit(self.tr('File read error'),
