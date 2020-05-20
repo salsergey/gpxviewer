@@ -95,9 +95,9 @@ class GpxMainWindow(QMainWindow):
     self.initColumnsToCopy()
     self.resize(TheConfig['MainWindow'].getint('WindowWidth'), TheConfig['MainWindow'].getint('WindowHeight'))
 
-    self.plot = plt.PlotWindow()
-    self.plot.profileChanged.connect(self.setProjectChanged)
-    self.stat = stat.StatWindow()
+    self.plotWindow = plt.PlotWindow()
+    self.plotWindow.profileChanged.connect(self.setProjectChanged)
+    self.statWindow = stat.StatWindow()
 
   def updateTheme(self):
     self.themeSelector = QFileSelector()
@@ -154,8 +154,8 @@ class GpxMainWindow(QMainWindow):
         event.ignore()
         return
 
-    self.plot.close()
-    self.stat.close()
+    self.plotWindow.close()
+    self.statWindow.close()
     TheDocument.close()
     TheConfig.save()
     super(GpxMainWindow, self).closeEvent(event)
@@ -684,13 +684,13 @@ class GpxMainWindow(QMainWindow):
       QMessageBox.warning(self, self.tr('Plot error'), self.tr('Not enouph points or tracks.'))
       return
 
-    self.plot.setWindowTitle(self.tr('Distance Profile'))
-    self.plot.show()
+    self.plotWindow.setWindowTitle(self.tr('Distance Profile'))
+    self.plotWindow.show()
     if TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly'):
-      self.plot.plotProfile(gpx.DIST, [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], [i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
+      self.plotWindow.plotProfile(gpx.DIST, [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], [i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
     else:
-      self.plot.plotProfile(gpx.DIST)
-    self.plot.activateWindow()
+      self.plotWindow.plotProfile(gpx.DIST)
+    self.plotWindow.activateWindow()
 
   @pyqtSlot()
   def onPlotTimeProfile(self):
@@ -710,14 +710,14 @@ class GpxMainWindow(QMainWindow):
         QMessageBox.warning(self, self.tr('Plot error'), self.tr('Not enouph points or tracks.'))
         return
 
-    self.plot.setWindowTitle(self.tr('Time Profile'))
-    self.plot.show()
+    self.plotWindow.setWindowTitle(self.tr('Time Profile'))
+    self.plotWindow.show()
     column = gpx.TIME if TheConfig.getValue('ProfileStyle', 'AbsoluteTime') else gpx.TIME_DAYS
     if TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly'):
-      self.plot.plotProfile(column, [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], [i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
+      self.plotWindow.plotProfile(column, [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], [i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
     else:
-      self.plot.plotProfile(column)
-    self.plot.activateWindow()
+      self.plotWindow.plotProfile(column)
+    self.plotWindow.activateWindow()
 
   @pyqtSlot()
   def onShowStatistics(self):
@@ -725,8 +725,8 @@ class GpxMainWindow(QMainWindow):
       QMessageBox.warning(self, self.tr('Statistics error'), self.tr('Not enouph points.'))
       return
 
-    self.stat.show()
-    self.stat.activateWindow()
+    self.statWindow.show()
+    self.statWindow.activateWindow()
 
   @pyqtSlot(bool)
   def onShowSkipped(self, show):

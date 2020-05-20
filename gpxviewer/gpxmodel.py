@@ -360,8 +360,7 @@ class GpxParser(QObject):
         self.maxalt = max(self.maxalt, point[ALT])
         time = p.findtext('{%(ns)s}time' % ns)
         if time is not None:
-          dt = datetime.strptime(time[:19].strip(), '%Y-%m-%dT%H:%M:%S')
-          point[TIME] = dt
+          point[TIME] = datetime.strptime(time[:19].strip(), '%Y-%m-%dT%H:%M:%S')
         else:
           point[TIME] = ''
         point[DIST] = ''
@@ -414,8 +413,7 @@ class GpxParser(QObject):
             self.maxalt = max(self.maxalt, point[ALT])
             time = p.findtext('{%(ns)s}time' % ns)
             if time is not None:
-              dt = datetime.strptime(time[:19].strip(), '%Y-%m-%dT%H:%M:%S')
-              point[TIME] = dt
+              point[TIME] = datetime.strptime(time[:19].strip(), '%Y-%m-%dT%H:%M:%S')
             else:
               point[TIME] = ''
 

@@ -133,7 +133,8 @@ class ConfigStore(configparser.ConfigParser):
         return self['ProfileStyle'][key]
 
     elif group == 'PointStyle':
-      if key in {'MarkerColor', 'MarkerSize', 'CaptionPositionX', 'CaptionPositionY', 'CaptionRotation', 'CaptionSize', 'SplitLineColor'}:
+      if key in {'MarkerColor', 'MarkerSize', 'CaptionPositionX', 'CaptionPositionY',
+                 'CaptionRotation', 'CaptionSize', 'SplitLineColor'}:
         return int(self['PointStyle'][key])
       elif key in {'SplitLineWidth'}:
         return float(self['PointStyle'][key])

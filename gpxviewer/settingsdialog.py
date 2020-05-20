@@ -32,24 +32,8 @@ class SettingsDialog(QDialog):
       self.ui.useSystemThemeCheckBox.hide()
 
     self.settings = {}
-    self.settings['ProfileColor'] = TheConfig.getValue('ProfileStyle', 'ProfileColor')
-    self.settings['FillColor'] = TheConfig.getValue('ProfileStyle', 'FillColor')
-    self.settings['ProfileWidth'] = TheConfig.getValue('ProfileStyle', 'ProfileWidth')
-    self.settings['MinimumAltitude'] = TheConfig.getValue('ProfileStyle', 'MinimumAltitude')
-    self.settings['MaximumAltitude'] = TheConfig.getValue('ProfileStyle', 'MaximumAltitude')
-    self.settings['SelectedPointsOnly'] = TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly')
-    self.settings['StartFromZero'] = TheConfig.getValue('ProfileStyle', 'StartFromZero')
-    self.settings['AutoscaleAltitudes'] = TheConfig.getValue('ProfileStyle', 'AutoscaleAltitudes')
-    self.settings['ShowHours'] = TheConfig.getValue('ProfileStyle', 'ShowHours')
-    self.settings['AbsoluteTime'] = TheConfig.getValue('ProfileStyle', 'AbsoluteTime')
-    self.settings['UseSystemTheme'] = TheConfig.getValue('ProfileStyle', 'UseSystemTheme')
-    self.settings['FontFamily'] = TheConfig.getValue('ProfileStyle', 'FontFamily')
-    self.settings['FontSize'] = TheConfig.getValue('ProfileStyle', 'FontSize')
-    self.settings['DistanceCoefficient'] = TheConfig.getValue('ProfileStyle', 'DistanceCoefficient')
-    self.settings['ShowDistanceCoefficient'] = TheConfig.getValue('ProfileStyle', 'ShowDistanceCoefficient')
-    self.settings['TimeZoneOffset'] = TheConfig.getValue('ProfileStyle', 'TimeZoneOffset')
-    self.settings['ReadNameFromTag'] = TheConfig.getValue('ProfileStyle', 'ReadNameFromTag')
-    self.settings['CoordinateFormat'] = TheConfig.getValue('ProfileStyle', 'CoordinateFormat')
+    for option in TheConfig['ProfileStyle'].keys():
+      self.settings[option] = TheConfig.getValue('ProfileStyle', option)
 
     self.ui.minaltSpinBox.setMaximum(self.settings['MaximumAltitude'] - 1)
     self.ui.maxaltSpinBox.setMinimum(self.settings['MinimumAltitude'] + 1)
@@ -100,24 +84,8 @@ class SettingsDialog(QDialog):
   def accept(self):
     super(SettingsDialog, self).accept()
 
-    TheConfig['ProfileStyle']['ProfileColor'] = str(self.settings['ProfileColor'])
-    TheConfig['ProfileStyle']['FillColor'] = str(self.settings['FillColor'])
-    TheConfig['ProfileStyle']['ProfileWidth'] = str(self.settings['ProfileWidth'])
-    TheConfig['ProfileStyle']['MinimumAltitude'] = str(self.settings['MinimumAltitude'])
-    TheConfig['ProfileStyle']['MaximumAltitude'] = str(self.settings['MaximumAltitude'])
-    TheConfig['ProfileStyle']['SelectedPointsOnly'] = str(self.settings['SelectedPointsOnly'])
-    TheConfig['ProfileStyle']['StartFromZero'] = str(self.settings['StartFromZero'])
-    TheConfig['ProfileStyle']['AutoscaleAltitudes'] = str(self.settings['AutoscaleAltitudes'])
-    TheConfig['ProfileStyle']['ShowHours'] = str(self.settings['ShowHours'])
-    TheConfig['ProfileStyle']['AbsoluteTime'] = str(self.settings['AbsoluteTime'])
-    TheConfig['ProfileStyle']['UseSystemTheme'] = str(self.settings['UseSystemTheme'])
-    TheConfig['ProfileStyle']['FontFamily'] = str(self.settings['FontFamily'])
-    TheConfig['ProfileStyle']['FontSize'] = str(self.settings['FontSize'])
-    TheConfig['ProfileStyle']['DistanceCoefficient'] = str(self.settings['DistanceCoefficient'])
-    TheConfig['ProfileStyle']['ShowDistanceCoefficient'] = str(self.settings['ShowDistanceCoefficient'])
-    TheConfig['ProfileStyle']['TimeZoneOffset'] = str(self.settings['TimeZoneOffset'])
-    TheConfig['ProfileStyle']['ReadNameFromTag'] = str(self.settings['ReadNameFromTag'])
-    TheConfig['ProfileStyle']['CoordinateFormat'] = str(self.settings['CoordinateFormat'])
+    for option in TheConfig['ProfileStyle'].keys():
+      TheConfig['ProfileStyle'][option] = str(self.settings[option])
 
   @pyqtSlot()
   def setProfileColor(self):

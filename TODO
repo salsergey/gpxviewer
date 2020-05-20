@@ -1,5 +1,6 @@
 == Major ==
 
+* Graph details mode (info, delete, etc.).
 * Map of the track.
 * Edit coordinates, altidude (geonames.org), time.
 * Speed graphs.
