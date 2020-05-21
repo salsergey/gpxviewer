@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2019 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2020 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -16,11 +16,9 @@
 
 import webbrowser
 from datetime import timedelta
-from math import ceil
-from PyQt5.QtCore import (Qt, QCoreApplication, QDate, QDateTime, QEvent, QFileSelector,
-                          QMargins, QSortFilterProxyModel, pyqtSignal, pyqtSlot)
-from PyQt5.QtGui import qAlpha, QColor, QCursor, QFont, QGuiApplication, QIcon, QPalette, QPen
-from PyQt5.QtWidgets import QAction, QDialog, QMenu, QMessageBox, QSizePolicy
+from PyQt5.QtCore import Qt, QCoreApplication, QDate, QDateTime, QFileSelector, QMargins, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QColor, QCursor, QFont, QGuiApplication, QIcon, QPen
+from PyQt5.QtWidgets import QAction, QDialog, QMenu, QMessageBox
 from QCustomPlot2 import (QCP, QCustomPlot, QCPAxisTickerDateTime, QCPAxisTickerFixed, QCPDataRange, QCPDataSelection,
                           QCPGraph, QCPItemPosition, QCPItemText, QCPScatterStyle)
 import gpxviewer.gpxmodel as gpx
@@ -87,8 +85,7 @@ class PlotCanvas(QCustomPlot):
     self.splitLines = []
     self.neglectPoints = []
 
-  @pyqtSlot()
-  def onFitWidth(self):
+  def fitWidth(self):
     self.xAxis.setRange(self.xx[0], self.xx[-1])
     self.replot()
 

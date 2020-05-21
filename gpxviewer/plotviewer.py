@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2019 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2020 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -104,7 +104,7 @@ class PlotWindow(QMainWindow):
 
   @pyqtSlot()
   def onFitWidth(self):
-    self.ui.canvasWidget.onFitWidth()
+    self.ui.canvasWidget.fitWidth()
 
   @pyqtSlot()
   def setExportWidth(self):
