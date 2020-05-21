@@ -1,4 +1,5 @@
 === Version 1.3 ===
+* Added possibility to zoom and drag the profile.
 * Added detailed view with more columns (speed, slope, etc.).
 * Added an option to sort imported points by time.
 * Changed dependency to QCustomPlot2.

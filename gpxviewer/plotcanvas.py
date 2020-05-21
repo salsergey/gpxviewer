@@ -54,6 +54,10 @@ class PlotCanvas(QCustomPlot):
 
     self.setInteraction(QCP.iSelectItems)
     self.setInteraction(QCP.iSelectPlottables)
+    self.setInteraction(QCP.iRangeDrag)
+    self.setInteraction(QCP.iRangeZoom)
+    self.axisRect().setRangeDrag(Qt.Horizontal)
+    self.axisRect().setRangeZoom(Qt.Horizontal)
 
     self.selectionChangedByUser.connect(self.onSelectionChanged)
 
@@ -82,6 +86,11 @@ class PlotCanvas(QCustomPlot):
     self.captions = []
     self.splitLines = []
     self.neglectPoints = []
+
+  @pyqtSlot()
+  def onFitWidth(self):
+    self.xAxis.setRange(self.xx[0], self.xx[-1])
+    self.replot()
 
   def updatePoints(self, wptRows, trkRows):
     if TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly') and TheConfig.getValue('ProfileStyle', 'StartFromZero') \
@@ -147,7 +156,6 @@ class PlotCanvas(QCustomPlot):
     gridColor.setAlpha(150)
     self.yAxis.grid().setPen(QPen(gridColor, 1, Qt.DashLine))
 
-    self.xAxis.setRange(self.xx[0], self.xx[-1])
     self.yAxis.setRange(self.minalt, self.maxalt)
     self.xTicker.setType(self.column)
 
@@ -181,6 +189,7 @@ class PlotCanvas(QCustomPlot):
     self.setCurrentLayer('main')
     self.updatePoints(wptRows, trkRows)
     self.updateAxes()
+    self.onFitWidth()
 
     self.setCurrentLayer('profile')
     for n in range(1, len(self.neglectPoints)):
@@ -233,6 +242,16 @@ class PlotCanvas(QCustomPlot):
     else:
       super(PlotCanvas, self).keyPressEvent(event)
 
+  def mouseMoveEvent(self, event):
+    if self.axisRect().rect().contains(event.pos()) and \
+       self.plottableAt(event.pos(), True) is None and self.itemAt(event.pos(), True) is None:
+      self.setCursor(QCursor(Qt.OpenHandCursor))
+    elif event.pos().x() < self.axisRect().rect().left():
+      self.setCursor(QCursor(Qt.SizeVerCursor))
+    else:
+      self.setCursor(QCursor())
+    super(PlotCanvas, self).mouseMoveEvent(event)
+
   def mouseReleaseEvent(self, event):
     if event.button() == Qt.RightButton:
       self.deselectAll()
@@ -258,7 +277,8 @@ class PlotCanvas(QCustomPlot):
       self.updateAxes()
       self.replot()
       self.profileChanged.emit()
-    super(PlotCanvas, self).wheelEvent(event)
+    else:
+      super(PlotCanvas, self).wheelEvent(event)
 
   def contextMenu(self):
     actMarker = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-marker.svg')), self.tr('Points with markers'), self)

@@ -337,6 +337,8 @@ class GpxMainWindow(QMainWindow):
                            <ul>
                            <li>Left/right mouse buttons select markers or captions</li>
                            <li>Selected captions are moved by up/down/left/right buttons</li>
+                           <li>Mouse wheel zooms the image horizontally</li>
+                           <li>Left mouse button drags the image horizontally</li>
                            <li>Mouse wheel over the left axis changes minimum/maximum altitude</li>
                            </ul>''')
     msg = QMessageBox(self)
@@ -579,6 +581,9 @@ class GpxMainWindow(QMainWindow):
       return False
 
   def openGPXFiles(self, filenames):
+    if len(filenames) == 0:
+      return
+
     for f in filenames:
       self.openGPXFile(f)
     TheDocument.gpxparser.updatePoints()

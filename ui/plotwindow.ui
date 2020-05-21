@@ -32,6 +32,8 @@
    </attribute>
    <addaction name="actExportCurrentSize"/>
    <addaction name="actExportSelectedSize"/>
+   <addaction name="separator"/>
+   <addaction name="actFitWidth"/>
   </widget>
   <action name="actExportCurrentSize">
    <property name="icon">
@@ -55,6 +57,14 @@
    </property>
    <property name="toolTip">
     <string>Export selected size</string>
+   </property>
+  </action>
+  <action name="actFitWidth">
+   <property name="text">
+    <string>Fit width</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+R</string>
    </property>
   </action>
  </widget>
@@ -100,9 +110,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actFitWidth</sender>
+   <signal>triggered()</signal>
+   <receiver>PlotWindow</receiver>
+   <slot>onFitWidth()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onSaveCurrentSize()</slot>
   <slot>onSaveSelectedSize()</slot>
+  <slot>onFitWidth()</slot>
  </slots>
 </ui>

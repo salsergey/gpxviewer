@@ -144,6 +144,7 @@ class Ui_MainWindow(object):
         self.actionResetColumns.setObjectName("actionResetColumns")
         self.actionDetailedView = QtWidgets.QAction(MainWindow)
         self.actionDetailedView.setCheckable(True)
+        self.actionDetailedView.setShortcut("Ctrl+D")
         self.actionDetailedView.setObjectName("actionDetailedView")
         self.menuRecentProjects.addAction(self.actionClearList)
         self.menuFile.addAction(self.actionLoadGPXfile)
@@ -261,4 +262,3 @@ class Ui_MainWindow(object):
         self.actionCopy.setText(_translate("MainWindow", "&Copy"))
         self.actionResetColumns.setText(_translate("MainWindow", "&Reset columns"))
         self.actionDetailedView.setText(_translate("MainWindow", "&Detailed view"))
-        self.actionDetailedView.setShortcut(_translate("MainWindow", "Ctrl+D"))

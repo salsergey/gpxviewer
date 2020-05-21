@@ -31,6 +31,7 @@
         <file>icons/qtlogo.svg</file>
         <file>icons/yandexmaps.png</file>
         <file>icons/zoomearth.png</file>
+        <file>icons/zoom-fit-width.svg</file>
         <file>icons/+dark_theme/configure.svg</file>
         <file>icons/+dark_theme/distanceprofile.svg</file>
         <file>icons/+dark_theme/document-new.svg</file>
@@ -53,6 +54,7 @@
         <file>icons/+dark_theme/waypoint-neglect-distance.svg</file>
         <file>icons/+dark_theme/waypoint-skip.svg</file>
         <file>icons/+dark_theme/waypoint-splitline.svg</file>
+        <file>icons/+dark_theme/zoom-fit-width.svg</file>
         <file>translations/gpxviewer_ru.qm</file>
     </qresource>
 </RCC>

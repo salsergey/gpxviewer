@@ -32,6 +32,7 @@ class PlotWindow(QMainWindow):
     self.themeSelector.setExtraSelectors([TheConfig['MainWindow']['ColorTheme']])
     self.ui.actExportCurrentSize.setIcon(QIcon(self.themeSelector.select(':/icons/document-save.svg')))
     self.ui.actExportSelectedSize.setIcon(QIcon(self.themeSelector.select(':/icons/document-save-as.svg')))
+    self.ui.actFitWidth.setIcon(QIcon(self.themeSelector.select(':/icons/zoom-fit-width.svg')))
 
     self.ui.actExportCurrentSize.setShortcut(QKeySequence.Save)
     self.ui.actExportSelectedSize.setShortcut(QKeySequence.SaveAs)
@@ -100,6 +101,10 @@ class PlotWindow(QMainWindow):
 
     if filename != '':
       self.ui.canvasWidget.saveProfile(filename, figsize=(self.widthSpinBox.value(), self.heightSpinBox.value()))
+
+  @pyqtSlot()
+  def onFitWidth(self):
+    self.ui.canvasWidget.onFitWidth()
 
   @pyqtSlot()
   def setExportWidth(self):
