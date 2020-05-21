@@ -111,9 +111,9 @@ class StatWindow(QMainWindow):
     for i, p in enumerate(TheDocument.wptmodel.waypoints):
       if TheDocument.wptmodel.index(i, 0).data(gpx.IncludeRole):
         if p[gpx.ALT] > point_prev[gpx.ALT]:
-          alt_raise += p[gpx.ALT] - point_prev[gpx.ALT]
+          alt_raise += round(p[gpx.ALT] - point_prev[gpx.ALT])
         else:
-          alt_drop += point_prev[gpx.ALT] - p[gpx.ALT]
+          alt_drop += round(point_prev[gpx.ALT] - p[gpx.ALT])
         point_prev = p
 
         if i in segments:

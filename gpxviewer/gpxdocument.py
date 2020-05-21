@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2019 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2020 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -187,7 +187,7 @@ class GpxDocument(QObject):
       if 'SplitLines' in self.doc:
         self.wptmodel.setSplitLines(self.doc['SplitLines'], True)
       if 'NeglectDistances' in self.doc:
-        self.wptmodel.setNeglectStates(self.doc['NeglectDistances'], True)
+        self.wptmodel.setNeglectStates(self.doc['NeglectDistances'], True, False)
       if 'SkipTracks' in self.doc:
         self.trkmodel.setIncludeStates(self.doc['SkipTracks'], False, False)
 

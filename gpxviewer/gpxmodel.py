@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2019 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2020 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -22,7 +22,7 @@ from PyQt5.QtGui import QColor, QFont, QGuiApplication, QPainter, QPainterPath, 
 from gpxviewer.configstore import TheConfig
 
 
-WPTFIELDS = NAME, LAT, LON, ALT, DIST, TIME, TIMEDELTA, TIME_DAYS = range(8)
+WPTFIELDS = NAME, LAT, LON, ALT, DIST, TIME, TIME_DELTA, TIME_DAYS, DIST_DELTA, ALT_DELTA, SPEED, ALT_SPEED, SLOPE = range(13)
 TRKFIELDS = TRKNAME, TRKSEGS, TRKPTS, TRKLEN, TRKTIME, TRKDUR = range(6)
 ValueRole, IDRole, IncludeRole, MarkerRole, CaptionRole, SplitLineRole, NeglectRole, MarkerStyleRole, CaptionStyleRole, SplitLineStyleRole = range(Qt.UserRole, Qt.UserRole + 10)
 MARKER_COLOR, MARKER_STYLE, MARKER_SIZE, CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE, LINE_COLOR, LINE_STYLE, LINE_WIDTH = \
@@ -37,12 +37,16 @@ class GpxWarning(Exception):
 class WptModel(QAbstractTableModel):
   def __init__(self, parent=None):
     super(WptModel, self).__init__(parent)
+
+    self.defaultColumnsCount = 7
+
     # Workaround to init columns to copy for the first time
     if len(TheConfig.columnsToCopy) == 0:
       TheConfig.columnsToCopy = list(WPTFIELDS)
 
-    self.fields = [self.tr('Name'), self.tr('Latitude'), self.tr('Longitude'), self.tr('Elevation'),
-                   self.tr('Distance'), self.tr('Time'), self.tr('Time difference'), self.tr('Time in days')]
+    self.fields = [self.tr('Name'), self.tr('Latitude'), self.tr('Longitude'), self.tr('Altitude (m)'),
+                   self.tr('Distance (km)'), self.tr('Time'), self.tr('Time difference'), self.tr('Time in days'),
+                   self.tr('Distance difference (km)'), self.tr('Altitude difference (m)'), self.tr('Speed (km/h)'), self.tr('Climbing speed (m/h)'), self.tr('Slope (m/km)')]
     self.resetModel()
     self.pix = QPixmap(16, 16)
     self.pix.fill(Qt.transparent)
@@ -63,7 +67,7 @@ class WptModel(QAbstractTableModel):
     if parent is not None and parent.isValid():
       return 0
     else:
-      return len(self.fields)
+      return len(self.fields) if TheConfig.getboolean('MainWindow', 'DetailedView') else self.defaultColumnsCount
 
   def data(self, index, role=Qt.DisplayRole):
     if role == Qt.DisplayRole or role == Qt.EditRole:
@@ -71,7 +75,7 @@ class WptModel(QAbstractTableModel):
         return self.changedNames[index.row()]
       elif index.column() == TIME and self.waypoints[index.row()][index.column()] != '':
         return str(self.waypoints[index.row()][index.column()] + timedelta(minutes=TheConfig.getValue('ProfileStyle', 'TimeZoneOffset')))
-      elif index.column() == LAT or index.column() == LON:
+      elif index.column() in {LAT, LON}:
         if TheConfig.getValue('ProfileStyle', 'CoordinateFormat') == 0:  # Decimal degrees
           return str(round(self.waypoints[index.row()][index.column()], 6))
         elif TheConfig.getValue('ProfileStyle', 'CoordinateFormat') == 1:  # Degrees with decimal minutes
@@ -84,6 +88,10 @@ class WptModel(QAbstractTableModel):
           sec, min = modf(min)
           sec = round(sec * 60, 2)
           return str(int(deg)) + '°' + str(int(min)) + '\'' + str(sec) + '"'
+      elif index.column() in {ALT, ALT_DELTA, ALT_SPEED, SLOPE} and self.waypoints[index.row()][index.column()] != '':
+        return str(round(self.waypoints[index.row()][index.column()]))
+      elif index.column() in {DIST, TIME_DAYS, DIST_DELTA, SPEED} and self.waypoints[index.row()][index.column()] != '':
+        return str(round(self.waypoints[index.row()][index.column()], 3))
       else:
         return str(self.waypoints[index.row()][index.column()])
     elif role == Qt.DecorationRole and index.column() == NAME:
@@ -237,10 +245,11 @@ class WptModel(QAbstractTableModel):
           self.pointStyles[i][key] = TheConfig.getValue('PointStyle', key)
     self.wptDataChanged.emit()
 
-  def setNeglectStates(self, IDs, state):
+  def setNeglectStates(self, IDs, state, update=True):
     for i in IDs:
       self.neglectStates[i] = state
-    self.parent().updateDistance()
+    if update:
+      self.parent().updateDistance()
     self.wptDataChanged.emit()
 
   def setPointStyle(self, IDs, key, value):
@@ -254,6 +263,14 @@ class WptModel(QAbstractTableModel):
         del self.changedNames[i]
         self.dataChanged.emit(self.index(i, NAME), self.index(i, NAME))
         self.wptDataChanged.emit()
+
+  def detailedViewToggled(self, enabled):
+    if enabled:
+      self.beginInsertColumns(QModelIndex(), self.defaultColumnsCount, len(self.fields) - 1)
+      self.endInsertColumns()
+    else:
+      self.beginRemoveColumns(QModelIndex(), self.defaultColumnsCount, len(self.fields) - 1)
+      self.endRemoveColumns()
 
   wptDataChanged = pyqtSignal()
 
@@ -354,7 +371,7 @@ class GpxParser(QObject):
         point[LAT] = float(p.get('lat'))
         point[LON] = float(p.get('lon'))
         ele = p.findtext('{%(ns)s}ele' % ns)
-        point[ALT] = int(round(float(ele))) if ele is not None else 0
+        point[ALT] = float(ele) if ele is not None else 0
         self.minalt = min(self.minalt, point[ALT])
         self.maxalt = max(self.maxalt, point[ALT])
         time = p.findtext('{%(ns)s}time' % ns)
@@ -363,8 +380,13 @@ class GpxParser(QObject):
         else:
           point[TIME] = ''
         point[DIST] = ''
-        point[TIMEDELTA] = ''
+        point[TIME_DELTA] = ''
         point[TIME_DAYS] = ''
+        point[DIST_DELTA] = ''
+        point[ALT_DELTA] = ''
+        point[SPEED] = ''
+        point[ALT_SPEED] = ''
+        point[SLOPE] = ''
 
         wptid = self.wptmodel.rowCount()
         # Sort points by time
@@ -414,7 +436,7 @@ class GpxParser(QObject):
             point[LAT] = float(p.get('lat'))
             point[LON] = float(p.get('lon'))
             ele = p.findtext('{%(ns)s}ele' % ns)
-            point[ALT] = int(round(float(ele))) if ele is not None else 0
+            point[ALT] = float(ele) if ele is not None else 0
             self.minalt = min(self.minalt, point[ALT])
             self.maxalt = max(self.maxalt, point[ALT])
             time = p.findtext('{%(ns)s}time' % ns)
@@ -452,8 +474,8 @@ class GpxParser(QObject):
         self.warningSent.emit(self.tr('File read error'),
                               self.tr('Track ') + (track[TRKNAME] + ' ' if track[TRKNAME] != '' else '') + self.tr('is invalid and will be skipped.', 'Track'))
 
-    TheConfig['ProfileStyle']['MinimumAltitude'] = str(round(self.minalt, -3) - 500 if round(self.minalt, -3) > self.minalt else round(self.minalt, -3))
-    TheConfig['ProfileStyle']['MaximumAltitude'] = str(round(self.maxalt, -3) + 500 if round(self.maxalt, -3) < self.maxalt else round(self.maxalt, -3))
+    TheConfig['ProfileStyle']['MinimumAltitude'] = str(int(round(self.minalt, -3) - 500 if round(self.minalt, -3) > self.minalt else round(self.minalt, -3)))
+    TheConfig['ProfileStyle']['MaximumAltitude'] = str(int(round(self.maxalt, -3) + 500 if round(self.maxalt, -3) < self.maxalt else round(self.maxalt, -3)))
 
   def updatePoints(self):
     self.points = []
@@ -483,8 +505,8 @@ class GpxParser(QObject):
         if self.wptmodel.includeStates[i]:
           self.points += [i]
 
-    self.updateDistance()
     self.updateTimeDifference()
+    self.updateDistance()
 
   def updateDistance(self):
     prev_lat = None
@@ -498,7 +520,7 @@ class GpxParser(QObject):
         lon = self.wptmodel.waypoints[p][LON]
         if not self.wptmodel.neglectStates[p] and prev_lat is not None and prev_lon is not None:
           dist += _distance(lat, lon, prev_lat, prev_lon) * dist_coeff
-        self.wptmodel.waypoints[p][DIST] = round(dist, 3)
+        self.wptmodel.waypoints[p][DIST] = dist
         prev_lat = lat
         prev_lon = lon
       else:
@@ -506,15 +528,17 @@ class GpxParser(QObject):
         lon = self.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][LON]
         if prev_lat is not None and prev_lon is not None:
           dist += _distance(lat, lon, prev_lat, prev_lon) * dist_coeff
-        self.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][DIST] = round(dist, 3)
+        self.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][DIST] = dist
         prev_lat = lat
         prev_lon = lon
 
     for i in self.wptmodel.getSkippedPoints():
       self.wptmodel.waypoints[i][DIST] = ''
 
-    for i in self.trkmodel.tracks:
-      i[TRKLEN] = round(i['LENGTH'] * dist_coeff, 3)
+    for t in self.trkmodel.tracks:
+      t[TRKLEN] = round(t['LENGTH'] * dist_coeff, 3)
+
+    self.updateDetailedData()
 
   def updateTimeDifference(self):
     start_dt = None
@@ -529,10 +553,10 @@ class GpxParser(QObject):
 
     for i, p in enumerate(self.wptmodel.waypoints):
       if self.wptmodel.includeStates[i] and p[TIME] != '':
-        p[TIMEDELTA] = p[TIME] - start_dt
-        p[TIME_DAYS] = round(p[TIMEDELTA].days + p[TIMEDELTA].seconds / 60.0 / 60.0 / 24.0, 3)
+        p[TIME_DELTA] = p[TIME] - start_dt
+        p[TIME_DAYS] = p[TIME_DELTA].days + p[TIME_DELTA].seconds / 60.0 / 60.0 / 24.0
       else:
-        p[TIMEDELTA] = ''
+        p[TIME_DELTA] = ''
         p[TIME_DAYS] = ''
 
     for i, track in enumerate(self.trkmodel.tracks):
@@ -541,9 +565,44 @@ class GpxParser(QObject):
           for p in seg:
             if p[TIME] != '':
               time_delta = p[TIME] - start_dt
-              p[TIME_DAYS] = round(time_delta.days + time_delta.seconds / 60.0 / 60.0 / 24.0, 3)
+              p[TIME_DAYS] = time_delta.days + time_delta.seconds / 60.0 / 60.0 / 24.0
             else:
               p[TIME_DAYS] = ''
+
+  def updateDetailedData(self):
+    i = 0
+    for i, p in enumerate(self.wptmodel.waypoints):
+      if self.wptmodel.includeStates[i]:
+        prev = p
+        break
+      else:
+        p[DIST_DELTA] = ''
+        p[ALT_DELTA] = ''
+        p[SPEED] = ''
+        p[ALT_SPEED] = ''
+        p[SLOPE] = ''
+
+    prev[DIST_DELTA] = 0.0
+    prev[ALT_DELTA] = 0
+    prev[SPEED] = 0.0
+    prev[ALT_SPEED] = 0.0
+    prev[SLOPE] = 0.0
+
+    for j, p in enumerate(self.wptmodel.waypoints[i+1:], i + 1):
+      if self.wptmodel.includeStates[j]:
+        dt = (p[TIME_DAYS] - prev[TIME_DAYS]) * 24.0 if p[TIME_DAYS] != '' and prev[TIME_DAYS] != 0 else 0
+        p[DIST_DELTA] = p[DIST] - prev[DIST]
+        p[ALT_DELTA] = p[ALT] - prev[ALT]
+        p[SPEED] = p[DIST_DELTA] / dt if dt != 0 else 0.0
+        p[ALT_SPEED] = p[ALT_DELTA] / dt if dt != 0 else 0.0
+        p[SLOPE] = p[ALT_DELTA] / p[DIST_DELTA] if p[DIST_DELTA] != 0 else 0.0
+        prev = p
+      else:
+        p[DIST_DELTA] = ''
+        p[ALT_DELTA] = ''
+        p[SPEED] = ''
+        p[ALT_SPEED] = ''
+        p[SLOPE] = ''
 
   def writeToFile(self, filename):
     root = ET.Element('gpx', attrib={'version': '1.1',

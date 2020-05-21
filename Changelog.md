@@ -1,3 +1,8 @@
+=== Version 1.3 ===
+* Added detailed view with more columns (speed, slope, etc.).
+* Added an option to sort imported points by time.
+* Changed dependency to QCustomPlot2.
+
 === Version 1.2 ===
 * Added possibility to show absolute date and time in the X axis labels.
 * Added several new options to settings dialog and point properties dialog.

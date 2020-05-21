@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2019 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2020 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -74,6 +74,7 @@ class GpxMainWindow(QMainWindow):
     self.ui.wptView.installEventFilter(self)
     self.ui.trkView.installEventFilter(self)
 
+    self.ui.actionDetailedView.setChecked(TheConfig['MainWindow'].getboolean('DetailedView'))
     self.ui.actionShowSkipped.setChecked(TheConfig['MainWindow'].getboolean('ShowSkipped'))
     self.ui.actionShowMarked.setChecked(TheConfig['MainWindow'].getboolean('ShowMarked'))
     self.ui.actionShowCaptioned.setChecked(TheConfig['MainWindow'].getboolean('ShowCaptioned'))
@@ -308,7 +309,7 @@ class GpxMainWindow(QMainWindow):
                 self.tr('Using') + ' Python ' + str(sys.version_info.major) + '.' + str(sys.version_info.minor) + '.' + str(sys.version_info.micro) + ', ' + \
                 'PyQt5 ' + PYQT_VERSION_STR + ', ' + \
                 'Qt ' + QT_VERSION_STR + '<br><br>' + \
-                'Copyright 2016-2019 Sergey Salnikov <a href=mailto:salsergey@gmail.com>&lt;salsergey@gmail.com&gt;</a><br><br>' + \
+                'Copyright 2016-2020 Sergey Salnikov <a href=mailto:salsergey@gmail.com>&lt;salsergey@gmail.com&gt;</a><br><br>' + \
                 self.tr('License:') + ' <a href=http://www.gnu.org/licenses/gpl.html>GNU General Public License, version 3</a>'
     QMessageBox.about(self, self.tr('About GPX Viewer'), aboutText)
 
@@ -727,6 +728,11 @@ class GpxMainWindow(QMainWindow):
 
     self.statWindow.show()
     self.statWindow.activateWindow()
+
+  @pyqtSlot(bool)
+  def onDetailedView(self, enable):
+    TheConfig['MainWindow']['DetailedView'] = str(enable)
+    TheDocument.wptmodel.detailedViewToggled(enable)
 
   @pyqtSlot(bool)
   def onShowSkipped(self, show):

@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2019 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2020 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -46,6 +46,7 @@ class ConfigStore(configparser.ConfigParser):
                                'LoadGPXDirectory': os.path.expanduser('~'),
                                'ProjectDirectory': os.path.expanduser('~'),
                                'ProjectExtension': QCoreApplication.translate('ConfigStore', 'GPX Viewer Projects (*.gpxv *.GPXV)'),
+                               'DetailedView': False,
                                'ShowDefault': True,
                                'ShowSkipped': True,
                                'ShowMarked': True,

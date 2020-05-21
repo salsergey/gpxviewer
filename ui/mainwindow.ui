@@ -110,10 +110,12 @@
     <addaction name="actionAboutQt"/>
     <addaction name="actionAboutGPXViewer"/>
    </widget>
-   <widget class="QMenu" name="menuFilter">
+   <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>F&amp;ilter</string>
+     <string>&amp;View</string>
     </property>
+    <addaction name="actionDetailedView"/>
+    <addaction name="separator"/>
     <addaction name="actionShowSkipped"/>
     <addaction name="actionShowMarked"/>
     <addaction name="actionShowCaptioned"/>
@@ -147,7 +149,7 @@
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
-   <addaction name="menuFilter"/>
+   <addaction name="menuView"/>
    <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -366,6 +368,17 @@
   <action name="actionResetColumns">
    <property name="text">
     <string>&amp;Reset columns</string>
+   </property>
+  </action>
+  <action name="actionDetailedView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Detailed view</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
    </property>
   </action>
  </widget>
@@ -739,6 +752,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionDetailedView</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onDetailedView()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onFileOpen()</slot>
@@ -763,5 +792,6 @@
   <slot>onResetFilters()</slot>
   <slot>onResetColumns()</slot>
   <slot>onEditCopy()</slot>
+  <slot>onDetailedView()</slot>
  </slots>
 </ui>
