@@ -771,149 +771,169 @@ NOTE: Some files can be overwritten.</source>
 <context>
     <name>PlotCanvas</name>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="181"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="201"/>
         <source>Time (days)</source>
         <translation>Время (дни)</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="184"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="204"/>
         <source>Altitude (m)</source>
         <translation>Высота (м)</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="183"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="203"/>
         <source>Time (hours)</source>
         <translation>Время (часы)</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="178"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="198"/>
         <source>Distance (km)</source>
         <translation>Расстояние (км)</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="176"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="196"/>
         <source>Distance with coefficient </source>
         <translation>Расстояние с коэффициентом </translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="176"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="196"/>
         <source> (km)</source>
         <translation> (км)</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="284"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="337"/>
         <source>Points with markers</source>
         <translation>Точки с маркерами</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="288"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="341"/>
         <source>Points with captions</source>
         <translation>Точки с подписями</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="292"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="345"/>
         <source>Points with splitting lines</source>
         <translation>Точки с разделительными линиями</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="296"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="349"/>
         <source>Point style</source>
         <translation>Стиль точек</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="307"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="360"/>
         <source>Google Maps</source>
         <translation>Карты Google</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="309"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="362"/>
         <source>Yandex Maps</source>
         <translation>Карты Yandex</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="311"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="364"/>
         <source>Zoom Earth</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="313"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="366"/>
         <source>OpenCycleMap</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="315"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="368"/>
         <source>OpenTopoMap</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="317"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="370"/>
         <source>Loadmap.net</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="320"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="373"/>
         <source>Show on map</source>
         <translation>Показать на карте</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="218"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="241"/>
         <source>Save error</source>
         <translation>Ошибка сохранения</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="218"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="241"/>
         <source>Error writing file </source>
         <translation>Ошибка при записи файла </translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="218"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="241"/>
         <source>.
 Probably the given format isn&apos;t supported by the system.</source>
         <translation>.
 Возможно, данный формат не поддерживается системой.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="481"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="534"/>
         <source>day </source>
         <translation>день </translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/plotcanvas.py" line="289"/>
+        <source>Distance: </source>
+        <translation>Расстояние: </translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/plotcanvas.py" line="291"/>
+        <source>Time: </source>
+        <translation>Время: </translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/plotcanvas.py" line="292"/>
+        <source>Altitude: </source>
+        <translation>Высота: </translation>
     </message>
 </context>
 <context>
     <name>PlotWindow</name>
     <message>
-        <location filename="../../gpxviewer/ui_plotwindow.py" line="55"/>
+        <location filename="../../gpxviewer/ui_plotwindow.py" line="61"/>
         <source>Export current size</source>
         <translation>Экспорт текущего размера</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_plotwindow.py" line="57"/>
+        <location filename="../../gpxviewer/ui_plotwindow.py" line="63"/>
         <source>Export selected size</source>
         <translation>Экспорт выбранного размера</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotviewer.py" line="43"/>
+        <location filename="../../gpxviewer/plotviewer.py" line="44"/>
         <source>Set size for export:</source>
         <translation>Размер для экспорта:</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotviewer.py" line="93"/>
+        <location filename="../../gpxviewer/plotviewer.py" line="94"/>
         <source>Export profile of the current size</source>
         <translation>Экспортировать профиль текущего размера</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotviewer.py" line="100"/>
+        <location filename="../../gpxviewer/plotviewer.py" line="101"/>
         <source>Export profile of the selected size</source>
         <translation>Экспортировать профиль выбранного размера</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotviewer.py" line="72"/>
+        <location filename="../../gpxviewer/plotviewer.py" line="73"/>
         <source>BMP images (*.bmp *.BMP);;JPEG images (*.jpg *.jpeg *.JPG *.JPEG);;Portable Document Format (*.pdf *.PDF);;PNG images (*.png *.PNG);;TIFF images (*.tif *tiff *.TIF *.TIFF);;All files (*)</source>
         <translation>Изображения BMP (*.bmp *.BMP);;Изображения JPEG (*.jpg *.jpeg *.JPG *.JPEG);;Portable Document Format (*.pdf *.PDF);;Изображения PNG (*.png *.PNG);;Изображения TIFF (*.tif *tiff *.TIF *.TIFF);;Все файлы (*)</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_plotwindow.py" line="58"/>
+        <location filename="../../gpxviewer/ui_plotwindow.py" line="64"/>
         <source>Fit width</source>
         <translation>Уместить по ширине</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_plotwindow.py" line="65"/>
+        <source>Show information</source>
+        <translation>Показать информацию</translation>
     </message>
 </context>
 <context>

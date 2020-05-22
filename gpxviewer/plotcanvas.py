@@ -20,7 +20,7 @@ from PyQt5.QtCore import Qt, QCoreApplication, QDate, QDateTime, QFileSelector, 
 from PyQt5.QtGui import QColor, QCursor, QFont, QGuiApplication, QIcon, QPen
 from PyQt5.QtWidgets import QAction, QDialog, QMenu, QMessageBox
 from QCustomPlot2 import (QCP, QCustomPlot, QCPAxisTickerDateTime, QCPAxisTickerFixed, QCPDataRange, QCPDataSelection,
-                          QCPGraph, QCPItemPosition, QCPItemText, QCPScatterStyle)
+                          QCPGraph, QCPItemPosition, QCPItemText, QCPItemTracer, QCPScatterStyle, QCPTextElement)
 import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import TheConfig
 from gpxviewer.gpxdocument import TheDocument
@@ -30,11 +30,6 @@ from gpxviewer.pointconfigdialog import PointConfigDialog
 class PlotCanvas(QCustomPlot):
   def __init__(self, parent=None):
     super(QCustomPlot, self).__init__(parent)
-    self.font = QFont()
-    self.font.setStyleHint(QFont.SansSerif)
-
-    self.themeSelector = QFileSelector()
-    self.themeSelector.setExtraSelectors([TheConfig['MainWindow']['ColorTheme']])
 
     self.axisRect().setupFullAxesBox(True)
     self.xAxis.setTickLabelPadding(10)
@@ -58,6 +53,25 @@ class PlotCanvas(QCustomPlot):
     self.axisRect().setRangeZoom(Qt.Horizontal)
 
     self.selectionChangedByUser.connect(self.onSelectionChanged)
+
+    self.font = QFont()
+    self.font.setStyleHint(QFont.SansSerif)
+
+    self.themeSelector = QFileSelector()
+    self.themeSelector.setExtraSelectors([TheConfig['MainWindow']['ColorTheme']])
+
+    self.showInfo = False
+    self.setAutoAddPlottableToLegend(False)
+    self.xLegendText = QCPTextElement(self)
+    self.yLegendText = QCPTextElement(self)
+    self.xLegendText.setMinimumSize(200, 0)
+    self.yLegendText.setMinimumSize(200, 0)
+    self.xLegendText.setLayer(self.legend.layer())
+    self.yLegendText.setLayer(self.legend.layer())
+    self.legend.addElement(self.xLegendText)
+    self.legend.addElement(self.yLegendText)
+    self.xLegendText.setMargins(QMargins(10, 5, 10, 5))
+    self.yLegendText.setMargins(QMargins(10, 5, 10, 5))
 
   def deselectAll(self):
     super(PlotCanvas, self).deselectAll()
@@ -138,10 +152,14 @@ class PlotCanvas(QCustomPlot):
     if TheConfig.getValue('ProfileStyle', 'UseSystemTheme'):
       textColor = QGuiApplication.palette().text().color()
       self.setBackground(QGuiApplication.palette().base())
+      self.legend.setBorderPen(textColor)
+      self.legend.setBrush(QGuiApplication.palette().base())
       gridColor = QGuiApplication.palette().light().color() if TheConfig['MainWindow']['ColorTheme'] == 'dark_theme' else QGuiApplication.palette().mid().color()
     else:
       textColor = QColor(Qt.black)
       self.setBackground(QColor(Qt.white))
+      self.legend.setBorderPen(textColor)
+      self.legend.setBrush(QColor(Qt.white))
       gridColor = QColor(Qt.gray)
 
     for axis in {self.xAxis, self.xAxis2, self.yAxis, self.yAxis2}:
@@ -162,6 +180,11 @@ class PlotCanvas(QCustomPlot):
     self.xAxis.setLabelFont(self.font)
     self.yAxis.setTickLabelFont(self.font)
     self.yAxis.setLabelFont(self.font)
+
+    for text in {self.xLegendText, self.yLegendText}:
+      text.setFont(self.font)
+      text.setTextColor(textColor)
+
     if self.column == gpx.TIME:
       self.xAxis.setTickLabelRotation(-90)
     else:
@@ -198,6 +221,9 @@ class PlotCanvas(QCustomPlot):
                            self.yy[self.xx.index(self.neglectPoints[n-1]) + (1 if n > 1 else 0):self.xx.index(self.neglectPoints[n]) + 1])
       self.graph().setSelectable(False)
 
+    self.setCurrentLayer('main')
+    if self.showInfo:
+      self.showInformation(True)
     self.replot()
 
   def saveProfile(self, filename, figsize=None):
@@ -215,6 +241,17 @@ class PlotCanvas(QCustomPlot):
       QMessageBox.warning(self, self.tr('Save error'), self.tr('Error writing file ') + filename +
                           self.tr('.\nProbably the given format isn\'t supported by the system.'))
 
+  def showInformation(self, enable):
+    if enable:
+      self.tracer = QCPItemTracer(self)
+      self.tracer.setSelectable(False)
+      lineColor = QGuiApplication.palette().text().color() if TheConfig.getValue('ProfileStyle', 'UseSystemTheme') else QColor(Qt.black)
+      self.tracer.setPen(QPen(lineColor))
+    self.tracer.setVisible(enable)
+    self.legend.setVisible(enable)
+    self.showInfo = enable
+    self.replot()
+
   def keyPressEvent(self, event):
     if event.key() == Qt.Key_Escape:
       if self.selectedElement is not None:
@@ -222,8 +259,10 @@ class PlotCanvas(QCustomPlot):
         self.replot()
       else:
         super(PlotCanvas, self).keyPressEvent(event)
+
     elif event.key() == Qt.Key_Menu and self.selectedElement is not None:
       self.contextMenu()
+
     elif event.key() in {Qt.Key_Left, Qt.Key_Right, Qt.Key_Down, Qt.Key_Up} and len(self.selectedItems()) == 1:
       x = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSX]
       y = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSY]
@@ -236,17 +275,40 @@ class PlotCanvas(QCustomPlot):
       elif event.key() == Qt.Key_Up:
         TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSY, y + 1)
       self.replot()
+
     else:
       super(PlotCanvas, self).keyPressEvent(event)
 
   def mouseMoveEvent(self, event):
-    if self.axisRect().rect().contains(event.pos()) and \
-       self.plottableAt(event.pos(), True) is None and self.itemAt(event.pos(), True) is None:
-      self.setCursor(QCursor(Qt.OpenHandCursor))
+    if self.axisRect().rect().contains(event.pos()):
+      # Show information
+      if self.showInfo:
+        self.setCursor(QCursor(Qt.CrossCursor))
+        for profile in self.layer('profile').children():
+          if profile.getKeyRange()[0].contains(self.xAxis.pixelToCoord(event.pos().x())):
+            self.tracer.setGraph(profile)
+        self.tracer.setGraphKey(self.xAxis.pixelToCoord(event.pos().x()))
+        self.replot()
+        if self.column == gpx.DIST:
+          self.xLegendText.setText(self.tr('Distance: ') + str(round(self.tracer.position.key(), 3)))
+        else:
+          self.xLegendText.setText(self.tr('Time: ') +
+                                   QCPAxisTickerDateTime.keyToDateTime(self.tracer.position.key()).toString('yyyy-MM-dd HH:mm:ss'))
+        self.yLegendText.setText(self.tr('Altitude: ') + str(round(self.tracer.position.value())))
+        self.replot()
+
+      else:  # not showing information
+        if self.plottableAt(event.pos(), True) is None and self.itemAt(event.pos(), True) is None:
+          self.setCursor(QCursor(Qt.OpenHandCursor))
+        else:
+          self.setCursor(QCursor())
+
+    # Outside the axes rect
     elif event.pos().x() < self.axisRect().rect().left():
       self.setCursor(QCursor(Qt.SizeVerCursor))
     else:
       self.setCursor(QCursor())
+
     super(PlotCanvas, self).mouseMoveEvent(event)
 
   def mouseReleaseEvent(self, event):
@@ -260,6 +322,7 @@ class PlotCanvas(QCustomPlot):
         self.onSelectionChanged()
         self.contextMenu()
       self.replot()
+
     super(PlotCanvas, self).mouseReleaseEvent(event)
 
   def wheelEvent(self, event):
@@ -274,7 +337,8 @@ class PlotCanvas(QCustomPlot):
       self.updateAxes()
       self.replot()
       self.profileChanged.emit()
-    else:
+
+    else:  # inside the axes rect
       super(PlotCanvas, self).wheelEvent(event)
 
   def contextMenu(self):

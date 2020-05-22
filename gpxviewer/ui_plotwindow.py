@@ -38,15 +38,21 @@ class Ui_PlotWindow(object):
         self.actFitWidth = QtWidgets.QAction(PlotWindow)
         self.actFitWidth.setShortcut("Ctrl+R")
         self.actFitWidth.setObjectName("actFitWidth")
+        self.actShowInformation = QtWidgets.QAction(PlotWindow)
+        self.actShowInformation.setCheckable(True)
+        self.actShowInformation.setShortcut("Ctrl+I")
+        self.actShowInformation.setObjectName("actShowInformation")
         self.toolBar.addAction(self.actExportCurrentSize)
         self.toolBar.addAction(self.actExportSelectedSize)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.actFitWidth)
+        self.toolBar.addAction(self.actShowInformation)
 
         self.retranslateUi(PlotWindow)
         self.actExportCurrentSize.triggered.connect(PlotWindow.onSaveCurrentSize)
         self.actExportSelectedSize.triggered.connect(PlotWindow.onSaveSelectedSize)
         self.actFitWidth.triggered.connect(PlotWindow.onFitWidth)
+        self.actShowInformation.triggered['bool'].connect(PlotWindow.onShowInformation)
         QtCore.QMetaObject.connectSlotsByName(PlotWindow)
 
     def retranslateUi(self, PlotWindow):
@@ -56,4 +62,5 @@ class Ui_PlotWindow(object):
         self.actExportSelectedSize.setText(_translate("PlotWindow", "Export selected size"))
         self.actExportSelectedSize.setToolTip(_translate("PlotWindow", "Export selected size"))
         self.actFitWidth.setText(_translate("PlotWindow", "Fit width"))
+        self.actShowInformation.setText(_translate("PlotWindow", "Show information"))
 from gpxviewer.plotcanvas import PlotCanvas

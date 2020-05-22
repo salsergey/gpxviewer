@@ -34,6 +34,7 @@
    <addaction name="actExportSelectedSize"/>
    <addaction name="separator"/>
    <addaction name="actFitWidth"/>
+   <addaction name="actShowInformation"/>
   </widget>
   <action name="actExportCurrentSize">
    <property name="icon">
@@ -65,6 +66,17 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actShowInformation">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show information</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+I</string>
    </property>
   </action>
  </widget>
@@ -126,10 +138,27 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actShowInformation</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>PlotWindow</receiver>
+   <slot>onShowInformation(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onSaveCurrentSize()</slot>
   <slot>onSaveSelectedSize()</slot>
   <slot>onFitWidth()</slot>
+  <slot>onShowInformation(bool)</slot>
  </slots>
 </ui>

@@ -33,6 +33,7 @@ class PlotWindow(QMainWindow):
     self.ui.actExportCurrentSize.setIcon(QIcon(self.themeSelector.select(':/icons/document-save.svg')))
     self.ui.actExportSelectedSize.setIcon(QIcon(self.themeSelector.select(':/icons/document-save-as.svg')))
     self.ui.actFitWidth.setIcon(QIcon(self.themeSelector.select(':/icons/zoom-fit-width.svg')))
+    self.ui.actShowInformation.setIcon(QIcon(self.themeSelector.select(':/icons/showinfo.svg')))
 
     self.ui.actExportCurrentSize.setShortcut(QKeySequence.Save)
     self.ui.actExportSelectedSize.setShortcut(QKeySequence.SaveAs)
@@ -105,6 +106,10 @@ class PlotWindow(QMainWindow):
   @pyqtSlot()
   def onFitWidth(self):
     self.ui.canvasWidget.fitWidth()
+
+  @pyqtSlot(bool)
+  def onShowInformation(self, enable):
+    self.ui.canvasWidget.showInformation(enable)
 
   @pyqtSlot()
   def setExportWidth(self):
