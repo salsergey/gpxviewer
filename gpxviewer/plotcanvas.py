@@ -291,7 +291,9 @@ class PlotCanvas(QCustomPlot):
         self.replot()
         if self.column == gpx.DIST:
           self.xLegendText.setText(self.tr('Distance: ') + str(round(self.tracer.position.key(), 3)))
-        else:
+        elif self.column == gpx.TIME_DAYS:
+          self.xLegendText.setText(self.tr('Time: ') + str(round(self.tracer.position.key(), 3)))
+        else:  # absolute time
           self.xLegendText.setText(self.tr('Time: ') +
                                    QCPAxisTickerDateTime.keyToDateTime(self.tracer.position.key()).toString('yyyy-MM-dd HH:mm:ss'))
         self.yLegendText.setText(self.tr('Altitude: ') + str(round(self.tracer.position.value())))
@@ -342,15 +344,15 @@ class PlotCanvas(QCustomPlot):
       super(PlotCanvas, self).wheelEvent(event)
 
   def contextMenu(self):
-    actMarker = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-marker.svg')), self.tr('Points with markers'), self)
+    actMarker = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-marker.svg')), self.tr('Point with marker'), self)
     actMarker.setCheckable(True)
     actMarker.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.MarkerRole))
     actMarker.triggered.connect(self.onMarkerPoints)
-    actCaption = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-caption.svg')), self.tr('Points with captions'), self)
+    actCaption = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-caption.svg')), self.tr('Point with caption'), self)
     actCaption.setCheckable(True)
     actCaption.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionRole))
     actCaption.triggered.connect(self.onCaptionPoints)
-    actSplit = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-splitline.svg')), self.tr('Points with splitting lines'), self)
+    actSplit = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-splitline.svg')), self.tr('Point with splitting line'), self)
     actSplit.setCheckable(True)
     actSplit.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.SplitLineRole))
     actSplit.triggered.connect(self.onSplitLines)

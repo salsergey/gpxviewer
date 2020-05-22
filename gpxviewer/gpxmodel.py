@@ -38,8 +38,6 @@ class WptModel(QAbstractTableModel):
   def __init__(self, parent=None):
     super(WptModel, self).__init__(parent)
 
-    self.defaultColumnsCount = 7
-
     # Workaround to init columns to copy for the first time
     if len(TheConfig.columnsToCopy) == 0:
       TheConfig.columnsToCopy = list(WPTFIELDS)
@@ -67,7 +65,7 @@ class WptModel(QAbstractTableModel):
     if parent is not None and parent.isValid():
       return 0
     else:
-      return len(self.fields) if TheConfig.getboolean('MainWindow', 'DetailedView') else self.defaultColumnsCount
+      return len(self.fields)
 
   def data(self, index, role=Qt.DisplayRole):
     if role == Qt.DisplayRole or role == Qt.EditRole:
@@ -263,14 +261,6 @@ class WptModel(QAbstractTableModel):
         del self.changedNames[i]
         self.dataChanged.emit(self.index(i, NAME), self.index(i, NAME))
         self.wptDataChanged.emit()
-
-  def detailedViewToggled(self, enabled):
-    if enabled:
-      self.beginInsertColumns(QModelIndex(), self.defaultColumnsCount, len(self.fields) - 1)
-      self.endInsertColumns()
-    else:
-      self.beginRemoveColumns(QModelIndex(), self.defaultColumnsCount, len(self.fields) - 1)
-      self.endRemoveColumns()
 
   wptDataChanged = pyqtSignal()
 
@@ -742,6 +732,12 @@ class GpxSortFilterModel(QSortFilterProxyModel):
       return super(GpxSortFilterModel, self).filterAcceptsRow(source_row, source_parent)
     else:
       return False
+
+  def filterAcceptsColumn(self, source_column, source_parent):
+    if TheConfig.getboolean('MainWindow', 'DetailedView'):
+      return True
+    else:
+      return source_column < TheConfig.defaultColumnsNumber
 
   def setFilterMask(self, skipped, marked, captioned, markedCaptioned, other):
     self.includeSkipped = skipped

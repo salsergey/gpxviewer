@@ -737,7 +737,8 @@ class GpxMainWindow(QMainWindow):
   @pyqtSlot(bool)
   def onDetailedView(self, enable):
     TheConfig['MainWindow']['DetailedView'] = str(enable)
-    TheDocument.wptmodel.detailedViewToggled(enable)
+    self.filterModel.invalidateFilter()
+    self.initColumnsToCopy()
 
   @pyqtSlot(bool)
   def onShowSkipped(self, show):
@@ -852,7 +853,11 @@ class GpxMainWindow(QMainWindow):
     self.ui.actionClearList.setDisabled(True)
 
   def initColumnsToCopy(self):
-    for i, f in enumerate(TheDocument.wptmodel.fields):
+    for act in self.actionsColumns:
+      self.ui.menuCoLumns.removeAction(act)
+    self.actionsColumns = []
+
+    for i, f in enumerate(TheDocument.wptmodel.fields[:self.filterModel.columnCount()]):
       act = QAction(f, self)
       act.setCheckable(True)
       act.triggered[bool].connect(self.columnsToCopyChanged)

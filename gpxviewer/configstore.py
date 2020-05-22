@@ -38,6 +38,7 @@ class GpxConfigParser(configparser.ConfigParser):
 class ConfigStore(configparser.ConfigParser):
   def __init__(self):
     super(ConfigStore, self).__init__()
+    self.defaultColumnsNumber = 7
     self.recentProjects = []
     self.columnsToCopy = []
 
