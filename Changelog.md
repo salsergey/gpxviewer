@@ -1,7 +1,7 @@
-=== Version 1.3 ===
-* Added possibility to view the coordinates of the profile points when hovering the mouse.
+=== Version 2.0 ===
+* Added detailed view for profile window. It allows one to view/modify all points and see their coordinates.
 * Added possibility to zoom and drag the profile.
-* Added detailed view with more columns (speed, slope, etc.).
+* Added detailed view to the main window with more columns (speed, slope, etc.).
 * Added an option to sort imported points by time.
 * Changed dependency to QCustomPlot2.
 

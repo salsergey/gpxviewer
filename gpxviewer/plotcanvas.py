@@ -95,6 +95,7 @@ class PlotCanvas(QCustomPlot):
     self.xx = []
     self.yy = []
     self.markers = []
+    self.infoMarkers = []
     self.captions = []
     self.splitLines = []
     self.neglectPoints = []
@@ -103,16 +104,17 @@ class PlotCanvas(QCustomPlot):
     self.xAxis.setRange(self.xx[0], self.xx[-1])
     self.replot()
 
-  def updatePoints(self, wptRows, trkRows):
-    if TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly') and TheConfig.getValue('ProfileStyle', 'StartFromZero') \
-       and self.column in {gpx.DIST, gpx.TIME_DAYS} and len(wptRows) != 0:
-      startDist = float(TheDocument.wptmodel.index(wptRows[0], self.column).data())
+  def updatePoints(self):
+    if TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly') \
+       and TheConfig.getValue('ProfileStyle', 'StartFromZero') \
+       and self.column in {gpx.DIST, gpx.TIME_DAYS} and len(self.wptRows) != 0:
+      startDist = float(TheDocument.wptmodel.index(self.wptRows[0], self.column).data())
     else:
       startDist = 0
 
     for p in TheDocument.gpxparser.points:
       if type(p) == int:  # points
-        if (p in wptRows or len(wptRows) == 0) \
+        if (p in self.wptRows or len(self.wptRows) == 0) \
            and (self.column == gpx.DIST or TheDocument.wptmodel.index(p, self.column).data() != ''):
           if self.column in {gpx.DIST, gpx.TIME_DAYS}:
             self.xx += [float(TheDocument.wptmodel.index(p, self.column).data()) - startDist]
@@ -126,9 +128,12 @@ class PlotCanvas(QCustomPlot):
             self.splitLines += [SplitLine(self, p, self.xx[-1], self.yy[-1])]
           if TheDocument.wptmodel.index(p, 0).data(gpx.MarkerRole):
             self.markers += [MarkerItem(self, p, self.xx[-1], self.yy[-1])]
+          else:
+            self.infoMarkers += [MarkerItem(self, p, self.xx[-1], self.yy[-1])]
+            self.infoMarkers[-1].setVisible(False)
           if TheDocument.wptmodel.index(p, 0).data(gpx.CaptionRole):
             self.captions += [CaptionItem(self, p, self.xx[-1], self.yy[-1])]
-      elif p[0] in trkRows or len(trkRows) == 0 and len(wptRows) == 0:  # tracks
+      elif p[0] in self.trkRows or len(self.trkRows) == 0 and len(self.wptRows) == 0:  # tracks
         if self.column == gpx.DIST or TheDocument.trkmodel.index(p[0], gpx.TRKTIME).data() != '':
           if self.column in {gpx.DIST, gpx.TIME_DAYS}:
             self.xx += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][self.column]) - startDist]
@@ -154,7 +159,8 @@ class PlotCanvas(QCustomPlot):
       self.setBackground(QGuiApplication.palette().base())
       self.legend.setBorderPen(textColor)
       self.legend.setBrush(QGuiApplication.palette().base())
-      gridColor = QGuiApplication.palette().light().color() if TheConfig['MainWindow']['ColorTheme'] == 'dark_theme' else QGuiApplication.palette().mid().color()
+      gridColor = QGuiApplication.palette().light().color() if TheConfig['MainWindow']['ColorTheme'] == 'dark_theme' \
+             else QGuiApplication.palette().mid().color()
     else:
       textColor = QColor(Qt.black)
       self.setBackground(QColor(Qt.white))
@@ -203,13 +209,16 @@ class PlotCanvas(QCustomPlot):
         self.xAxis.setLabel(self.tr('Time (hours)'))
     self.yAxis.setLabel(self.tr('Altitude (m)'))
 
-  def plotProfile(self, column, wptRows, trkRows):
+  def plotProfile(self, column, wptRows, trkRows, fit=True):
     self.column = column
+    self.wptRows = wptRows
+    self.trkRows = trkRows
     self.reset()
     self.setCurrentLayer('main')
-    self.updatePoints(wptRows, trkRows)
+    self.updatePoints()
     self.updateAxes()
-    self.fitWidth()
+    if fit:
+      self.fitWidth()
 
     self.setCurrentLayer('profile')
     for n in range(1, len(self.neglectPoints)):
@@ -247,9 +256,14 @@ class PlotCanvas(QCustomPlot):
       self.tracer.setSelectable(False)
       lineColor = QGuiApplication.palette().text().color() if TheConfig.getValue('ProfileStyle', 'UseSystemTheme') else QColor(Qt.black)
       self.tracer.setPen(QPen(lineColor))
+
+    self.showInfo = enable
     self.tracer.setVisible(enable)
     self.legend.setVisible(enable)
-    self.showInfo = enable
+    for m in self.infoMarkers:
+      m.setVisible(enable)
+      m.setSelectable(enable)
+    self.deselectAll()
     self.replot()
 
   def keyPressEvent(self, event):
@@ -283,7 +297,11 @@ class PlotCanvas(QCustomPlot):
     if self.axisRect().rect().contains(event.pos()):
       # Show information
       if self.showInfo:
-        self.setCursor(QCursor(Qt.CrossCursor))
+        if self.plottableAt(event.pos(), True) is None and self.itemAt(event.pos(), True) is None:
+          self.setCursor(QCursor(Qt.CrossCursor))
+        else:
+          self.setCursor(QCursor())
+
         for profile in self.layer('profile').children():
           if profile.getKeyRange()[0].contains(self.xAxis.pixelToCoord(event.pos().x())):
             self.tracer.setGraph(profile)
@@ -356,6 +374,10 @@ class PlotCanvas(QCustomPlot):
     actSplit.setCheckable(True)
     actSplit.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.SplitLineRole))
     actSplit.triggered.connect(self.onSplitLines)
+    actSkip = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-skip.svg')), self.tr('Skip point'), self)
+    actSkip.setCheckable(True)
+    actSkip.setChecked(not TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.IncludeRole))
+    actSkip.triggered.connect(self.onSkipPoints)
     actStyle = QAction(QIcon(self.themeSelector.select(':/icons/configure.svg')), self.tr('Point style'), self)
     actStyle.triggered.connect(self.onPointStyle)
 
@@ -363,6 +385,8 @@ class PlotCanvas(QCustomPlot):
     menu.addAction(actMarker)
     menu.addAction(actCaption)
     menu.addAction(actSplit)
+    menu.addSeparator()
+    menu.addAction(actSkip)
     menu.addSeparator()
     menu.addAction(actStyle)
     menu.addSeparator()
@@ -396,13 +420,15 @@ class PlotCanvas(QCustomPlot):
     checked = self.sender().isChecked()
     TheDocument.wptmodel.setMarkerStates([self.selectedElement.idx], checked)
     if checked:
-      self.markers += [MarkerItem(self, self.selectedElement.idx, self.selectedElement.posX, self.selectedElement.posY)]
+      index = [m.idx for m in self.infoMarkers].index(self.selectedElement.idx)
+      self.markers += [self.infoMarkers.pop(index)]
     else:
-      for i, m in enumerate(self.markers):
-        if m.idx == self.selectedElement.idx:
-          self.removeGraph(m)
-          del self.markers[i]
-          break
+      index = [m.idx for m in self.markers].index(self.selectedElement.idx)
+      self.infoMarkers += [self.markers.pop(index)]
+      if not self.showInfo:
+        self.infoMarkers[-1].setVisible(False)
+        self.infoMarkers[-1].setSelectable(False)
+
     self.replot()
 
   @pyqtSlot()
@@ -432,6 +458,12 @@ class PlotCanvas(QCustomPlot):
           del self.splitLines[i]
           break
     self.replot()
+
+  @pyqtSlot()
+  def onSkipPoints(self):
+    checked = self.sender().isChecked()
+    TheDocument.wptmodel.setIncludeStates([self.selectedElement.idx], not checked)
+    self.plotProfile(self.column, self.wptRows, self.trkRows, False)
 
   def onPointStyle(self):
     dlg = PointConfigDialog(self, self.selectedElement.idx)
@@ -572,19 +604,31 @@ class MarkerItem(QCPGraph):
     super(MarkerItem, self).draw(painter)
 
   def updateStyle(self):
-    markerStyle = TheDocument.wptmodel.index(self.idx, gpx.NAME).data(gpx.MarkerStyleRole)
     scatterStyle = QCPScatterStyle()
-    scatterStyle.setCustomPath(gpx.markerPath(markerStyle[gpx.MARKER_STYLE], 2 * markerStyle[gpx.MARKER_SIZE]))  # for better compatibility with matplotlib
-    scatterStyle.setBrush(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]))
-    if markerStyle[gpx.MARKER_STYLE] in {'1', '2', '3', '4', 'ad', 'au', 'al', 'ar', '+', 'x', '_', '|'}:
-      scatterStyle.setPen(QPen(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+    if self.idx in TheDocument.wptmodel.getMarkedPoints():
+      markerStyle = TheDocument.wptmodel.index(self.idx, gpx.NAME).data(gpx.MarkerStyleRole)
+      scatterStyle.setCustomPath(gpx.markerPath(markerStyle[gpx.MARKER_STYLE], 2 * markerStyle[gpx.MARKER_SIZE]))  # for better compatibility with matplotlib
+      scatterStyle.setBrush(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]))
+      if markerStyle[gpx.MARKER_STYLE] in {'1', '2', '3', '4', 'ad', 'au', 'al', 'ar', '+', 'x', '_', '|'}:
+        scatterStyle.setPen(QPen(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+      else:
+        scatterStyle.setPen(QPen(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]), 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
     else:
-      scatterStyle.setPen(QPen(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]), 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-    self.setScatterStyle(scatterStyle)
+      scatterStyle.setShape(QCPScatterStyle.ssDisc)
+      scatterStyle.setSize(3 * TheConfig.getValue('ProfileStyle', 'ProfileWidth'))
+      scatterStyle.setBrush(QColor.fromRgba(TheConfig.getValue('ProfileStyle', 'ProfileColor')))
+      scatterStyle.setPen(QPen(QColor.fromRgba(TheConfig.getValue('ProfileStyle', 'ProfileColor')), 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
 
     selectedScatterStyle = QCPScatterStyle()
-    selectedScatterStyle.setCustomPath(gpx.markerPath(markerStyle[gpx.MARKER_STYLE], 3 * markerStyle[gpx.MARKER_SIZE]))
-    selectedScatterStyle.setPen(QPen(QGuiApplication.palette().highlight().color(), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+    if self.idx in TheDocument.wptmodel.getMarkedPoints():
+      selectedScatterStyle.setCustomPath(gpx.markerPath(markerStyle[gpx.MARKER_STYLE], 3 * markerStyle[gpx.MARKER_SIZE]))
+      selectedScatterStyle.setPen(QPen(QGuiApplication.palette().highlight().color(), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+    else:
+      selectedScatterStyle.setShape(QCPScatterStyle.ssCircle)
+      selectedScatterStyle.setSize(6 * TheConfig.getValue('ProfileStyle', 'ProfileWidth'))
+      selectedScatterStyle.setPen(QPen(QGuiApplication.palette().highlight().color(), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+
+    self.setScatterStyle(scatterStyle)
     self.selectionDecorator().setScatterStyle(selectedScatterStyle)
     self.selectionDecorator().setUsedScatterProperties(QCPScatterStyle.ScatterProperty(QCPScatterStyle.spPen | QCPScatterStyle.spShape))
 

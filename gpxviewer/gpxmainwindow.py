@@ -693,7 +693,9 @@ class GpxMainWindow(QMainWindow):
     self.plotWindow.setWindowTitle(self.tr('Distance Profile'))
     self.plotWindow.show()
     if TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly'):
-      self.plotWindow.plotProfile(gpx.DIST, [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], [i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
+      self.plotWindow.plotProfile(gpx.DIST,
+                                  [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()],
+                                  [i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
     else:
       self.plotWindow.plotProfile(gpx.DIST)
     self.plotWindow.activateWindow()
@@ -720,7 +722,9 @@ class GpxMainWindow(QMainWindow):
     self.plotWindow.show()
     column = gpx.TIME if TheConfig.getValue('ProfileStyle', 'AbsoluteTime') else gpx.TIME_DAYS
     if TheConfig.getValue('ProfileStyle', 'SelectedPointsOnly'):
-      self.plotWindow.plotProfile(column, [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], [i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
+      self.plotWindow.plotProfile(column,
+                                  [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()],
+                                  [i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
     else:
       self.plotWindow.plotProfile(column)
     self.plotWindow.activateWindow()
