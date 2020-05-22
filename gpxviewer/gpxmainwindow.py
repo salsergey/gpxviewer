@@ -775,7 +775,7 @@ class GpxMainWindow(QMainWindow):
   @pyqtSlot()
   def onShowSettings(self):
     dlg = SettingsDialog(self)
-    if dlg.exec_() == QDialog.Accepted:
+    if dlg.exec_() == QDialog.Accepted and (TheDocument.wptmodel.rowCount() != 0 or TheDocument.trkmodel.rowCount() != 0):
       self.setProjectChanged()
       TheDocument.gpxparser.updateDistance()
       self.ui.wptView.resizeColumnsToContents()

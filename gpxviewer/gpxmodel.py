@@ -570,6 +570,9 @@ class GpxParser(QObject):
               p[TIME_DAYS] = ''
 
   def updateDetailedData(self):
+    if self.wptmodel.rowCount() == 0:
+      return
+
     i = 0
     for i, p in enumerate(self.wptmodel.waypoints):
       if self.wptmodel.includeStates[i]:

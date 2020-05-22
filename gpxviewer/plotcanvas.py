@@ -186,7 +186,7 @@ class PlotCanvas(QCustomPlot):
     self.setCurrentLayer('main')
     self.updatePoints(wptRows, trkRows)
     self.updateAxes()
-    self.onFitWidth()
+    self.fitWidth()
 
     self.setCurrentLayer('profile')
     for n in range(1, len(self.neglectPoints)):
@@ -252,7 +252,7 @@ class PlotCanvas(QCustomPlot):
   def mouseReleaseEvent(self, event):
     if event.button() == Qt.RightButton:
       self.deselectAll()
-      item = self.itemAt(event.pos())
+      item = self.itemAt(event.pos(), True)
       if item is None:
         item = self.plottableAt(event.pos(), True)
       if item is not None:
