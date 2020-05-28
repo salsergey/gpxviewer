@@ -18,7 +18,7 @@ import webbrowser
 from datetime import timedelta
 from PyQt5.QtCore import Qt, QCoreApplication, QDate, QDateTime, QFileSelector, QMargins, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QColor, QCursor, QFont, QGuiApplication, QIcon, QPen
-from PyQt5.QtWidgets import QAction, QDialog, QMenu, QMessageBox
+from PyQt5.QtWidgets import QAction, QDialog, QInputDialog, QLineEdit, QMenu, QMessageBox
 from QCustomPlot2 import (QCP, QCustomPlot, QCPAxisTickerDateTime, QCPAxisTickerFixed, QCPDataRange, QCPDataSelection,
                           QCPGraph, QCPItemPosition, QCPItemText, QCPItemTracer, QCPScatterStyle, QCPTextElement)
 import gpxviewer.gpxmodel as gpx
@@ -31,8 +31,6 @@ class PlotCanvas(QCustomPlot):
   def __init__(self, parent=None):
     super(QCustomPlot, self).__init__(parent)
 
-    self.leftButtonPressed = False
-    self.rightButtonPressed = False
     self.font = QFont()
     self.font.setStyleHint(QFont.SansSerif)
     self.themeSelector = QFileSelector()
@@ -72,7 +70,54 @@ class PlotCanvas(QCustomPlot):
     self.xLegendText.setMargins(QMargins(10, 5, 10, 5))
     self.yLegendText.setMargins(QMargins(10, 5, 10, 5))
 
+    self.initShortcuts()
+
     self.selectionChangedByUser.connect(self.onSelectionChanged)
+
+  def initShortcuts(self):
+    self.actMarker = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-marker.svg')), self.tr('Point with marker'), self)
+    self.actMarker.setShortcut(Qt.Key_M)
+    self.actMarker.setCheckable(True)
+    self.actMarker.triggered.connect(self.onMarkerPoints)
+    self.addAction(self.actMarker)
+
+    self.actCaption = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-caption.svg')), self.tr('Point with caption'), self)
+    self.actCaption.setShortcut(Qt.Key_C)
+    self.actCaption.setCheckable(True)
+    self.actCaption.triggered.connect(self.onCaptionPoints)
+    self.addAction(self.actCaption)
+
+    self.actSplit = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-splitline.svg')), self.tr('Point with splitting line'), self)
+    self.actSplit.setShortcut(Qt.Key_S)
+    self.actSplit.setCheckable(True)
+    self.actSplit.triggered.connect(self.onSplitLines)
+    self.addAction(self.actSplit)
+
+    self.actNeglect = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-neglect-distance.svg')), self.tr('Neglect previous distance'), self)
+    self.actNeglect.setShortcut(Qt.Key_N)
+    self.actNeglect.setCheckable(True)
+    self.actNeglect.triggered.connect(self.onNeglectDistance)
+    self.addAction(self.actNeglect)
+
+    self.actSkip = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-skip.svg')), self.tr('Skip point'), self)
+    self.actSkip.setShortcut(Qt.Key_Delete)
+    self.actSkip.setCheckable(True)
+    self.actSkip.triggered.connect(self.onSkipPoints)
+    self.addAction(self.actSkip)
+
+    self.actRename = QAction(QIcon(self.themeSelector.select(':/icons/edit-rename.svg')), self.tr('Rename...'), self)
+    self.actRename.setShortcut(Qt.Key_F2)
+    self.actRename.triggered.connect(self.onRenamePoints)
+    self.addAction(self.actRename)
+
+    self.actResetName = QAction(QIcon(self.themeSelector.select(':/icons/edit-clear.svg')), self.tr('Reset name'), self)
+    self.actResetName.triggered.connect(self.onResetPointNames)
+    self.addAction(self.actResetName)
+
+    self.actStyle = QAction(QIcon(self.themeSelector.select(':/icons/configure.svg')), self.tr('Point style'), self)
+    self.actStyle.setShortcut(Qt.ALT + Qt.Key_Return)
+    self.actStyle.triggered.connect(self.onPointStyle)
+    self.addAction(self.actStyle)
 
   def deselectAll(self):
     super(PlotCanvas, self).deselectAll()
@@ -275,10 +320,10 @@ class PlotCanvas(QCustomPlot):
       else:
         super(PlotCanvas, self).keyPressEvent(event)
 
-    elif event.key() == Qt.Key_Menu and self.selectedElement is not None:
+    elif event.key() == Qt.Key_Menu and event.modifiers() == Qt.NoModifier and self.selectedElement is not None:
       self.contextMenu()
 
-    elif event.key() in {Qt.Key_Left, Qt.Key_Right, Qt.Key_Down, Qt.Key_Up} and len(self.selectedItems()) == 1:
+    elif event.key() in {Qt.Key_Left, Qt.Key_Right, Qt.Key_Down, Qt.Key_Up} and type(self.selectedElement) == CaptionItem:
       x = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSX]
       y = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSY]
       if event.key() == Qt.Key_Left:
@@ -313,27 +358,21 @@ class PlotCanvas(QCustomPlot):
       self.replot()
 
     self.updateCursorShape(event.pos())
-    self.rightButtonPressed = False
 
     super(PlotCanvas, self).mouseMoveEvent(event)
 
   def mousePressEvent(self, event):
     if event.button() == Qt.LeftButton:
-      self.leftButtonPressed = True
       if self.plottableAt(event.pos(), True) is None and self.itemAt(event.pos(), True) is None:
         self.setCursor(QCursor(Qt.ClosedHandCursor))
-    elif event.button() == Qt.RightButton:
-      self.rightButtonPressed = True
 
     super(PlotCanvas, self).mousePressEvent(event)
 
   def mouseReleaseEvent(self, event):
     if event.button() == Qt.LeftButton:
-      self.leftButtonPressed = False
       self.updateCursorShape(event.pos())
 
-    if event.button() == Qt.RightButton and self.rightButtonPressed and not self.leftButtonPressed:
-      self.rightButtonPressed = False
+    if event.button() == Qt.RightButton:
       self.deselectAll()
       item = self.itemAt(event.pos(), True)
       if item is None:
@@ -364,7 +403,7 @@ class PlotCanvas(QCustomPlot):
       super(PlotCanvas, self).wheelEvent(event)
 
   def updateCursorShape(self, pos):
-    if self.leftButtonPressed:
+    if QGuiApplication.mouseButtons() == Qt.LeftButton:
       self.setCursor(QCursor(Qt.ClosedHandCursor))
     else:
       # Inside the axes rect
@@ -377,33 +416,25 @@ class PlotCanvas(QCustomPlot):
         self.setCursor(QCursor(Qt.SizeVerCursor if pos.x() < self.axisRect().rect().left() else Qt.ArrowCursor))
 
   def contextMenu(self):
-    actMarker = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-marker.svg')), self.tr('Point with marker'), self)
-    actMarker.setCheckable(True)
-    actMarker.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.MarkerRole))
-    actMarker.triggered[bool].connect(self.onMarkerPoints)
-    actCaption = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-caption.svg')), self.tr('Point with caption'), self)
-    actCaption.setCheckable(True)
-    actCaption.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionRole))
-    actCaption.triggered[bool].connect(self.onCaptionPoints)
-    actSplit = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-splitline.svg')), self.tr('Point with splitting line'), self)
-    actSplit.setCheckable(True)
-    actSplit.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.SplitLineRole))
-    actSplit.triggered[bool].connect(self.onSplitLines)
-    actSkip = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-skip.svg')), self.tr('Skip point'), self)
-    actSkip.setCheckable(True)
-    actSkip.setChecked(not TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.IncludeRole))
-    actSkip.triggered[bool].connect(self.onSkipPoints)
-    actStyle = QAction(QIcon(self.themeSelector.select(':/icons/configure.svg')), self.tr('Point style'), self)
-    actStyle.triggered.connect(self.onPointStyle)
+    self.actMarker.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.MarkerRole))
+    self.actCaption.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionRole))
+    self.actSplit.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.SplitLineRole))
+    self.actNeglect.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.NeglectRole))
+    self.actSkip.setChecked(not TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.IncludeRole))
 
     menu = QMenu(self)
-    menu.addAction(actMarker)
-    menu.addAction(actCaption)
-    menu.addAction(actSplit)
+    menu.addAction(self.actMarker)
+    menu.addAction(self.actCaption)
+    menu.addAction(self.actSplit)
+    menu.addAction(self.actNeglect)
     menu.addSeparator()
-    menu.addAction(actSkip)
+    menu.addAction(self.actSkip)
     menu.addSeparator()
-    menu.addAction(actStyle)
+    if type(self.selectedElement) == CaptionItem:
+      menu.addAction(self.actRename)
+      menu.addAction(self.actResetName)
+      menu.addSeparator()
+    menu.addAction(self.actStyle)
     menu.addSeparator()
 
     actShowGoogleMap = QAction(QIcon(':/icons/googlemaps.png'), self.tr('Google Maps'), self)
@@ -430,25 +461,34 @@ class PlotCanvas(QCustomPlot):
     menu.addMenu(showMapMenu)
     menu.popup(QCursor.pos())
 
-  @pyqtSlot(bool)
-  def onMarkerPoints(self, marker):
-    TheDocument.wptmodel.setMarkerStates([self.selectedElement.idx], marker)
-    if marker:
+  @pyqtSlot()
+  def onMarkerPoints(self):
+    if self.selectedElement is None:
+      return
+
+    marked = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.MarkerRole)
+    TheDocument.wptmodel.setMarkerStates([self.selectedElement.idx], not marked)
+    if not marked:
       index = [m.idx for m in self.infoMarkers].index(self.selectedElement.idx)
       self.markers += [self.infoMarkers.pop(index)]
+      self.markers[-1].setVisible(True)
+      self.markers[-1].setSelectable(True)
     else:
       index = [m.idx for m in self.markers].index(self.selectedElement.idx)
       self.infoMarkers += [self.markers.pop(index)]
       if not self.showInfo:
         self.infoMarkers[-1].setVisible(False)
         self.infoMarkers[-1].setSelectable(False)
-
     self.replot()
 
-  @pyqtSlot(bool)
-  def onCaptionPoints(self, caption):
-    TheDocument.wptmodel.setCaptionStates([self.selectedElement.idx], caption)
-    if caption:
+  @pyqtSlot()
+  def onCaptionPoints(self):
+    if self.selectedElement is None:
+      return
+
+    captioned = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionRole)
+    TheDocument.wptmodel.setCaptionStates([self.selectedElement.idx], not captioned)
+    if not captioned:
       self.captions += [CaptionItem(self, self.selectedElement.idx, self.selectedElement.posX, self.selectedElement.posY)]
     else:
       for i, c in enumerate(self.captions):
@@ -458,10 +498,14 @@ class PlotCanvas(QCustomPlot):
           break
     self.replot()
 
-  @pyqtSlot(bool)
-  def onSplitLines(self, split):
-    TheDocument.wptmodel.setSplitLines([self.selectedElement.idx], split)
-    if split:
+  @pyqtSlot()
+  def onSplitLines(self):
+    if self.selectedElement is None:
+      return
+
+    splited = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.SplitLineRole)
+    TheDocument.wptmodel.setSplitLines([self.selectedElement.idx], not splited)
+    if not splited:
       self.splitLines += [SplitLine(self, self.selectedElement.idx, self.selectedElement.posX, self.selectedElement.posY)]
     else:
       for i, l in enumerate(self.splitLines):
@@ -471,10 +515,43 @@ class PlotCanvas(QCustomPlot):
           break
     self.replot()
 
-  @pyqtSlot(bool)
-  def onSkipPoints(self, skip):
-    TheDocument.wptmodel.setIncludeStates([self.selectedElement.idx], not skip)
+  @pyqtSlot()
+  def onNeglectDistance(self):
+    if self.selectedElement is None:
+      return
+
+    neglected = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.NeglectRole)
+    TheDocument.wptmodel.setNeglectStates([self.selectedElement.idx], not neglected)
     self.plotProfile(self.column, self.wptRows, self.trkRows, False)
+
+  @pyqtSlot()
+  def onSkipPoints(self):
+    if self.selectedElement is None:
+      return
+
+    included = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.IncludeRole)
+    TheDocument.wptmodel.setIncludeStates([self.selectedElement.idx], not included)
+    self.plotProfile(self.column, self.wptRows, self.trkRows, False)
+
+  @pyqtSlot()
+  def onRenamePoints(self):
+    if type(self.selectedElement) != CaptionItem:
+      return
+
+    oldName = self.selectedElement.text()
+    name, ok = QInputDialog.getText(self, self.tr('Rename waypoint'),
+                                    self.tr('Enter new name for waypoint:'), QLineEdit.Normal, oldName)
+
+    if ok and len(name) > 0:
+      TheDocument.wptmodel.setData(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME), name, Qt.EditRole)
+      self.selectedElement.setText(name)
+      self.replot()
+
+  @pyqtSlot()
+  def onResetPointNames(self):
+    TheDocument.wptmodel.resetNames([self.selectedElement.idx])
+    self.selectedElement.setText(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data())
+    self.replot()
 
   def onPointStyle(self):
     dlg = PointConfigDialog(self, self.selectedElement.idx)
