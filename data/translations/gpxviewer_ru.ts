@@ -878,7 +878,7 @@ Probably the given format isn&apos;t supported by the system.</source>
 Возможно, данный формат не поддерживается системой.</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="652"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="664"/>
         <source>day </source>
         <translation>день </translation>
     </message>
@@ -933,12 +933,12 @@ Probably the given format isn&apos;t supported by the system.</source>
         <translation>Сбросить название</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="530"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="542"/>
         <source>Rename waypoint</source>
         <translation>Переименование точки</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/plotcanvas.py" line="530"/>
+        <location filename="../../gpxviewer/plotcanvas.py" line="542"/>
         <source>Enter new name for waypoint:</source>
         <translation>Введите новое название для точки:</translation>
     </message>
@@ -989,152 +989,152 @@ Probably the given format isn&apos;t supported by the system.</source>
 <context>
     <name>PointConfigDialog</name>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="47"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="54"/>
         <source>Point</source>
         <translation>Точка</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="48"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="55"/>
         <source>Pixel</source>
         <translation>Пиксель</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="49"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="56"/>
         <source>Circle</source>
         <translation>Круг</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="50"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="57"/>
         <source>Triangle down</source>
         <translation>Треугольник вниз</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="51"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="58"/>
         <source>Triangle up</source>
         <translation>Треугольник вверх</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="52"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="59"/>
         <source>Triangle left</source>
         <translation>Треугольник влево</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="53"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="60"/>
         <source>Triangle right</source>
         <translation>Треугольник вправо</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="54"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="61"/>
         <source>Tri down</source>
         <translation>Трилистник вниз</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="55"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="62"/>
         <source>Tri up</source>
         <translation>Трилистник вверх</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="56"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="63"/>
         <source>Tri left</source>
         <translation>Трилистник влево</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="57"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="64"/>
         <source>Tri right</source>
         <translation>Трилистник вправо</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="62"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="69"/>
         <source>Square</source>
         <translation>Квадрат</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="63"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="70"/>
         <source>Pentagon</source>
         <translation>Пятиугольник</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="64"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="71"/>
         <source>Star</source>
         <translation>Звезда</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="65"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="72"/>
         <source>Hexagon 1</source>
         <translation>Шестиугольник 1</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="66"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="73"/>
         <source>Hexagon 2</source>
         <translation>Шестиугольник 2</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="67"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="74"/>
         <source>Plus</source>
         <translation>Плюс</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="68"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="75"/>
         <source>X</source>
         <translation>Крест</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="69"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="76"/>
         <source>Diamond</source>
         <translation>Ромб</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="70"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="77"/>
         <source>Thin diamond</source>
         <translation>Узкий ромб</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="71"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="78"/>
         <source>Vertical line</source>
         <translation>Вертикальная линия</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="72"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="79"/>
         <source>Horizontal line</source>
         <translation>Горизонтальная линия</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="73"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="80"/>
         <source>Solid</source>
         <translation>Сплошная</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="74"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="81"/>
         <source>Dashed</source>
         <translation>Пунктирная</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="75"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="82"/>
         <source>Dash-dot</source>
         <translation>Штрих-пунктирная</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="76"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="83"/>
         <source>Dotted</source>
         <translation>Штриховая</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="58"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="65"/>
         <source>Arrow down</source>
         <translation>Стрелка вниз</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="59"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="66"/>
         <source>Arrow up</source>
         <translation>Стрелка вверх</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="60"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="67"/>
         <source>Arrow left</source>
         <translation>Стрелка влево</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/pointconfigdialog.py" line="61"/>
+        <location filename="../../gpxviewer/pointconfigdialog.py" line="68"/>
         <source>Arrow right</source>
         <translation>Стрелка вправо</translation>
     </message>
@@ -1311,119 +1311,124 @@ Probably the given format isn&apos;t supported by the system.</source>
 <context>
     <name>pointConfigDialog</name>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="308"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="318"/>
         <source>Configure point style</source>
         <translation>Настроить стиль точек</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="311"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="322"/>
         <source>Marker style</source>
         <translation>Стиль маркера</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="315"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="326"/>
         <source>Marker color</source>
         <translation>Цвет маркера</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="317"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="328"/>
         <source>Marker size</source>
         <translation>Размер маркера</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="332"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="343"/>
         <source>Split line style</source>
         <translation>Стиль разделительной линии</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="336"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="347"/>
         <source>Split line color</source>
         <translation>Цвет разделительной линии</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="338"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="349"/>
         <source>Split line width</source>
         <translation>Толщина разделительной линии</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="321"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="332"/>
         <source>Caption position (x, y)</source>
         <translation>Положение подписи (x, y)</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="328"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="339"/>
         <source>Caption size</source>
         <translation>Размер подписи</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="337"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="348"/>
         <source>Whether to change this property for selected points</source>
         <translation>Изменять ли это свойство для выделенных точек</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="309"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="320"/>
         <source>Marker</source>
         <translation>Маркер</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="319"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="330"/>
         <source>Caption</source>
         <translation>Подпись</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="330"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="341"/>
         <source>Split line</source>
         <translation>Разделительная линия</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="325"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="336"/>
         <source>Caption rotation</source>
         <translation>Поворот подписи</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="312"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="323"/>
         <source>The shape of the marker</source>
         <translation>Форма маркера</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="314"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="325"/>
         <source>The color of the marker</source>
         <translation>Цвет маркера</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="318"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="329"/>
         <source>The size of the marker</source>
         <translation>Размер маркера</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="323"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="334"/>
         <source>The position of the caption</source>
         <translation>Положение подписи</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="326"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="337"/>
         <source>The rotation angle of the caption in degrees</source>
         <translation>Угол поворота подписи в градусах</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="329"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="340"/>
         <source>The size of the caption</source>
         <translation>Размер подписи</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="333"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="344"/>
         <source>The style of the split line</source>
         <translation>Стиль разделительной линии</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="335"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="346"/>
         <source>The color of the split line</source>
         <translation>Цвет разделительной линии</translation>
     </message>
     <message>
-        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="339"/>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="350"/>
         <source>The width of the split line</source>
         <translation>Толщина разделительной линии</translation>
+    </message>
+    <message>
+        <location filename="../../gpxviewer/ui_pointconfigdialog.py" line="319"/>
+        <source>Name</source>
+        <translation>Название</translation>
     </message>
 </context>
 <context>

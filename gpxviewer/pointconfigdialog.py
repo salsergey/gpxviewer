@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QDialog
 import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import TheConfig
@@ -28,11 +28,18 @@ class PointConfigDialog(QDialog):
     self.ui = gpxviewer.ui_pointconfigdialog.Ui_pointConfigDialog()
     self.ui.setupUi(self)
     self.setMinimumWidth(420)
+
     self.style = {}
     self.style.update(TheDocument.wptmodel.index(defaultIndex, gpx.NAME).data(gpx.MarkerStyleRole))
     self.style.update(TheDocument.wptmodel.index(defaultIndex, gpx.NAME).data(gpx.CaptionStyleRole))
     self.style.update(TheDocument.wptmodel.index(defaultIndex, gpx.NAME).data(gpx.SplitLineStyleRole))
     self.indexes = indexes if indexes is not None else [defaultIndex]
+
+    if len(self.indexes) == 1:
+      self.ui.nameEdit.setText(TheDocument.wptmodel.index(defaultIndex, gpx.NAME).data())
+      self.ui.nameEdit.selectAll()
+    else:
+      self.ui.nameWidget.hide()
 
     self.ui.markerColorCheckBox.setChecked(TheConfig.getValue('PointStyle', 'MarkerColorEnabled'))
     self.ui.markerStyleCheckBox.setChecked(TheConfig.getValue('PointStyle', 'MarkerStyleEnabled'))
@@ -119,6 +126,9 @@ class PointConfigDialog(QDialog):
 
   def accept(self):
     super(PointConfigDialog, self).accept()
+
+    if not self.ui.nameWidget.isHidden() and len(self.ui.nameEdit.text()) > 0:
+      TheDocument.wptmodel.setData(TheDocument.wptmodel.index(self.indexes[0], gpx.NAME), self.ui.nameEdit.text(), Qt.EditRole)
 
     TheConfig['PointStyle']['MarkerColor'] = str(self.style[gpx.MARKER_COLOR])
     TheConfig['PointStyle']['MarkerStyle'] = self.style[gpx.MARKER_STYLE]
