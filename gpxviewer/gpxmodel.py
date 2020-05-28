@@ -215,6 +215,7 @@ class WptModel(QAbstractTableModel):
   def setIncludeStates(self, IDs, state, update=True):
     for i in IDs:
       self.includeStates[i] = state
+      self.dataChanged.emit(self.index(i, 0), self.index(i, self.columnCount()))
     if update:
       self.parent().updatePoints()
     self.wptDataChanged.emit()
@@ -225,6 +226,7 @@ class WptModel(QAbstractTableModel):
       for key in {MARKER_COLOR, MARKER_STYLE, MARKER_SIZE}:
         if key not in self.pointStyles[i]:
           self.pointStyles[i][key] = TheConfig.getValue('PointStyle', key)
+      self.dataChanged.emit(self.index(i, 0), self.index(i, self.columnCount()))
     self.wptDataChanged.emit()
 
   def setCaptionStates(self, IDs, state):
@@ -233,6 +235,7 @@ class WptModel(QAbstractTableModel):
       for key in {CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE}:
         if key not in self.pointStyles[i]:
           self.pointStyles[i][key] = TheConfig.getValue('PointStyle', key)
+      self.dataChanged.emit(self.index(i, 0), self.index(i, self.columnCount()))
     self.wptDataChanged.emit()
 
   def setSplitLines(self, IDs, state):
@@ -241,11 +244,13 @@ class WptModel(QAbstractTableModel):
       for key in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}:
         if key not in self.pointStyles[i]:
           self.pointStyles[i][key] = TheConfig.getValue('PointStyle', key)
+      self.dataChanged.emit(self.index(i, 0), self.index(i, self.columnCount()))
     self.wptDataChanged.emit()
 
   def setNeglectStates(self, IDs, state, update=True):
     for i in IDs:
       self.neglectStates[i] = state
+      self.dataChanged.emit(self.index(i, 0), self.index(i, self.columnCount()))
     if update:
       self.parent().updateDistance()
     self.wptDataChanged.emit()
@@ -322,6 +327,7 @@ class TrkModel(QAbstractTableModel):
   def setIncludeStates(self, IDs, state, update=True):
     for i in IDs:
       self.includeStates[i] = state
+      self.dataChanged.emit(self.index(i, 0), self.index(i, self.columnCount()))
     if update:
       self.parent().updatePoints()
 
@@ -560,7 +566,7 @@ class GpxParser(QObject):
               p[TIME_DAYS] = ''
 
   def updateDetailedData(self):
-    if self.wptmodel.rowCount() == 0:
+    if len(self.wptmodel.getSkippedPoints()) == self.wptmodel.rowCount():
       return
 
     i = 0
@@ -583,7 +589,7 @@ class GpxParser(QObject):
 
     for j, p in enumerate(self.wptmodel.waypoints[i+1:], i + 1):
       if self.wptmodel.includeStates[j]:
-        dt = (p[TIME_DAYS] - prev[TIME_DAYS]) * 24.0 if p[TIME_DAYS] != '' and prev[TIME_DAYS] != 0 else 0
+        dt = (p[TIME_DAYS] - prev[TIME_DAYS]) * 24.0 if p[TIME_DAYS] != '' and prev[TIME_DAYS] != '' and prev[TIME_DAYS] != 0 else 0
         p[DIST_DELTA] = p[DIST] - prev[DIST]
         p[ALT_DELTA] = p[ALT] - prev[ALT]
         p[SPEED] = p[DIST_DELTA] / dt if dt != 0 else 0.0
@@ -710,6 +716,10 @@ class GpxSortFilterModel(QSortFilterProxyModel):
     self.includeCaptioned = True
     self.includeMarkedCaptioned = True
     self.includeOther = True
+
+  def setSourceModel(self, sourceModel):
+    super(GpxSortFilterModel, self).setSourceModel(sourceModel)
+    sourceModel.dataChanged.connect(self.dataChanged)
 
   def lessThan(self, left, right):
     if left.column() == right.column() and right.column() != NAME:

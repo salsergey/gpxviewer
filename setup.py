@@ -63,7 +63,7 @@ else:
 
 setup(
   name='gpxviewer',
-  version='2.0',
+  version='2.1',
   description='GPX Viewer is an application for viewing GPX files and plotting altitude profiles',
   url='https://osdn.net/projects/gpxviewer',
   author='Sergey Salnikov',

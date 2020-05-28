@@ -1,6 +1,5 @@
 == Major ==
 
-* Graph details mode (info, delete, etc.).
 * Map of the track.
 * Edit coordinates, altidude (geonames.org), time.
 * Speed graphs.
@@ -9,7 +8,6 @@
 
 == Minor ==
 
-* Add "Set as start point" to the context menu.
 * Make movable toolbars.
 
 == Fixes ==

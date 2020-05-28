@@ -167,35 +167,35 @@ class GpxMainWindow(QMainWindow):
       actSkip.setStatusTip(self.tr('Skip these waypoints when plotting profiles or calculating statistics'))
       actSkip.setCheckable(True)
       actSkip.setChecked(not self.ui.wptView.currentIndex().data(gpx.IncludeRole))
-      actSkip.triggered.connect(self.skipPoints)
+      actSkip.triggered[bool].connect(self.skipPoints)
 
       actMarker = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-marker.svg')), self.tr('Points with markers'), self)
       actMarker.setStatusTip(self.tr('Add markers to these waypoints when plotting profiles'))
       actMarker.setDisabled(actSkip.isChecked())
       actMarker.setCheckable(True)
       actMarker.setChecked(self.ui.wptView.currentIndex().data(gpx.MarkerRole))
-      actMarker.triggered.connect(self.markerPoints)
+      actMarker.triggered[bool].connect(self.markerPoints)
 
       actCaption = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-caption.svg')), self.tr('Points with captions'), self)
       actCaption.setStatusTip(self.tr('Add captions to these waypoints when plotting profiles'))
       actCaption.setDisabled(actSkip.isChecked())
       actCaption.setCheckable(True)
       actCaption.setChecked(self.ui.wptView.currentIndex().data(gpx.CaptionRole))
-      actCaption.triggered.connect(self.captionPoints)
+      actCaption.triggered[bool].connect(self.captionPoints)
 
       actSplit = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-splitline.svg')), self.tr('Points with splitting lines'), self)
       actSplit.setStatusTip(self.tr('Add splitting lines to these waypoints when plotting profiles'))
       actSplit.setDisabled(actSkip.isChecked())
       actSplit.setCheckable(True)
       actSplit.setChecked(self.ui.wptView.currentIndex().data(gpx.SplitLineRole))
-      actSplit.triggered.connect(self.splitLines)
+      actSplit.triggered[bool].connect(self.splitLines)
 
       actNeglect = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-neglect-distance.svg')), self.tr('Neglect previous distance'), self)
       actNeglect.setStatusTip(self.tr('Neglect distance before these waypoints when plotting profiles'))
       actNeglect.setDisabled(actSkip.isChecked())
       actNeglect.setCheckable(True)
       actNeglect.setChecked(self.ui.wptView.currentIndex().data(gpx.NeglectRole))
-      actNeglect.triggered.connect(self.neglectDistance)
+      actNeglect.triggered[bool].connect(self.neglectDistance)
 
       actReset = QAction(QIcon(self.themeSelector.select(':/icons/edit-clear-all.svg')), self.tr('Reset appearance'), self)
       actReset.setStatusTip(self.tr('Reset appearance of these waypoints'))
@@ -205,6 +205,7 @@ class GpxMainWindow(QMainWindow):
       actRename = QAction(QIcon(self.themeSelector.select(':/icons/edit-rename.svg')), self.tr('Rename...'), self)
       actRename.setStatusTip(self.tr('Rename these waypoints'))
       actRename.triggered.connect(self.renamePoints)
+
       actResetName = QAction(QIcon(self.themeSelector.select(':/icons/edit-clear.svg')), self.tr('Reset name'), self)
       actResetName.setStatusTip(self.tr('Reset the names of these waypoints'))
       actResetName.triggered.connect(self.resetPointNames)
@@ -266,7 +267,7 @@ class GpxMainWindow(QMainWindow):
       actSkip.setStatusTip(self.tr('Skip these tracks when plotting profiles or calculating statistics'))
       actSkip.setCheckable(True)
       actSkip.setChecked(not self.ui.trkView.currentIndex().data(gpx.IncludeRole))
-      actSkip.triggered.connect(self.skipTracks)
+      actSkip.triggered[bool].connect(self.skipTracks)
 
       menu = QMenu(self)
       menu.addAction(actSkip)
@@ -291,6 +292,7 @@ class GpxMainWindow(QMainWindow):
           self.ui.trkView.clearSelection()
         else:
           self.ui.trkView.setFocus()
+
     elif event.key() == Qt.Key_Tab and event.modifiers() == Qt.ControlModifier:
       self.ui.tabWidget.setCurrentIndex(1 - self.ui.tabWidget.currentIndex())
 
@@ -354,34 +356,29 @@ class GpxMainWindow(QMainWindow):
     self.projectChanged = value
     self.updateTitleFilename()
 
-  @pyqtSlot()
-  def skipPoints(self):
-    TheDocument.wptmodel.setIncludeStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME],
-                                          not self.sender().isChecked())
+  @pyqtSlot(bool)
+  def skipPoints(self, skip):
+    TheDocument.wptmodel.setIncludeStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME], not skip)
     self.filterModel.invalidateFilter()
 
-  @pyqtSlot()
-  def markerPoints(self):
-    TheDocument.wptmodel.setMarkerStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME],
-                                         self.sender().isChecked())
+  @pyqtSlot(bool)
+  def markerPoints(self, marker):
+    TheDocument.wptmodel.setMarkerStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME], marker)
     self.filterModel.invalidateFilter()
 
-  @pyqtSlot()
-  def captionPoints(self):
-    TheDocument.wptmodel.setCaptionStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME],
-                                          self.sender().isChecked())
+  @pyqtSlot(bool)
+  def captionPoints(self, caption):
+    TheDocument.wptmodel.setCaptionStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME], caption)
     self.filterModel.invalidateFilter()
 
-  @pyqtSlot()
-  def splitLines(self):
-    TheDocument.wptmodel.setSplitLines([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME],
-                                       self.sender().isChecked())
+  @pyqtSlot(bool)
+  def splitLines(self, split):
+    TheDocument.wptmodel.setSplitLines([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME], split)
     self.filterModel.invalidateFilter()
 
-  @pyqtSlot()
-  def neglectDistance(self):
-    TheDocument.wptmodel.setNeglectStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME],
-                                          self.sender().isChecked())
+  @pyqtSlot(bool)
+  def neglectDistance(self, neglect):
+    TheDocument.wptmodel.setNeglectStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME], neglect)
 
   @pyqtSlot()
   def resetPoints(self):
@@ -476,10 +473,9 @@ class GpxMainWindow(QMainWindow):
                             [i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME])
     dlg.exec_()
 
-  @pyqtSlot()
-  def skipTracks(self):
-    TheDocument.trkmodel.setIncludeStates([i.row() for i in self.ui.trkView.selectedIndexes() if i.column() == gpx.TRKNAME],
-                                          not self.sender().isChecked())
+  @pyqtSlot(bool)
+  def skipTracks(self, skip):
+    TheDocument.trkmodel.setIncludeStates([i.row() for i in self.ui.trkView.selectedIndexes() if i.column() == gpx.TRKNAME], not skip)
     self.setProjectChanged()
 
   @pyqtSlot()

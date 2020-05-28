@@ -25,7 +25,7 @@ import gpxviewer.rc_gpxviewer
 def main():
   app = QApplication(sys.argv)
   QCoreApplication.setApplicationName('GPX Viewer')
-  QCoreApplication.setApplicationVersion('2.0')
+  QCoreApplication.setApplicationVersion('2.1')
 
   if app.palette().window().color().lightness() < app.palette().windowText().color().lightness():
     TheConfig['MainWindow']['ColorTheme'] = 'dark_theme'

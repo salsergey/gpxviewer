@@ -31,6 +31,22 @@ class PlotCanvas(QCustomPlot):
   def __init__(self, parent=None):
     super(QCustomPlot, self).__init__(parent)
 
+    self.leftButtonPressed = False
+    self.rightButtonPressed = False
+    self.font = QFont()
+    self.font.setStyleHint(QFont.SansSerif)
+    self.themeSelector = QFileSelector()
+    self.themeSelector.setExtraSelectors([TheConfig['MainWindow']['ColorTheme']])
+
+    self.addLayer('profile', self.layer('main'), QCustomPlot.limBelow)
+
+    self.setInteraction(QCP.iSelectItems)
+    self.setInteraction(QCP.iSelectPlottables)
+    self.setInteraction(QCP.iRangeDrag)
+    self.setInteraction(QCP.iRangeZoom)
+    self.axisRect().setRangeDrag(Qt.Horizontal)
+    self.axisRect().setRangeZoom(Qt.Horizontal)
+
     self.axisRect().setupFullAxesBox(True)
     self.xAxis.setTickLabelPadding(10)
     self.yAxis.setTickLabelPadding(10)
@@ -42,23 +58,6 @@ class PlotCanvas(QCustomPlot):
     self.yTicker = AxisTicker(Qt.Vertical)
     self.yAxis.setTicker(self.yTicker)
     self.yAxis2.setTicker(self.yTicker)
-
-    self.addLayer('profile', self.layer('main'), QCustomPlot.limBelow)
-
-    self.setInteraction(QCP.iSelectItems)
-    self.setInteraction(QCP.iSelectPlottables)
-    self.setInteraction(QCP.iRangeDrag)
-    self.setInteraction(QCP.iRangeZoom)
-    self.axisRect().setRangeDrag(Qt.Horizontal)
-    self.axisRect().setRangeZoom(Qt.Horizontal)
-
-    self.selectionChangedByUser.connect(self.onSelectionChanged)
-
-    self.font = QFont()
-    self.font.setStyleHint(QFont.SansSerif)
-
-    self.themeSelector = QFileSelector()
-    self.themeSelector.setExtraSelectors([TheConfig['MainWindow']['ColorTheme']])
 
     self.showInfo = False
     self.setAutoAddPlottableToLegend(False)
@@ -72,6 +71,8 @@ class PlotCanvas(QCustomPlot):
     self.legend.addElement(self.yLegendText)
     self.xLegendText.setMargins(QMargins(10, 5, 10, 5))
     self.yLegendText.setMargins(QMargins(10, 5, 10, 5))
+
+    self.selectionChangedByUser.connect(self.onSelectionChanged)
 
   def deselectAll(self):
     super(PlotCanvas, self).deselectAll()
@@ -294,45 +295,45 @@ class PlotCanvas(QCustomPlot):
       super(PlotCanvas, self).keyPressEvent(event)
 
   def mouseMoveEvent(self, event):
-    if self.axisRect().rect().contains(event.pos()):
-      # Show information
-      if self.showInfo:
-        if self.plottableAt(event.pos(), True) is None and self.itemAt(event.pos(), True) is None:
-          self.setCursor(QCursor(Qt.CrossCursor))
-        else:
-          self.setCursor(QCursor())
+    # Show information
+    if self.showInfo and self.axisRect().rect().contains(event.pos()):
+      for profile in self.layer('profile').children():
+        if profile.getKeyRange()[0].contains(self.xAxis.pixelToCoord(event.pos().x())):
+          self.tracer.setGraph(profile)
+      self.tracer.setGraphKey(self.xAxis.pixelToCoord(event.pos().x()))
+      self.replot()
+      if self.column == gpx.DIST:
+        self.xLegendText.setText(self.tr('Distance: ') + str(round(self.tracer.position.key(), 3)))
+      elif self.column == gpx.TIME_DAYS:
+        self.xLegendText.setText(self.tr('Time: ') + str(round(self.tracer.position.key(), 3)))
+      else:  # absolute time
+        self.xLegendText.setText(self.tr('Time: ') +
+                                 QCPAxisTickerDateTime.keyToDateTime(self.tracer.position.key()).toString('yyyy-MM-dd HH:mm:ss'))
+      self.yLegendText.setText(self.tr('Altitude: ') + str(round(self.tracer.position.value())))
+      self.replot()
 
-        for profile in self.layer('profile').children():
-          if profile.getKeyRange()[0].contains(self.xAxis.pixelToCoord(event.pos().x())):
-            self.tracer.setGraph(profile)
-        self.tracer.setGraphKey(self.xAxis.pixelToCoord(event.pos().x()))
-        self.replot()
-        if self.column == gpx.DIST:
-          self.xLegendText.setText(self.tr('Distance: ') + str(round(self.tracer.position.key(), 3)))
-        elif self.column == gpx.TIME_DAYS:
-          self.xLegendText.setText(self.tr('Time: ') + str(round(self.tracer.position.key(), 3)))
-        else:  # absolute time
-          self.xLegendText.setText(self.tr('Time: ') +
-                                   QCPAxisTickerDateTime.keyToDateTime(self.tracer.position.key()).toString('yyyy-MM-dd HH:mm:ss'))
-        self.yLegendText.setText(self.tr('Altitude: ') + str(round(self.tracer.position.value())))
-        self.replot()
-
-      else:  # not showing information
-        if self.plottableAt(event.pos(), True) is None and self.itemAt(event.pos(), True) is None:
-          self.setCursor(QCursor(Qt.OpenHandCursor))
-        else:
-          self.setCursor(QCursor())
-
-    # Outside the axes rect
-    elif event.pos().x() < self.axisRect().rect().left():
-      self.setCursor(QCursor(Qt.SizeVerCursor))
-    else:
-      self.setCursor(QCursor())
+    self.updateCursorShape(event.pos())
+    self.rightButtonPressed = False
 
     super(PlotCanvas, self).mouseMoveEvent(event)
 
+  def mousePressEvent(self, event):
+    if event.button() == Qt.LeftButton:
+      self.leftButtonPressed = True
+      if self.plottableAt(event.pos(), True) is None and self.itemAt(event.pos(), True) is None:
+        self.setCursor(QCursor(Qt.ClosedHandCursor))
+    elif event.button() == Qt.RightButton:
+      self.rightButtonPressed = True
+
+    super(PlotCanvas, self).mousePressEvent(event)
+
   def mouseReleaseEvent(self, event):
-    if event.button() == Qt.RightButton:
+    if event.button() == Qt.LeftButton:
+      self.leftButtonPressed = False
+      self.updateCursorShape(event.pos())
+
+    if event.button() == Qt.RightButton and self.rightButtonPressed and not self.leftButtonPressed:
+      self.rightButtonPressed = False
       self.deselectAll()
       item = self.itemAt(event.pos(), True)
       if item is None:
@@ -346,6 +347,7 @@ class PlotCanvas(QCustomPlot):
     super(PlotCanvas, self).mouseReleaseEvent(event)
 
   def wheelEvent(self, event):
+    # Outside the axes rect
     if event.pos().x() < self.axisRect().rect().left():
       if event.pos().y() < self.axisRect().rect().center().y():
         self.maxalt = max(self.maxalt + (100 if event.angleDelta().y() > 0 else -100), self.minalt + 100)
@@ -361,23 +363,36 @@ class PlotCanvas(QCustomPlot):
     else:  # inside the axes rect
       super(PlotCanvas, self).wheelEvent(event)
 
+  def updateCursorShape(self, pos):
+    if self.leftButtonPressed:
+      self.setCursor(QCursor(Qt.ClosedHandCursor))
+    else:
+      # Inside the axes rect
+      if self.axisRect().rect().contains(pos):
+        if self.plottableAt(pos, True) is None and self.itemAt(pos, True) is None:
+          self.setCursor(QCursor(Qt.CrossCursor if self.showInfo else Qt.OpenHandCursor))
+        else:
+          self.setCursor(QCursor(Qt.PointingHandCursor))
+      else:  # outside the axes rect
+        self.setCursor(QCursor(Qt.SizeVerCursor if pos.x() < self.axisRect().rect().left() else Qt.ArrowCursor))
+
   def contextMenu(self):
     actMarker = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-marker.svg')), self.tr('Point with marker'), self)
     actMarker.setCheckable(True)
     actMarker.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.MarkerRole))
-    actMarker.triggered.connect(self.onMarkerPoints)
+    actMarker.triggered[bool].connect(self.onMarkerPoints)
     actCaption = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-caption.svg')), self.tr('Point with caption'), self)
     actCaption.setCheckable(True)
     actCaption.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionRole))
-    actCaption.triggered.connect(self.onCaptionPoints)
+    actCaption.triggered[bool].connect(self.onCaptionPoints)
     actSplit = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-splitline.svg')), self.tr('Point with splitting line'), self)
     actSplit.setCheckable(True)
     actSplit.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.SplitLineRole))
-    actSplit.triggered.connect(self.onSplitLines)
+    actSplit.triggered[bool].connect(self.onSplitLines)
     actSkip = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-skip.svg')), self.tr('Skip point'), self)
     actSkip.setCheckable(True)
     actSkip.setChecked(not TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.IncludeRole))
-    actSkip.triggered.connect(self.onSkipPoints)
+    actSkip.triggered[bool].connect(self.onSkipPoints)
     actStyle = QAction(QIcon(self.themeSelector.select(':/icons/configure.svg')), self.tr('Point style'), self)
     actStyle.triggered.connect(self.onPointStyle)
 
@@ -415,11 +430,10 @@ class PlotCanvas(QCustomPlot):
     menu.addMenu(showMapMenu)
     menu.popup(QCursor.pos())
 
-  @pyqtSlot()
-  def onMarkerPoints(self):
-    checked = self.sender().isChecked()
-    TheDocument.wptmodel.setMarkerStates([self.selectedElement.idx], checked)
-    if checked:
+  @pyqtSlot(bool)
+  def onMarkerPoints(self, marker):
+    TheDocument.wptmodel.setMarkerStates([self.selectedElement.idx], marker)
+    if marker:
       index = [m.idx for m in self.infoMarkers].index(self.selectedElement.idx)
       self.markers += [self.infoMarkers.pop(index)]
     else:
@@ -431,11 +445,10 @@ class PlotCanvas(QCustomPlot):
 
     self.replot()
 
-  @pyqtSlot()
-  def onCaptionPoints(self):
-    checked = self.sender().isChecked()
-    TheDocument.wptmodel.setCaptionStates([self.selectedElement.idx], checked)
-    if checked:
+  @pyqtSlot(bool)
+  def onCaptionPoints(self, caption):
+    TheDocument.wptmodel.setCaptionStates([self.selectedElement.idx], caption)
+    if caption:
       self.captions += [CaptionItem(self, self.selectedElement.idx, self.selectedElement.posX, self.selectedElement.posY)]
     else:
       for i, c in enumerate(self.captions):
@@ -445,11 +458,10 @@ class PlotCanvas(QCustomPlot):
           break
     self.replot()
 
-  @pyqtSlot()
-  def onSplitLines(self):
-    checked = self.sender().isChecked()
-    TheDocument.wptmodel.setSplitLines([self.selectedElement.idx], checked)
-    if checked:
+  @pyqtSlot(bool)
+  def onSplitLines(self, split):
+    TheDocument.wptmodel.setSplitLines([self.selectedElement.idx], split)
+    if split:
       self.splitLines += [SplitLine(self, self.selectedElement.idx, self.selectedElement.posX, self.selectedElement.posY)]
     else:
       for i, l in enumerate(self.splitLines):
@@ -459,10 +471,9 @@ class PlotCanvas(QCustomPlot):
           break
     self.replot()
 
-  @pyqtSlot()
-  def onSkipPoints(self):
-    checked = self.sender().isChecked()
-    TheDocument.wptmodel.setIncludeStates([self.selectedElement.idx], not checked)
+  @pyqtSlot(bool)
+  def onSkipPoints(self, skip):
+    TheDocument.wptmodel.setIncludeStates([self.selectedElement.idx], not skip)
     self.plotProfile(self.column, self.wptRows, self.trkRows, False)
 
   def onPointStyle(self):
