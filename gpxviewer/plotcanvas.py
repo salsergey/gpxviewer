@@ -59,14 +59,19 @@ class PlotCanvas(QCustomPlot):
 
     self.showInfo = False
     self.setAutoAddPlottableToLegend(False)
+    self.legendTitle = QCPTextElement(self)
     self.xLegendText = QCPTextElement(self)
     self.yLegendText = QCPTextElement(self)
+    self.legendTitle.setMinimumSize(200, 0)
     self.xLegendText.setMinimumSize(200, 0)
     self.yLegendText.setMinimumSize(200, 0)
+    self.legendTitle.setLayer(self.legend.layer())
     self.xLegendText.setLayer(self.legend.layer())
     self.yLegendText.setLayer(self.legend.layer())
+    self.legend.addElement(self.legendTitle)
     self.legend.addElement(self.xLegendText)
     self.legend.addElement(self.yLegendText)
+    self.legendTitle.setMargins(QMargins(10, 5, 10, 5))
     self.xLegendText.setMargins(QMargins(10, 5, 10, 5))
     self.yLegendText.setMargins(QMargins(10, 5, 10, 5))
 
@@ -141,7 +146,6 @@ class PlotCanvas(QCustomPlot):
     self.xx = []
     self.yy = []
     self.markers = []
-    self.infoMarkers = []
     self.captions = []
     self.splitLines = []
     self.neglectPoints = []
@@ -172,11 +176,9 @@ class PlotCanvas(QCustomPlot):
             self.neglectPoints += [self.xx[-1]]
           if TheDocument.wptmodel.index(p, 0).data(gpx.SplitLineRole):
             self.splitLines += [SplitLine(self, p, self.xx[-1], self.yy[-1])]
-          if TheDocument.wptmodel.index(p, 0).data(gpx.MarkerRole):
-            self.markers += [MarkerItem(self, p, self.xx[-1], self.yy[-1])]
-          else:
-            self.infoMarkers += [MarkerItem(self, p, self.xx[-1], self.yy[-1])]
-            self.infoMarkers[-1].setVisible(False)
+          self.markers += [MarkerItem(self, p, self.xx[-1], self.yy[-1])]
+          if not TheDocument.wptmodel.index(p, 0).data(gpx.MarkerRole):
+            self.markers[-1].setVisible(False)
           if TheDocument.wptmodel.index(p, 0).data(gpx.CaptionRole):
             self.captions += [CaptionItem(self, p, self.xx[-1], self.yy[-1])]
       elif p[0] in self.trkRows or len(self.trkRows) == 0 and len(self.wptRows) == 0:  # tracks
@@ -233,9 +235,10 @@ class PlotCanvas(QCustomPlot):
     self.yAxis.setTickLabelFont(self.font)
     self.yAxis.setLabelFont(self.font)
 
-    for text in {self.xLegendText, self.yLegendText}:
+    for text in {self.legendTitle, self.xLegendText, self.yLegendText}:
       text.setFont(self.font)
       text.setTextColor(textColor)
+
 
     if self.column == gpx.TIME:
       self.xAxis.setTickLabelRotation(-90)
@@ -299,6 +302,7 @@ class PlotCanvas(QCustomPlot):
   def showInformation(self, enable):
     if enable:
       self.tracer = QCPItemTracer(self)
+      self.tracer.setInterpolating(True)
       self.tracer.setSelectable(False)
       lineColor = QGuiApplication.palette().text().color() if TheConfig.getValue('ProfileStyle', 'UseSystemTheme') else QColor(Qt.black)
       self.tracer.setPen(QPen(lineColor))
@@ -306,9 +310,13 @@ class PlotCanvas(QCustomPlot):
     self.showInfo = enable
     self.tracer.setVisible(enable)
     self.legend.setVisible(enable)
-    for m in self.infoMarkers:
-      m.setVisible(enable)
-      m.setSelectable(enable)
+
+    markedPoints = TheDocument.wptmodel.getMarkedPoints()
+    for m in self.markers:
+      if m.idx not in markedPoints:
+        m.setVisible(enable)
+        m.setSelectable(enable)
+
     self.deselectAll()
     self.replot()
 
@@ -323,17 +331,36 @@ class PlotCanvas(QCustomPlot):
     elif event.key() == Qt.Key_Menu and event.modifiers() == Qt.NoModifier and self.selectedElement is not None:
       self.contextMenu()
 
+    # Move caption
     elif event.key() in {Qt.Key_Left, Qt.Key_Right, Qt.Key_Down, Qt.Key_Up} and type(self.selectedElement) == CaptionItem:
       x = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSX]
       y = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSY]
+      d = 10 if event.modifiers() == Qt.ControlModifier else 1
       if event.key() == Qt.Key_Left:
-        TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSX, x - 1)
+        TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSX, x - d)
       elif event.key() == Qt.Key_Right:
-        TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSX, x + 1)
+        TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSX, x + d)
       elif event.key() == Qt.Key_Down:
-        TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSY, y - 1)
+        TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSY, y - d)
       elif event.key() == Qt.Key_Up:
-        TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSY, y + 1)
+        TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSY, y + d)
+      self.replot()
+
+    # Select previous/next marker
+    elif event.key() in {Qt.Key_Left, Qt.Key_Right} and type(self.selectedElement) == MarkerItem:
+      step = 1 if event.key() == Qt.Key_Right else -1
+      ind = [m.idx for m in self.markers].index(self.selectedElement.idx)
+      self.markers[ind].setSelection(QCPDataSelection())
+
+      while True:
+        ind += step
+        if (not 0 < ind < len(self.markers) - 1) or TheDocument.wptmodel.index(self.markers[ind].idx, gpx.NAME).data(gpx.MarkerRole) or \
+           (self.showInfo and event.modifiers() != Qt.ControlModifier):
+          break
+      ind = min(max(ind, 0), len(self.markers) - 1)
+
+      self.markers[ind].setSelection(QCPDataSelection(QCPDataRange(0, 1)))
+      self.onSelectionChanged()
       self.replot()
 
     else:
@@ -347,15 +374,8 @@ class PlotCanvas(QCustomPlot):
           self.tracer.setGraph(profile)
       self.tracer.setGraphKey(self.xAxis.pixelToCoord(event.pos().x()))
       self.replot()
-      if self.column == gpx.DIST:
-        self.xLegendText.setText(self.tr('Distance: ') + str(round(self.tracer.position.key(), 3)))
-      elif self.column == gpx.TIME_DAYS:
-        self.xLegendText.setText(self.tr('Time: ') + str(round(self.tracer.position.key(), 3)))
-      else:  # absolute time
-        self.xLegendText.setText(self.tr('Time: ') +
-                                 QCPAxisTickerDateTime.keyToDateTime(self.tracer.position.key()).toString('yyyy-MM-dd HH:mm:ss'))
-      self.yLegendText.setText(self.tr('Altitude: ') + str(round(self.tracer.position.value())))
-      self.replot()
+      if self.selectedElement is None:
+        self.updateLegend()
 
     self.updateCursorShape(event.pos())
 
@@ -415,6 +435,21 @@ class PlotCanvas(QCustomPlot):
       else:  # outside the axes rect
         self.setCursor(QCursor(Qt.SizeVerCursor if pos.x() < self.axisRect().rect().left() else Qt.ArrowCursor))
 
+  def updateLegend(self):
+    if self.selectedElement is not None:
+      self.legendTitle.setText(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data())
+    else:
+      self.legendTitle.setText(self.tr('Cursor'))
+    if self.column == gpx.DIST:
+      self.xLegendText.setText(self.tr('Distance: ') + str(round(self.tracer.position.key(), 3)))
+    elif self.column == gpx.TIME_DAYS:
+      self.xLegendText.setText(self.tr('Time: ') + str(round(self.tracer.position.key(), 3)))
+    else:  # absolute time
+      self.xLegendText.setText(self.tr('Time: ') +
+                               QCPAxisTickerDateTime.keyToDateTime(self.tracer.position.key()).toString('yyyy-MM-dd HH:mm:ss'))
+    self.yLegendText.setText(self.tr('Altitude: ') + str(round(self.tracer.position.value())))
+    self.replot()
+
   def contextMenu(self):
     self.actMarker.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.MarkerRole))
     self.actCaption.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionRole))
@@ -468,17 +503,13 @@ class PlotCanvas(QCustomPlot):
 
     marked = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.MarkerRole)
     TheDocument.wptmodel.setMarkerStates([self.selectedElement.idx], not marked)
+    index = [m.idx for m in self.markers].index(self.selectedElement.idx)
     if not marked:
-      index = [m.idx for m in self.infoMarkers].index(self.selectedElement.idx)
-      self.markers += [self.infoMarkers.pop(index)]
-      self.markers[-1].setVisible(True)
-      self.markers[-1].setSelectable(True)
-    else:
-      index = [m.idx for m in self.markers].index(self.selectedElement.idx)
-      self.infoMarkers += [self.markers.pop(index)]
-      if not self.showInfo:
-        self.infoMarkers[-1].setVisible(False)
-        self.infoMarkers[-1].setSelectable(False)
+      self.markers[index].setVisible(True)
+      self.markers[index].setSelectable(True)
+    elif not self.showInfo:
+      self.markers[index].setVisible(False)
+      self.markers[index].setSelectable(False)
     self.replot()
 
   @pyqtSlot()
@@ -603,6 +634,9 @@ class PlotCanvas(QCustomPlot):
     else:
       self.selectedElement = None
 
+    if self.showInfo:
+      self.updateLegend()
+
   profileChanged = pyqtSignal()
 
 
@@ -693,6 +727,8 @@ class MarkerItem(QCPGraph):
 
   def updateStyle(self):
     scatterStyle = QCPScatterStyle()
+    selectedScatterStyle = QCPScatterStyle()
+
     if self.idx in TheDocument.wptmodel.getMarkedPoints():
       markerStyle = TheDocument.wptmodel.index(self.idx, gpx.NAME).data(gpx.MarkerStyleRole)
       scatterStyle.setCustomPath(gpx.markerPath(markerStyle[gpx.MARKER_STYLE], 2 * markerStyle[gpx.MARKER_SIZE]))  # for better compatibility with matplotlib
@@ -701,17 +737,14 @@ class MarkerItem(QCPGraph):
         scatterStyle.setPen(QPen(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
       else:
         scatterStyle.setPen(QPen(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]), 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+      selectedScatterStyle.setCustomPath(gpx.markerPath(markerStyle[gpx.MARKER_STYLE], 3 * markerStyle[gpx.MARKER_SIZE]))
+      selectedScatterStyle.setPen(QPen(QGuiApplication.palette().highlight().color(), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+
     else:
       scatterStyle.setShape(QCPScatterStyle.ssDisc)
       scatterStyle.setSize(3 * TheConfig.getValue('ProfileStyle', 'ProfileWidth'))
       scatterStyle.setBrush(QColor.fromRgba(TheConfig.getValue('ProfileStyle', 'ProfileColor')))
       scatterStyle.setPen(QPen(QColor.fromRgba(TheConfig.getValue('ProfileStyle', 'ProfileColor')), 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-
-    selectedScatterStyle = QCPScatterStyle()
-    if self.idx in TheDocument.wptmodel.getMarkedPoints():
-      selectedScatterStyle.setCustomPath(gpx.markerPath(markerStyle[gpx.MARKER_STYLE], 3 * markerStyle[gpx.MARKER_SIZE]))
-      selectedScatterStyle.setPen(QPen(QGuiApplication.palette().highlight().color(), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-    else:
       selectedScatterStyle.setShape(QCPScatterStyle.ssCircle)
       selectedScatterStyle.setSize(6 * TheConfig.getValue('ProfileStyle', 'ProfileWidth'))
       selectedScatterStyle.setPen(QPen(QGuiApplication.palette().highlight().color(), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
