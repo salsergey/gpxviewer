@@ -358,7 +358,8 @@ class GpxMainWindow(QMainWindow):
                            Several interactions are possible in profile window:
                            <ul>
                            <li>Left/right mouse buttons select markers or captions</li>
-                           <li>Selected captions are moved by up/down/left/right buttons</li>
+                           <li>Selected captions are moved by up/down/left/right buttons (with or without Ctrl)</li>
+                           <li>Selected markers are changed by left/right buttons (with or without Ctrl)</li>
                            <li>Mouse wheel zooms the image horizontally</li>
                            <li>Left mouse button drags the image horizontally</li>
                            <li>Mouse wheel over the left axis changes minimum/maximum altitude</li>
