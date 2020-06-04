@@ -1,0 +1,7 @@
+graft data
+graft ui
+include Changelog.md
+include gpxv.py
+include pynsist.cfg
+include template.nsi
+include TODO
