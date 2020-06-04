@@ -1,3 +1,8 @@
+=== Version 2.1 ===
+* Improved user interactions in the profile window: dragging captions, changing selected markers and more.
+* Added more actions in the context menu and shortcuts to them.
+* Added possibility to change point name via point style dialog.
+
 === Version 2.0 ===
 * Added detailed view for profile window. It allows one to view/modify all points and see their coordinates.
 * Added possibility to zoom and drag the profile.

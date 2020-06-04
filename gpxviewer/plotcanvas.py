@@ -31,6 +31,8 @@ class PlotCanvas(QCustomPlot):
   def __init__(self, parent=None):
     super(QCustomPlot, self).__init__(parent)
 
+    self.showInfo = False
+    self.moveCaption = False
     self.font = QFont()
     self.font.setStyleHint(QFont.SansSerif)
     self.themeSelector = QFileSelector()
@@ -57,7 +59,6 @@ class PlotCanvas(QCustomPlot):
     self.yAxis.setTicker(self.yTicker)
     self.yAxis2.setTicker(self.yTicker)
 
-    self.showInfo = False
     self.setAutoAddPlottableToLegend(False)
     self.legendTitle = QCPTextElement(self)
     self.xLegendText = QCPTextElement(self)
@@ -380,12 +381,26 @@ class PlotCanvas(QCustomPlot):
 
     self.updateCursorShape(event.pos())
 
-    super(PlotCanvas, self).mouseMoveEvent(event)
+    # Move caption
+    if self.moveCaption and QGuiApplication.mouseButtons() == Qt.LeftButton:
+      x = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSX]
+      y = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSY]
+      delta = event.pos() - self.prevPos
+      TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSX, x + delta.x())
+      TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSY, y - delta.y())
+      self.replot()
+    else:  # no caption is selected
+      super(PlotCanvas, self).mouseMoveEvent(event)
+
+    self.prevPos = event.pos()
 
   def mousePressEvent(self, event):
     if event.button() == Qt.LeftButton:
       if self.plottableAt(event.pos(), True) is None and self.itemAt(event.pos(), True) is None:
         self.setCursor(QCursor(Qt.ClosedHandCursor))
+
+      if type(self.selectedElement) == CaptionItem and self.itemAt(event.pos(), True) == self.selectedElement:
+        self.moveCaption = True
 
     super(PlotCanvas, self).mousePressEvent(event)
 
@@ -404,6 +419,7 @@ class PlotCanvas(QCustomPlot):
         self.contextMenu()
       self.replot()
 
+    self.moveCaption = False
     super(PlotCanvas, self).mouseReleaseEvent(event)
 
   def wheelEvent(self, event):
