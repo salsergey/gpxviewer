@@ -373,9 +373,10 @@ class PlotCanvas(QCustomPlot):
         if profile.getKeyRange()[0].contains(self.xAxis.pixelToCoord(event.pos().x())):
           self.tracer.setGraph(profile)
       self.tracer.setGraphKey(self.xAxis.pixelToCoord(event.pos().x()))
-      self.replot()
       if self.selectedElement is None:
         self.updateLegend()
+      else:
+        self.replot()
 
     self.updateCursorShape(event.pos())
 
@@ -438,16 +439,21 @@ class PlotCanvas(QCustomPlot):
   def updateLegend(self):
     if self.selectedElement is not None:
       self.legendTitle.setText(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data())
-    else:
+      xTitle = self.tr('Distance: ') if self.column == gpx.DIST else self.tr('Time: ')
+      self.xLegendText.setText(xTitle + TheDocument.wptmodel.index(self.selectedElement.idx, self.column).data())
+      self.yLegendText.setText(self.tr('Altitude: ') + TheDocument.wptmodel.index(self.selectedElement.idx, gpx.ALT).data())
+
+    else:  # no item is selected
       self.legendTitle.setText(self.tr('Cursor'))
-    if self.column == gpx.DIST:
-      self.xLegendText.setText(self.tr('Distance: ') + str(round(self.tracer.position.key(), 3)))
-    elif self.column == gpx.TIME_DAYS:
-      self.xLegendText.setText(self.tr('Time: ') + str(round(self.tracer.position.key(), 3)))
-    else:  # absolute time
-      self.xLegendText.setText(self.tr('Time: ') +
-                               QCPAxisTickerDateTime.keyToDateTime(self.tracer.position.key()).toString('yyyy-MM-dd HH:mm:ss'))
-    self.yLegendText.setText(self.tr('Altitude: ') + str(round(self.tracer.position.value())))
+      if self.column == gpx.DIST:
+        self.xLegendText.setText(self.tr('Distance: ') + str(round(self.tracer.position.key(), 3)))
+      elif self.column == gpx.TIME_DAYS:
+        self.xLegendText.setText(self.tr('Time: ') + str(round(self.tracer.position.key(), 3)))
+      else:  # absolute time
+        self.xLegendText.setText(self.tr('Time: ') +
+                                 QCPAxisTickerDateTime.keyToDateTime(self.tracer.position.key()).toString('yyyy-MM-dd HH:mm:ss'))
+      self.yLegendText.setText(self.tr('Altitude: ') + str(round(self.tracer.position.value())))
+
     self.replot()
 
   def contextMenu(self):
