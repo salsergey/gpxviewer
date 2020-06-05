@@ -214,17 +214,9 @@ class GpxMainWindow(QMainWindow):
     return super(GpxMainWindow, self).eventFilter(obj, event)
 
   def closeEvent(self, event):
-    if self.projectChanged and len(TheDocument.doc['GPXFile']) != 0:
-      result = QMessageBox.information(self, self.tr('Close GPX Viewer'),
-                                       self.tr('There are unsaved changes. Do you want to save the project?'),
-                                       QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Yes)
-      if result == QMessageBox.Yes:
-        if not self.onFileSave():
-          event.ignore()
-          return
-      if result == QMessageBox.Cancel:
-        event.ignore()
-        return
+    if not self.closeChangedProject(self.tr('Close GPX Viewer')):
+      event.ignore()
+      return
 
     self.plotWindow.close()
     self.statWindow.close()
@@ -324,6 +316,21 @@ class GpxMainWindow(QMainWindow):
     self.ui.trkView.resizeColumnsToContents()
     TheConfig['MainWindow']['WindowWidth'] = str(event.size().width())
     TheConfig['MainWindow']['WindowHeight'] = str(event.size().height())
+
+  def dragEnterEvent(self, event):
+    if event.mimeData().hasUrls():
+      event.acceptProposedAction()
+
+  def dropEvent(self, event):
+    filenames = [url.toLocalFile() for url in event.mimeData().urls() if QFileInfo(url.toLocalFile()).exists()]
+    if len(filenames) == 0:
+      QMessageBox.warning(self, self.tr('File open error'), self.tr('Can\'t transform recieved data to local file names.'))
+      return
+
+    if filenames[0].lower().endswith('.gpx'):
+      self.openGPXFiles(filenames)
+    elif self.closeChangedProject(self.tr('Open GPX Viewer project')):
+      self.openGPXProject(filenames[0])
 
   @pyqtSlot()
   def onAboutGPXViewer(self):
@@ -507,15 +514,8 @@ class GpxMainWindow(QMainWindow):
 
   @pyqtSlot()
   def onFileNew(self):
-    if self.projectChanged and len(TheDocument.doc['GPXFile']) != 0:
-      result = QMessageBox.information(self, self.tr('Load GPX file'),
-                                       self.tr('There are unsaved changes. Do you want to save the project?'),
-                                       QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Yes)
-      if result == QMessageBox.Yes:
-        if not self.onFileSave():
-          return
-      if result == QMessageBox.Cancel:
-        return
+    if not self.closeChangedProject(self.tr('New GPX Viewer project')):
+      return
 
     self.reset()
 
@@ -541,15 +541,8 @@ class GpxMainWindow(QMainWindow):
 
   @pyqtSlot()
   def onFileOpen(self):
-    if self.projectChanged and len(TheDocument.doc['GPXFile']) != 0:
-      result = QMessageBox.information(self, self.tr('Open GPX Viewer project'),
-                                       self.tr('There are unsaved changes. Do you want to save the project?'),
-                                       QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Yes)
-      if result == QMessageBox.Yes:
-        if not self.onFileSave():
-          return
-      if result == QMessageBox.Cancel:
-        return
+    if not self.closeChangedProject(self.tr('Open GPX Viewer project')):
+      return
 
     filename = QFileDialog.getOpenFileName(self, self.tr('Open project file'), TheConfig['MainWindow']['ProjectDirectory'],
                                            self.tr('All GPX Viewer files (*.gpxv *.gpxz *.GPXV *.GPXZ);;'
@@ -672,15 +665,8 @@ class GpxMainWindow(QMainWindow):
 
   @pyqtSlot()
   def openRecentProject(self):
-    if self.projectChanged and len(TheDocument.doc['GPXFile']) != 0:
-      result = QMessageBox.information(self, self.tr('Open GPX Viewer project'),
-                                       self.tr('There are unsaved changes. Do you want to save the project?'),
-                                       QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Yes)
-      if result == QMessageBox.Yes:
-        if not self.onFileSave():
-          return
-      if result == QMessageBox.Cancel:
-        return
+    if not self.closeChangedProject(self.tr('Open GPX Viewer project')):
+      return
 
     for i, act in enumerate(self.actionsRecent):
       if self.sender() == act:
@@ -812,6 +798,19 @@ class GpxMainWindow(QMainWindow):
   @pyqtSlot(str, str)
   def showWarning(self, title, text):
     QMessageBox.warning(self, title, text)
+
+  def closeChangedProject(self, title):
+    if self.projectChanged and len(TheDocument.doc['GPXFile']) != 0:
+      result = QMessageBox.information(self, title,
+                                       self.tr('There are unsaved changes. Do you want to save the project?'),
+                                       QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Yes)
+      if result == QMessageBox.Yes:
+        if not self.onFileSave():
+          return False
+      if result == QMessageBox.Cancel:
+        return False
+
+    return True
 
   def reset(self):
     self.projectFile = ''
