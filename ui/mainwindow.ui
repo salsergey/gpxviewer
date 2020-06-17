@@ -92,8 +92,8 @@
      </property>
      <addaction name="actionClearList"/>
     </widget>
-    <addaction name="actionLoadGPXfile"/>
-    <addaction name="actionSaveGPXfileAs"/>
+    <addaction name="actionLoadFile"/>
+    <addaction name="actionSaveFileAs"/>
     <addaction name="separator"/>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
@@ -175,7 +175,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionLoadGPXfile"/>
+   <addaction name="actionLoadFile"/>
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
@@ -256,9 +256,9 @@
     <string>Save project &amp;as...</string>
    </property>
   </action>
-  <action name="actionLoadGPXfile">
+  <action name="actionLoadFile">
    <property name="text">
-    <string>&amp;Load GPX file</string>
+    <string>&amp;Load file</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+L</string>
@@ -340,9 +340,9 @@
     <string notr="true">Ctrl+I</string>
    </property>
   </action>
-  <action name="actionSaveGPXfileAs">
+  <action name="actionSaveFileAs">
    <property name="text">
-    <string>Save &amp;GPX file as...</string>
+    <string>Save file as...</string>
    </property>
   </action>
   <action name="actionClearList">
@@ -500,22 +500,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionLoadGPXfile</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>onFileLoadGPXFile()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>511</x>
-     <y>383</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionSettings</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -660,22 +644,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionSaveGPXfileAs</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>onFileSaveGPXFileAs()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>511</x>
-     <y>383</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionClearList</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -771,6 +739,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSaveFileAs</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onFileSaveFileAs()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionLoadFile</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onFileLoadFile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onFileOpen()</slot>
@@ -779,7 +779,7 @@
   <slot>onPlotTimeProfile()</slot>
   <slot>onFileSave()</slot>
   <slot>onFileSaveAs()</slot>
-  <slot>onFileLoadGPXFile()</slot>
+  <slot>onFileLoadFile()</slot>
   <slot>onShowSettings()</slot>
   <slot>onShowSkipped(bool)</slot>
   <slot>onShowMarked(bool)</slot>
@@ -789,7 +789,7 @@
   <slot>onAboutGPXViewer()</slot>
   <slot>onFileNew()</slot>
   <slot>onShowStatistics()</slot>
-  <slot>onFileSaveGPXFileAs()</slot>
+  <slot>onFileSaveFileAs()</slot>
   <slot>onClearRecentList()</slot>
   <slot>onShowMarkedCaptioned(bool)</slot>
   <slot>onResetFilters()</slot>

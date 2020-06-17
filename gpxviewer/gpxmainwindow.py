@@ -97,8 +97,8 @@ class GpxMainWindow(QMainWindow):
     self.themeSelector.setExtraSelectors([TheConfig['MainWindow']['ColorTheme']])
 
     self.setWindowIcon(QIcon(':/icons/gpxviewer.svg'))
-    self.ui.actionLoadGPXfile.setIcon(QIcon(self.themeSelector.select(':/icons/xml-element-new.svg')))
-    self.ui.actionSaveGPXfileAs.setIcon(QIcon(self.themeSelector.select(':/icons/document-save-as-template.svg')))
+    self.ui.actionLoadFile.setIcon(QIcon(self.themeSelector.select(':/icons/xml-element-new.svg')))
+    self.ui.actionSaveFileAs.setIcon(QIcon(self.themeSelector.select(':/icons/document-save-as-template.svg')))
     self.ui.actionNew.setIcon(QIcon(self.themeSelector.select(':/icons/document-new.svg')))
     self.ui.actionOpen.setIcon(QIcon(self.themeSelector.select(':/icons/document-open.svg')))
     self.ui.actionSave.setIcon(QIcon(self.themeSelector.select(':/icons/document-save.svg')))
@@ -520,16 +520,16 @@ class GpxMainWindow(QMainWindow):
     self.reset()
 
   @pyqtSlot()
-  def onFileLoadGPXFile(self):
-    filenames = QFileDialog.getOpenFileNames(self, self.tr('Open GPX file'), TheConfig['MainWindow']['LoadGPXDirectory'],
+  def onFileLoadFile(self):
+    filenames = QFileDialog.getOpenFileNames(self, self.tr('Open file'), TheConfig['MainWindow']['LoadGPXDirectory'],
                                              self.tr('GPX XML (*.gpx *.GPX);;All files (*)'))[0]
     self.openGPXFiles(filenames)
 
   @pyqtSlot()
-  def onFileSaveGPXFileAs(self):
+  def onFileSaveFileAs(self):
     if TheDocument.wptmodel.rowCount() == len(TheDocument.wptmodel.getSkippedPoints()) and \
        TheDocument.trkmodel.rowCount() == len(TheDocument.trkmodel.getSkippedTracks()):
-      QMessageBox.warning(self, self.tr('Save error'), self.tr('The GPX file will be empty.'))
+      QMessageBox.warning(self, self.tr('Save error'), self.tr('The file will be empty.'))
       return
 
     filename = QFileDialog.getSaveFileName(self, self.tr('Save GPX file as'), TheConfig['MainWindow']['LoadGPXDirectory'],

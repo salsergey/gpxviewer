@@ -24,9 +24,11 @@ from gpxviewer.configstore import TheConfig
 
 WPTFIELDS = NAME, LAT, LON, ALT, DIST, TIME, TIME_DELTA, TIME_DAYS, DIST_DELTA, ALT_DELTA, SPEED, ALT_SPEED, SLOPE = range(13)
 TRKFIELDS = TRKNAME, TRKSEGS, TRKPTS, TRKLEN, TRKTIME, TRKDUR = range(6)
-ValueRole, IDRole, IncludeRole, MarkerRole, CaptionRole, SplitLineRole, NeglectRole, MarkerStyleRole, CaptionStyleRole, SplitLineStyleRole = range(Qt.UserRole, Qt.UserRole + 10)
+ValueRole, IDRole, IncludeRole, MarkerRole, CaptionRole, SplitLineRole, NeglectRole,\
+  MarkerStyleRole, CaptionStyleRole, SplitLineStyleRole = range(Qt.UserRole, Qt.UserRole + 10)
 MARKER_COLOR, MARKER_STYLE, MARKER_SIZE, CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE, LINE_COLOR, LINE_STYLE, LINE_WIDTH = \
-  ('MarkerColor', 'MarkerStyle', 'MarkerSize', 'CaptionPositionX', 'CaptionPositionY', 'CaptionRotation', 'CaptionSize', 'SplitLineColor', 'SplitLineStyle', 'SplitLineWidth')
+  ('MarkerColor', 'MarkerStyle', 'MarkerSize', 'CaptionPositionX', 'CaptionPositionY',
+   'CaptionRotation', 'CaptionSize', 'SplitLineColor', 'SplitLineStyle', 'SplitLineWidth')
 
 
 class GpxWarning(Exception):
@@ -44,7 +46,8 @@ class WptModel(QAbstractTableModel):
 
     self.fields = [self.tr('Name'), self.tr('Latitude'), self.tr('Longitude'), self.tr('Altitude (m)'),
                    self.tr('Distance (km)'), self.tr('Time'), self.tr('Time difference'), self.tr('Time in days'),
-                   self.tr('Distance difference (km)'), self.tr('Altitude difference (m)'), self.tr('Speed (km/h)'), self.tr('Climbing speed (m/h)'), self.tr('Slope (m/km)')]
+                   self.tr('Distance difference (km)'), self.tr('Altitude difference (m)'),
+                   self.tr('Speed (km/h)'), self.tr('Climbing speed (m/h)'), self.tr('Slope (m/km)')]
     self.resetModel()
     self.pix = QPixmap(16, 16)
     self.pix.fill(Qt.transparent)
@@ -344,7 +347,7 @@ class GpxParser(QObject):
     self.trkmodel.resetModel()
     self.points = []
     self.minalt = 10000
-    self.maxalt = 0
+    self.maxalt = -10000
 
   def parse(self, filename):
     try:
@@ -490,7 +493,10 @@ class GpxParser(QObject):
       i = 0
       while i < self.wptmodel.rowCount():
         if self.wptmodel.includeStates[i]:
-          if ind < len(self.points) and self.wptmodel.waypoints[i][TIME] < self.trkmodel.tracks[self.points[ind][0]]['SEGMENTS'][self.points[ind][1]][self.points[ind][2]][TIME] or ind == len(self.points):
+          if ind < len(self.points) and \
+             self.wptmodel.waypoints[i][TIME] < \
+             self.trkmodel.tracks[self.points[ind][0]]['SEGMENTS'][self.points[ind][1]][self.points[ind][2]][TIME] or \
+             ind == len(self.points):
             self.points.insert(ind, i)
             i += 1
           ind += 1
@@ -762,7 +768,7 @@ def _distance(lat1, lon1, lat2, lon2):
   Radius = 6378.14  # The equatorial radius of the Earth
   # angle between two points
   angle = acos(min(1.0, sin(lat1*pi/180.0) * sin(lat2*pi/180.0) +
-               cos(lat1*pi/180.0) * cos(lat2*pi/180.0) * cos((lon1 - lon2)*pi/180.0)))
+                   cos(lat1*pi/180.0) * cos(lat2*pi/180.0) * cos((lon1 - lon2)*pi/180.0)))
   # local radius of the Earth
   r = Radius * (0.99832407 + 0.00167644 * cos(2.0*lat1) - 0.00000352 * cos(4.0*lat1))
   dist = r * angle
