@@ -45,6 +45,7 @@ class ConfigStore(configparser.ConfigParser):
     defaults = {'MainWindow': {'WindowWidth': 1200,
                                'WindowHeight': 800,
                                'LoadGPXDirectory': os.path.expanduser('~'),
+                               'GPSFileExtension': QCoreApplication.translate('ConfigStore', 'GPX XML (*.gpx *.GPX)'),
                                'ProjectDirectory': os.path.expanduser('~'),
                                'ProjectExtension': QCoreApplication.translate('ConfigStore', 'GPX Viewer Projects (*.gpxv *.GPXV)'),
                                'DetailedView': False,

@@ -327,7 +327,7 @@ class GpxMainWindow(QMainWindow):
       QMessageBox.warning(self, self.tr('File open error'), self.tr('Can\'t transform recieved data to local file names.'))
       return
 
-    if filenames[0].lower().endswith('.gpx'):
+    if filenames[0].lower().endswith('.gpx') or filenames[0].lower().endswith('.kml'):
       self.openGPXFiles(filenames)
     elif self.closeChangedProject(self.tr('Open GPX Viewer project')):
       self.openGPXProject(filenames[0])
@@ -522,7 +522,10 @@ class GpxMainWindow(QMainWindow):
   @pyqtSlot()
   def onFileLoadFile(self):
     filenames = QFileDialog.getOpenFileNames(self, self.tr('Open file'), TheConfig['MainWindow']['LoadGPXDirectory'],
-                                             self.tr('GPX XML (*.gpx *.GPX);;All files (*)'))[0]
+                                             self.tr('All supported files (*.gpx *.GPX *.kml *.KML);;'
+                                                     'GPX XML (*.gpx *.GPX);;'
+                                                     'Keyhole Markup Language (*.kml *.KML);;'
+                                                     'All files (*)'))[0]
     self.openGPXFiles(filenames)
 
   @pyqtSlot()
@@ -532,12 +535,22 @@ class GpxMainWindow(QMainWindow):
       QMessageBox.warning(self, self.tr('Save error'), self.tr('The file will be empty.'))
       return
 
-    filename = QFileDialog.getSaveFileName(self, self.tr('Save GPX file as'), TheConfig['MainWindow']['LoadGPXDirectory'],
-                                           self.tr('GPX XML (*.gpx *.GPX);;All files (*)'))[0]
+    filename, filter = QFileDialog.getSaveFileName(self, self.tr('Save file as'), TheConfig['MainWindow']['LoadGPXDirectory'],
+                                                   self.tr('GPX XML (*.gpx *.GPX);;'
+                                                           'Keyhole Markup Language (*.kml *.KML);;'
+                                                           'All files (*)'),
+                                                   TheConfig['MainWindow']['GPSFileExtension'])
     if filename != '':
-      TheConfig['MainWindow']['LoadGPXDirectory'] = QFileInfo(filename).path()
-      TheDocument.gpxparser.writeToFile(filename)
-      self.ui.statusBar.showMessage(filename + self.tr(' written.'), 2000)
+      try:
+        if filter.find('kml') != -1 or filename.lower().endswith('.kml'):
+          TheDocument.gpxparser.writeKMLFile(filename)
+        else:
+          TheDocument.gpxparser.writeGPXFile(filename)
+        TheConfig['MainWindow']['LoadGPXDirectory'] = QFileInfo(filename).path()
+        TheConfig['MainWindow']['GPSFileExtension'] = filter
+        self.ui.statusBar.showMessage(filename + self.tr(' written.'), 2000)
+      except OSError as e:
+        QMessageBox.warning(self, self.tr('Save error'), e.args[0])
 
   @pyqtSlot()
   def onFileOpen(self):

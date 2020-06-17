@@ -41,7 +41,7 @@ def main():
   gpxMainWindow = GpxMainWindow()
   gpxMainWindow.show()
   if len(sys.argv) > 1:
-    if sys.argv[1].lower().endswith('.gpx'):
+    if sys.argv[1].lower().endswith('.gpx') or sys.argv[1].lower().endswith('.kml'):
       gpxMainWindow.openGPXFiles(sys.argv[1:])
     else:
       gpxMainWindow.openGPXProject(sys.argv[1])

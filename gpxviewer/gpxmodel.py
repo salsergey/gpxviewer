@@ -14,8 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
+from lxml import etree
 from math import acos, cos, modf, pi, sin, sqrt
 from PyQt5.QtCore import Qt, QAbstractTableModel, QFileInfo, QModelIndex, QObject, QPointF, QSortFilterProxyModel, pyqtSignal
 from PyQt5.QtGui import QColor, QFont, QGuiApplication, QPainter, QPainterPath, QPen, QPixmap, QPolygonF
@@ -351,103 +351,82 @@ class GpxParser(QObject):
 
   def parse(self, filename):
     try:
-      doc = ET.parse(filename)
-    except (ET.ParseError, IsADirectoryError, FileNotFoundError):
-      raise GpxWarning(QFileInfo(filename).absoluteFilePath() + self.tr(' is an invalid GPX file.'))
-    ns = {'ns': doc.getroot().tag.split('}')[0][1:]}
+      doc = etree.parse(filename)
+    except (etree.ParseError, IsADirectoryError, FileNotFoundError):
+      raise GpxWarning(QFileInfo(filename).absoluteFilePath() + self.tr(' is an invalid file.'))
 
+    self.ns = doc.getroot().nsmap
+    self.ns['ns'] = self.ns[None]
+
+    if filename.lower().endswith('.kml'):
+      self.parseKMLDocument(doc.getroot().find('{%(ns)s}Document' % self.ns))
+    else:
+      self.parseGPXDocument(doc.getroot())
+
+    TheConfig['ProfileStyle']['MinimumAltitude'] = str(
+      int(round(self.minalt, -3) - 500 if round(self.minalt, -3) > self.minalt else round(self.minalt, -3)))
+    TheConfig['ProfileStyle']['MaximumAltitude'] = str(
+      int(round(self.maxalt, -3) + 500 if round(self.maxalt, -3) < self.maxalt else round(self.maxalt, -3)))
+
+  def parseGPXDocument(self, root):
     tag = 'name'
     if TheConfig.getValue('ProfileStyle', 'ReadNameFromTag') == 1:  # Comment
       tag = 'cmt'
     elif TheConfig.getValue('ProfileStyle', 'ReadNameFromTag') == 2:  # Description
       tag = 'desc'
 
-    for p in doc.iterfind('.//{%(ns)s}wpt' % ns):
+    for p in root.iterfind('{%(ns)s}wpt' % self.ns):
       try:
-        point = {}
-        name = p.findtext(('{%(ns)s}' + tag) % ns)
-        point[NAME] = name.strip() if name is not None else ''
-        point[LAT] = float(p.get('lat'))
-        point[LON] = float(p.get('lon'))
-        ele = p.findtext('{%(ns)s}ele' % ns)
-        point[ALT] = float(ele) if ele is not None else 0
-        self.minalt = min(self.minalt, point[ALT])
-        self.maxalt = max(self.maxalt, point[ALT])
-        time = p.findtext('{%(ns)s}time' % ns)
-        if time is not None:
-          point[TIME] = datetime.strptime(time[:19].strip(), '%Y-%m-%dT%H:%M:%S')
-        else:
-          point[TIME] = ''
-        point[DIST] = ''
-        point[TIME_DELTA] = ''
-        point[TIME_DAYS] = ''
-        point[DIST_DELTA] = ''
-        point[ALT_DELTA] = ''
-        point[SPEED] = ''
-        point[ALT_SPEED] = ''
-        point[SLOPE] = ''
+        name = p.findtext(('{%(ns)s}' + tag) % self.ns)
+        ele = p.findtext('{%(ns)s}ele' % self.ns)
+        time = p.findtext('{%(ns)s}time' % self.ns)
+        point = {
+          NAME: name.strip() if name is not None else '',
+          LAT: float(p.get('lat')),
+          LON: float(p.get('lon')),
+          ALT: float(ele) if ele is not None else 0,
+          TIME: datetime.fromisoformat(time[0:-1]) if time is not None else '',
+          # Additional fields
+          'CMT': p.findtext('{%(ns)s}cmt' % self.ns),
+          'DESC': p.findtext('{%(ns)s}desc' % self.ns),
+          'SYM': p.findtext('{%(ns)s}sym' % self.ns),
+        }
 
-        wptid = self.wptmodel.rowCount()
-        # Sort points by time
-        if TheConfig.getValue('ProfileStyle', 'SortByTime') and point[TIME] != '':
-          while wptid > 0 and self.wptmodel.waypoints[wptid - 1][TIME] != '' and point[TIME] < self.wptmodel.waypoints[wptid - 1][TIME]:
-            wptid -= 1
-          for i in range(wptid, self.wptmodel.rowCount()):
-            self.wptmodel.waypoints[i]['ID'] += 1
-        point['ID'] = wptid
-
-        # Additional fields
-        point['CMT'] = p.findtext('{%(ns)s}cmt' % ns)
-        point['DESC'] = p.findtext('{%(ns)s}desc' % ns)
-        point['SYM'] = p.findtext('{%(ns)s}sym' % ns)
-
-        self.wptmodel.beginInsertRows(QModelIndex(), wptid, wptid)
-        self.wptmodel.waypoints.insert(wptid, point)
-        self.wptmodel.includeStates.insert(wptid, True)
-        self.wptmodel.markerStates.insert(wptid, False)
-        self.wptmodel.captionStates.insert(wptid, False)
-        self.wptmodel.splitStates.insert(wptid, False)
-        self.wptmodel.neglectStates.insert(wptid, False)
-        self.wptmodel.pointStyles.insert(wptid, {})
-        self.wptmodel.endInsertRows()
+        self.addPointToModel(point)
 
       except (TypeError, ValueError):
         self.warningSent.emit(self.tr('File read error'),
-                              self.tr('Waypoint ') + (point[NAME] + ' ' if point[NAME] != '' else '') + self.tr('is invalid and will be skipped.', 'Waypoint'))
+                              self.tr('Waypoint ') + (name + ' ' if name is not None else '') +
+                              self.tr('is invalid and will be skipped.', 'Waypoint'))
 
-    trkid = self.trkmodel.rowCount()
-    for t in doc.iterfind('.//{%(ns)s}trk' % ns):
+    for t in root.iterfind('{%(ns)s}trk' % self.ns):
       try:
-        track = {}
-        name = t.findtext('{%(ns)s}name' % ns)
-        track[TRKNAME] = name.strip() if name is not None else ''
+        name = t.findtext('{%(ns)s}name' % self.ns)
+        track = {TRKNAME: name.strip() if name is not None else ''}
 
-        track['SEGMENTS'] = []
         pts = 0
         tot_dist = 0.0
-        for s in t.iterfind('.//{%(ns)s}trkseg' % ns):
-          segment = []
+        track['SEGMENTS'] = []
+        for s in t.iterfind('{%(ns)s}trkseg' % self.ns):
           prev_lat = None
           prev_lon = None
           dist = 0.0
-          for p in s.iterfind('.//{%(ns)s}trkpt' % ns):
-            point = {}
-            point[LAT] = float(p.get('lat'))
-            point[LON] = float(p.get('lon'))
-            ele = p.findtext('{%(ns)s}ele' % ns)
-            point[ALT] = float(ele) if ele is not None else 0
+          segment = []
+          for p in s.iterfind('{%(ns)s}trkpt' % self.ns):
+            ele = p.findtext('{%(ns)s}ele' % self.ns)
+            time = p.findtext('{%(ns)s}time' % self.ns)
+            point = {
+              LAT: float(p.get('lat')),
+              LON: float(p.get('lon')),
+              ALT: float(ele) if ele is not None else 0,
+              TIME: datetime.fromisoformat(time[0:-1]) if time is not None else '',
+            }
             self.minalt = min(self.minalt, point[ALT])
             self.maxalt = max(self.maxalt, point[ALT])
-            time = p.findtext('{%(ns)s}time' % ns)
-            if time is not None:
-              point[TIME] = datetime.strptime(time[:19].strip(), '%Y-%m-%dT%H:%M:%S')
-            else:
-              point[TIME] = ''
 
             if prev_lat is not None and prev_lon is not None:
               dist += _distance(point[LAT], point[LON], prev_lat, prev_lon)
-            prev_lat = point[LAT]
-            prev_lon = point[LON]
+            prev_lat, prev_lon = point[LAT], point[LON]
 
             segment += [point]
             pts += 1
@@ -455,26 +434,160 @@ class GpxParser(QObject):
           track['SEGMENTS'] += [segment]
           tot_dist += dist
 
-        track[TRKSEGS] = len(track['SEGMENTS'])
         track[TRKPTS] = pts
         track['LENGTH'] = tot_dist
-        track[TRKLEN] = ''
-        track[TRKTIME] = track['SEGMENTS'][0][0][TIME]
-        track[TRKDUR] = track['SEGMENTS'][-1][-1][TIME] - track['SEGMENTS'][0][0][TIME] \
-                        if track['SEGMENTS'][0][0][TIME] != '' and track['SEGMENTS'][-1][-1][TIME] != '' else ''
-
-        self.trkmodel.beginInsertRows(QModelIndex(), trkid, trkid)
-        self.trkmodel.tracks += [track]
-        self.trkmodel.includeStates += [True]
-        self.trkmodel.endInsertRows()
-        trkid += 1
+        self.addTrackToModel(track)
 
       except (TypeError, ValueError):
         self.warningSent.emit(self.tr('File read error'),
-                              self.tr('Track ') + (track[TRKNAME] + ' ' if track[TRKNAME] != '' else '') + self.tr('is invalid and will be skipped.', 'Track'))
+                              self.tr('Track ') + (name + ' ' if name is not None else '') +
+                              self.tr('is invalid and will be skipped.', 'Track'))
 
-    TheConfig['ProfileStyle']['MinimumAltitude'] = str(int(round(self.minalt, -3) - 500 if round(self.minalt, -3) > self.minalt else round(self.minalt, -3)))
-    TheConfig['ProfileStyle']['MaximumAltitude'] = str(int(round(self.maxalt, -3) + 500 if round(self.maxalt, -3) < self.maxalt else round(self.maxalt, -3)))
+  def parseKMLDocument(self, root):
+    for element in root.iterchildren():
+      if element.tag == '{%(ns)s}Folder' % self.ns:
+        self.parseKMLDocument(element)
+
+      elif element.tag == '{%(ns)s}Placemark' % self.ns:
+        if element.find('{%(ns)s}Point' % self.ns) is not None:  # waypoint
+          try:
+            name = element.findtext('{%(ns)s}name' % self.ns)
+            time = element.findtext('.//{%(ns)s}when' % self.ns)
+            point = {
+              NAME: name.strip() if name is not None else '',
+              TIME: datetime.fromisoformat(time[0:-1]) if time is not None else '',
+            }
+            point[LON], point[LAT], point[ALT] = eval(element.findtext('.//{%(ns)s}coordinates' % self.ns))
+
+            self.addPointToModel(point)
+
+          except (TypeError, ValueError):
+            self.warningSent.emit(self.tr('File read error'),
+                                  self.tr('Waypoint ') + (name + ' ' if name is not None else '') +
+                                  self.tr('is invalid and will be skipped.', 'Waypoint'))
+
+        elif element.find('{%(gx)s}Track' % self.ns) is not None:  # track
+          try:
+            name = element.findtext('{%(ns)s}name' % self.ns)
+            track = {TRKNAME: name.strip() if name is not None else ''}
+
+            coords = [el.text.split(' ') for el in element.iterfind('.//{%(gx)s}coord' % self.ns)]
+            times = [datetime.fromisoformat(el.text[0:-1]) for el in element.iterfind('.//{%(ns)s}when' % self.ns)]
+            if len(coords) != len(times):
+              times = [None] * len(coords)
+
+            prev_lat = None
+            prev_lon = None
+            dist = 0.0
+            segment = []
+            for c, t in zip(coords, times):
+              point = {
+                LON: float(c[0]),
+                LAT: float(c[1]),
+                ALT: float(c[2]),
+                TIME: t if t is not None else ''
+              }
+              self.minalt = min(self.minalt, point[ALT])
+              self.maxalt = max(self.maxalt, point[ALT])
+
+              if prev_lat is not None and prev_lon is not None:
+                dist += _distance(point[LAT], point[LON], prev_lat, prev_lon)
+              prev_lat, prev_lon = point[LAT], point[LON]
+
+              segment += [point]
+
+            track['SEGMENTS'] = [segment]
+            track[TRKPTS] = len(segment)
+            track['LENGTH'] = dist
+            self.addTrackToModel(track)
+
+          except (TypeError, ValueError):
+            self.warningSent.emit(self.tr('File read error'),
+                                  self.tr('Track ') + (name + ' ' if name is not None else '') +
+                                  self.tr('is invalid and will be skipped.', 'Track'))
+
+        elif element.find('{%(ns)s}LineString' % self.ns) is not None:  # line
+          try:
+            name = element.findtext('{%(ns)s}name' % self.ns)
+            track = {TRKNAME: name.strip() if name is not None else ''}
+
+            coords = element.findtext('.//{%(ns)s}coordinates' % self.ns)
+            coords = coords.strip().split(' ') if coords is not None else []
+            times = [None] * len(coords)
+
+            prev_lat = None
+            prev_lon = None
+            dist = 0.0
+            segment = []
+            for c, t in zip(coords, times):
+              point = {TIME: ''}
+              point[LON], point[LAT], point[ALT] = [float(n) for n in eval(c)]
+              self.minalt = min(self.minalt, point[ALT])
+              self.maxalt = max(self.maxalt, point[ALT])
+
+              if prev_lat is not None and prev_lon is not None:
+                dist += _distance(point[LAT], point[LON], prev_lat, prev_lon)
+              prev_lat, prev_lon = point[LAT], point[LON]
+
+              segment += [point]
+
+            track['SEGMENTS'] = [segment]
+            track[TRKPTS] = len(segment)
+            track['LENGTH'] = dist
+            self.addTrackToModel(track)
+
+          except (TypeError, ValueError):
+            self.warningSent.emit(self.tr('File read error'),
+                                  self.tr('Track ') + (name + ' ' if name is not None else '') +
+                                  self.tr('is invalid and will be skipped.', 'Track'))
+
+  def addPointToModel(self, point):
+    point[DIST] = ''
+    point[TIME_DELTA] = ''
+    point[TIME_DAYS] = ''
+    point[DIST_DELTA] = ''
+    point[ALT_DELTA] = ''
+    point[SPEED] = ''
+    point[ALT_SPEED] = ''
+    point[SLOPE] = ''
+
+    wptid = self.wptmodel.rowCount()
+    # Sort points by time
+    if TheConfig.getValue('ProfileStyle', 'SortByTime') and point[TIME] != '':
+      while wptid > 0 and self.wptmodel.waypoints[wptid - 1][TIME] != '' and point[TIME] < self.wptmodel.waypoints[wptid - 1][TIME]:
+        wptid -= 1
+      for i in range(wptid, self.wptmodel.rowCount()):
+        self.wptmodel.waypoints[i]['ID'] += 1
+    point['ID'] = wptid
+
+    self.wptmodel.beginInsertRows(QModelIndex(), wptid, wptid)
+    self.wptmodel.waypoints.insert(wptid, point)
+    self.wptmodel.includeStates.insert(wptid, True)
+    self.wptmodel.markerStates.insert(wptid, False)
+    self.wptmodel.captionStates.insert(wptid, False)
+    self.wptmodel.splitStates.insert(wptid, False)
+    self.wptmodel.neglectStates.insert(wptid, False)
+    self.wptmodel.pointStyles.insert(wptid, {})
+    self.wptmodel.endInsertRows()
+
+    self.minalt = min(self.minalt, point[ALT])
+    self.maxalt = max(self.maxalt, point[ALT])
+
+  def addTrackToModel(self, track):
+    track[TRKSEGS] = len(track['SEGMENTS'])
+    track[TRKLEN] = ''
+    if all([p[TIME] != '' for s in track['SEGMENTS'] for p in s]):
+      track[TRKTIME] = track['SEGMENTS'][0][0][TIME]
+      track[TRKDUR] = track['SEGMENTS'][-1][-1][TIME] - track['SEGMENTS'][0][0][TIME]
+    else:
+      track[TRKTIME] = ''
+      track[TRKDUR] = ''
+
+    trkid = self.trkmodel.rowCount()
+    self.trkmodel.beginInsertRows(QModelIndex(), trkid, trkid)
+    self.trkmodel.tracks += [track]
+    self.trkmodel.includeStates += [True]
+    self.trkmodel.endInsertRows()
 
   def updatePoints(self):
     self.points = []
@@ -609,106 +722,136 @@ class GpxParser(QObject):
         p[ALT_SPEED] = ''
         p[SLOPE] = ''
 
-  def writeToFile(self, filename):
-    root = ET.Element('gpx', attrib={'version': '1.1',
-                                     'creator': 'GPXViewer - https://bitbucket.org/salsergey/gpxviewer',
-                                     'xmlns': 'http://www.topografix.com/GPX/1/1'})
-    metadata = ET.Element('metadata')
-    root.append(metadata)
+  def writeGPXFile(self, filename):
+    ns = {None: 'http://www.topografix.com/GPX/1/1'}
+    root = etree.Element('gpx', nsmap=ns, version='1.1', creator='GPX Viewer - https://osdn.net/projects/gpxviewer')
+    metadata = etree.SubElement(root, 'metadata')
 
     minlat = 90
     minlon = 180
     maxlat = 0
     maxlon = -180
-    for p, s in zip(self.wptmodel.waypoints, self.wptmodel.includeStates):
-      if s:
-        element = ET.Element('wpt', attrib={'lat': str(p[LAT]), 'lon': str(p[LON])})
-        root.append(element)
-        if p[LAT] < minlat:
-          minlat = p[LAT]
-        if p[LON] < minlon:
-          minlon = p[LON]
-        if p[LAT] > maxlat:
-          maxlat = p[LAT]
-        if p[LON] > maxlon:
-          maxlon = p[LON]
-        el = ET.Element('ele')
-        el.text = str(p[ALT])
-        element.append(el)
-        if p[TIME] != '':
-          el = ET.Element('time')
-          el.text = p[TIME].strftime('%Y-%m-%dT%H:%M:%SZ')
-          element.append(el)
-        el = ET.Element('name')
-        if p['ID'] in self.wptmodel.changedNames:
-          el.text = self.wptmodel.changedNames[p['ID']]
+
+    for point, state in zip(self.wptmodel.waypoints, self.wptmodel.includeStates):
+      if state:
+        element = etree.SubElement(root, 'wpt', lat=str(point[LAT]), lon=str(point[LON]))
+        etree.SubElement(element, 'ele').text = str(point[ALT])
+        minlat = min(minlat, point[LAT])
+        minlon = min(minlon, point[LON])
+        maxlat = max(maxlat, point[LAT])
+        maxlon = max(maxlon, point[LON])
+        if point[TIME] != '':
+          etree.SubElement(element, 'time').text = point[TIME].isoformat() + 'Z'
+        if point['ID'] in self.wptmodel.changedNames:
+          etree.SubElement(element, 'name').text = self.wptmodel.changedNames[point['ID']]
         else:
-          el.text = p[NAME]
-        element.append(el)
-        if p['CMT'] is not None:
-          el = ET.Element('cmt')
-          el.text = p['CMT']
-          element.append(el)
-        if p['DESC'] is not None:
-          el = ET.Element('desc')
-          el.text = p['DESC']
-          element.append(el)
-        if p['SYM'] is not None:
-          el = ET.Element('sym')
-          el.text = p['SYM']
-          element.append(el)
+          etree.SubElement(element, 'name').text = point[NAME]
 
-    for track, s in zip(self.trkmodel.tracks, self.trkmodel.includeStates):
-      if s:
-        elTrk = ET.Element('trk')
-        root.append(elTrk)
-        el = ET.Element('name')
-        el.text = track[TRKNAME]
-        elTrk.append(el)
+        if point['CMT'] is not None:
+          etree.SubElement(element, 'cmt').text = point['CMT']
+        if point['DESC'] is not None:
+          etree.SubElement(element, 'desc').text = point['DESC']
+        if point['SYM'] is not None:
+          etree.SubElement(element, 'sym').text = point['SYM']
+
+    for track, state in zip(self.trkmodel.tracks, self.trkmodel.includeStates):
+      if state:
+        elTrk = etree.SubElement(root, 'trk')
+        etree.SubElement(elTrk, 'name').text = track[TRKNAME]
         for seg in track['SEGMENTS']:
-          elSeg = ET.Element('trkseg')
-          elTrk.append(elSeg)
-          for p in seg:
-            elP = ET.Element('trkpt', attrib={'lat': str(p[LAT]), 'lon': str(p[LON])})
-            elSeg.append(elP)
-            if p[LAT] < minlat:
-              minlat = p[LAT]
-            if p[LON] < minlon:
-              minlon = p[LON]
-            if p[LAT] > maxlat:
-              maxlat = p[LAT]
-            if p[LON] > maxlon:
-              maxlon = p[LON]
-            el = ET.Element('ele')
-            el.text = str(p[ALT])
-            elP.append(el)
-            el = ET.Element('time')
-            el.text = p[TIME].strftime('%Y-%m-%dT%H:%M:%SZ')
-            elP.append(el)
+          elSeg = etree.SubElement(elTrk, 'trkseg')
+          for point in seg:
+            elP = etree.SubElement(elSeg, 'trkpt', lat=str(point[LAT]), lon=str(point[LON]))
+            etree.SubElement(elP, 'ele').text = str(point[ALT])
+            minlat = min(minlat, point[LAT])
+            minlon = min(minlon, point[LON])
+            maxlat = max(maxlat, point[LAT])
+            maxlon = max(maxlon, point[LON])
+            if point[TIME] != '':
+              etree.SubElement(elP, 'time').text = point[TIME].isoformat() + 'Z'
 
-    el = ET.Element('time')
-    el.text = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
-    metadata.append(el)
-    el = ET.Element('bounds', attrib={'minlat': str(minlat), 'minlon': str(minlon), 'maxlat': str(maxlat), 'maxlon': str(maxlon)})
-    metadata.append(el)
+    etree.SubElement(metadata, 'time').text = datetime.utcnow().isoformat() + 'Z'
+    etree.SubElement(metadata, 'bounds', minlat=str(minlat), minlon=str(minlon), maxlat=str(maxlat), maxlon=str(maxlon))
 
-    outgpx = '<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(root, encoding='unicode') + '\n'
-    outgpx = outgpx.replace('<metadata', '\n  <metadata')
-    outgpx = outgpx.replace('</metadata', '\n  </metadata')
-    outgpx = outgpx.replace('<wpt', '\n  <wpt')
-    outgpx = outgpx.replace('<trk', '\n  <trk')
-    outgpx = outgpx.replace('<bounds', '\n    <bounds')
-    outgpx = outgpx.replace('<ele', '\n    <ele')
-    outgpx = outgpx.replace('<time', '\n    <time')
-    outgpx = outgpx.replace('<name', '\n    <name')
-    outgpx = outgpx.replace('<cmt', '\n    <cmt')
-    outgpx = outgpx.replace('<desc', '\n    <desc')
-    outgpx = outgpx.replace('<sym', '\n    <sym')
-    outgpx = outgpx.replace('</wpt', '\n  </wpt')
-    outgpx = outgpx.replace('</trk', '\n  </trk')
-    outgpx = outgpx.replace('</gpx', '\n</gpx')
     with open(filename, 'w', encoding='utf-8') as file:
-      file.write(outgpx)
+      file.write('<?xml version="1.0" encoding="UTF-8"?>\n' + etree.tostring(root, encoding='unicode', pretty_print=True))
+
+  def writeKMLFile(self, filename):
+    ns = {
+      None: 'http://www.opengis.net/kml/2.2',
+      'gx': 'http://www.google.com/kml/ext/2.2',
+      'kml': 'http://www.opengis.net/kml/2.2',
+      'atom': 'http://www.w3.org/2005/Atom'
+    }
+    root = etree.Element('kml', nsmap=ns, creator='GPX Viewer - https://osdn.net/projects/gpxviewer')
+    document = etree.SubElement(root, 'Document')
+    etree.SubElement(document, 'name').text = QFileInfo(filename).fileName()
+    etree.SubElement(document, 'snippet').text = 'Created ' + datetime.utcnow().ctime()
+
+    # Define simple styles for tracks
+    trkStyle = etree.SubElement(document, 'Style', id='track_n')
+    lineStyle = etree.SubElement(trkStyle, 'LineStyle')
+    etree.SubElement(lineStyle, 'color').text = '99ffac59'
+    etree.SubElement(lineStyle, 'width').text = '6'
+    trkStyle = etree.SubElement(document, 'Style', id='track_h')
+    lineStyle = etree.SubElement(trkStyle, 'LineStyle')
+    etree.SubElement(lineStyle, 'color').text = '99ffac59'
+    etree.SubElement(lineStyle, 'width').text = '8'
+    trkStyleMap = etree.SubElement(document, 'StyleMap', id='track')
+    pair = etree.SubElement(trkStyleMap, 'Pair')
+    etree.SubElement(pair, 'key').text = 'normal'
+    etree.SubElement(pair, 'styleUrl').text = '#track_n'
+    pair = etree.SubElement(trkStyleMap, 'Pair')
+    etree.SubElement(pair, 'key').text = 'highlight'
+    etree.SubElement(pair, 'styleUrl').text = '#track_h'
+
+    wptfolder = etree.SubElement(document, 'Folder')
+    etree.SubElement(wptfolder, 'name').text = 'Waypoints'
+    trkfolder = etree.SubElement(document, 'Folder')
+    etree.SubElement(trkfolder, 'name').text = 'Tracks'
+
+    for point, state in zip(self.wptmodel.waypoints, self.wptmodel.includeStates):
+      if state:
+        place = etree.SubElement(wptfolder, 'Placemark')
+        if point['ID'] in self.wptmodel.changedNames:
+          etree.SubElement(place, 'name').text = self.wptmodel.changedNames[point['ID']]
+        else:
+          etree.SubElement(place, 'name').text = point[NAME]
+        if point[TIME] != '':
+          ts = etree.SubElement(place, 'TimeStamp')
+          etree.SubElement(ts, 'when').text = point[TIME].isoformat() + 'Z'
+        p = etree.SubElement(place, 'Point')
+        etree.SubElement(p, 'coordinates').text = str(point[LON]) + ',' + str(point[LAT]) + ',' + str(point[ALT])
+
+    for track, state in zip(self.trkmodel.tracks, self.trkmodel.includeStates):
+      if state:
+        place = etree.SubElement(trkfolder, 'Placemark')
+        etree.SubElement(place, 'name').text = track[TRKNAME]
+        etree.SubElement(place, 'styleUrl').text = '#track'
+
+        if track[TRKTIME] != '':
+          tr = etree.SubElement(place, '{%(gx)s}Track' % ns)
+          times = []
+          coords = []
+          for seg in track['SEGMENTS']:
+            for point in seg:
+              times += [point[TIME].isoformat() + 'Z']
+              coords += [str(point[LON]) + ' ' + str(point[LAT]) + ' ' + str(point[ALT])]
+          for t in times:
+            etree.SubElement(tr, 'when').text = t
+          for c in coords:
+            etree.SubElement(tr, '{%(gx)s}coord' % ns).text = c
+
+        else:
+          tr = etree.SubElement(place, 'LineString')
+          coords = []
+          for seg in track['SEGMENTS']:
+            for point in seg:
+              coords += [str(point[LON]) + ',' + str(point[LAT]) + ',' + str(point[ALT])]
+          etree.SubElement(tr, 'coordinates').text = ' '.join(coords)
+
+    with open(filename, 'w', encoding='utf-8') as file:
+      file.write('<?xml version="1.0" encoding="UTF-8"?>\n' + etree.tostring(root, encoding='unicode', pretty_print=True))
 
   warningSent = pyqtSignal(str, str)
 
