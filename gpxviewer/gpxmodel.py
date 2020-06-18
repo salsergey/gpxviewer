@@ -89,6 +89,8 @@ class WptModel(QAbstractTableModel):
           sec, min = modf(min)
           sec = round(sec * 60, 2)
           return str(int(deg)) + '°' + str(int(min)) + '\'' + str(sec) + '"'
+      elif index.column() == ALT and index.row() in self.changedAltitudes:
+        return str(self.changedAltitudes[index.row()])
       elif index.column() in {ALT, ALT_DELTA, ALT_SPEED, SLOPE} and self.waypoints[index.row()][index.column()] != '':
         return str(round(self.waypoints[index.row()][index.column()]))
       elif index.column() in {DIST, TIME_DAYS, DIST_DELTA, SPEED} and self.waypoints[index.row()][index.column()] != '':
@@ -148,8 +150,18 @@ class WptModel(QAbstractTableModel):
     return None
 
   def setData(self, index, value, role):
-    if index.isValid() and role == Qt.EditRole and value != self.waypoints[index.row()][NAME]:
-      self.changedNames[index.row()] = value
+    if index.isValid() and role == Qt.EditRole:
+      if index.column() == NAME and value != self.waypoints[index.row()][NAME]:
+        self.changedNames[index.row()] = value
+
+      elif index.column() == ALT and value != self.waypoints[index.row()][ALT]:
+        self.changedAltitudes[index.row()] = value
+        self.parent().updateMinMaxAltitudes(value)
+        self.parent().updateDetailedData()
+        self.dataChanged.emit(self.index(index.row(), ALT_DELTA), self.index(index.row(), ALT_DELTA))
+        self.dataChanged.emit(self.index(index.row(), ALT_SPEED), self.index(index.row(), ALT_SPEED))
+        self.dataChanged.emit(self.index(index.row(), SLOPE), self.index(index.row(), SLOPE))
+
       self.dataChanged.emit(index, index)
       self.wptDataChanged.emit()
       return True
@@ -213,6 +225,7 @@ class WptModel(QAbstractTableModel):
     self.neglectStates = []
     self.pointStyles = []
     self.changedNames = {}
+    self.changedAltitudes = {}
     self.endResetModel()
 
   def setIncludeStates(self, IDs, state, update=True):
@@ -268,7 +281,20 @@ class WptModel(QAbstractTableModel):
       if i in self.changedNames:
         del self.changedNames[i]
         self.dataChanged.emit(self.index(i, NAME), self.index(i, NAME))
-        self.wptDataChanged.emit()
+    self.wptDataChanged.emit()
+
+  def resetAltitudes(self, IDs):
+    for i in IDs:
+      if i in self.changedAltitudes:
+        del self.changedAltitudes[i]
+        self.parent().updateMinMaxAltitudes(self.waypoints[i][ALT])
+        self.dataChanged.emit(self.index(i, ALT), self.index(i, ALT))
+        self.dataChanged.emit(self.index(i, ALT_DELTA), self.index(i, ALT_DELTA))
+        self.dataChanged.emit(self.index(i, ALT_SPEED), self.index(i, ALT_SPEED))
+        self.dataChanged.emit(self.index(i, SLOPE), self.index(i, SLOPE))
+
+    self.parent().updateDetailedData()
+    self.wptDataChanged.emit()
 
   wptDataChanged = pyqtSignal()
 
