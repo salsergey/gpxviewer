@@ -363,10 +363,7 @@ class GpxParser(QObject):
     else:
       self.parseGPXDocument(doc.getroot())
 
-    TheConfig['ProfileStyle']['MinimumAltitude'] = str(
-      int(round(self.minalt, -3) - 500 if round(self.minalt, -3) > self.minalt else round(self.minalt, -3)))
-    TheConfig['ProfileStyle']['MaximumAltitude'] = str(
-      int(round(self.maxalt, -3) + 500 if round(self.maxalt, -3) < self.maxalt else round(self.maxalt, -3)))
+    self.updateMinMaxAltitudes()
 
   def parseGPXDocument(self, root):
     tag = 'name'
@@ -710,7 +707,7 @@ class GpxParser(QObject):
       if self.wptmodel.includeStates[j]:
         dt = (p[TIME_DAYS] - prev[TIME_DAYS]) * 24.0 if p[TIME_DAYS] != '' and prev[TIME_DAYS] != '' and prev[TIME_DAYS] != 0 else 0
         p[DIST_DELTA] = p[DIST] - prev[DIST]
-        p[ALT_DELTA] = p[ALT] - prev[ALT]
+        p[ALT_DELTA] = int(self.wptmodel.index(p['ID'], ALT).data()) - int(self.wptmodel.index(prev['ID'], ALT).data())
         p[SPEED] = p[DIST_DELTA] / dt if dt != 0 else 0.0
         p[ALT_SPEED] = p[ALT_DELTA] / dt if dt != 0 else 0.0
         p[SLOPE] = p[ALT_DELTA] / p[DIST_DELTA] if p[DIST_DELTA] != 0 else 0.0
@@ -721,6 +718,16 @@ class GpxParser(QObject):
         p[SPEED] = ''
         p[ALT_SPEED] = ''
         p[SLOPE] = ''
+
+  def updateMinMaxAltitudes(self, alt=None):
+    if alt is not None:
+      self.minalt = min(self.minalt, alt)
+      self.maxalt = max(self.maxalt, alt)
+
+    TheConfig['ProfileStyle']['MinimumAltitude'] = str(int(round(self.minalt, -3) - 500 if round(self.minalt, -3) > self.minalt
+                                                           else round(self.minalt, -3)))
+    TheConfig['ProfileStyle']['MaximumAltitude'] = str(int(round(self.maxalt, -3) + 500 if round(self.maxalt, -3) < self.maxalt
+                                                           else round(self.maxalt, -3)))
 
   def writeGPXFile(self, filename):
     ns = {None: 'http://www.topografix.com/GPX/1/1'}
@@ -735,23 +742,20 @@ class GpxParser(QObject):
     for point, state in zip(self.wptmodel.waypoints, self.wptmodel.includeStates):
       if state:
         element = etree.SubElement(root, 'wpt', lat=str(point[LAT]), lon=str(point[LON]))
-        etree.SubElement(element, 'ele').text = str(point[ALT])
+        etree.SubElement(element, 'ele').text = self.wptmodel.index(point['ID'], ALT).data()
         minlat = min(minlat, point[LAT])
         minlon = min(minlon, point[LON])
         maxlat = max(maxlat, point[LAT])
         maxlon = max(maxlon, point[LON])
         if point[TIME] != '':
           etree.SubElement(element, 'time').text = point[TIME].isoformat() + 'Z'
-        if point['ID'] in self.wptmodel.changedNames:
-          etree.SubElement(element, 'name').text = self.wptmodel.changedNames[point['ID']]
-        else:
-          etree.SubElement(element, 'name').text = point[NAME]
+        etree.SubElement(element, 'name').text = self.wptmodel.index(point['ID'], NAME).data()
 
-        if point['CMT'] is not None:
+        if 'CMT' in point and point['CMT'] is not None:
           etree.SubElement(element, 'cmt').text = point['CMT']
-        if point['DESC'] is not None:
+        if 'DESC' in point and point['DESC'] is not None:
           etree.SubElement(element, 'desc').text = point['DESC']
-        if point['SYM'] is not None:
+        if 'SYM' in point and point['SYM'] is not None:
           etree.SubElement(element, 'sym').text = point['SYM']
 
     for track, state in zip(self.trkmodel.tracks, self.trkmodel.includeStates):
@@ -813,15 +817,12 @@ class GpxParser(QObject):
     for point, state in zip(self.wptmodel.waypoints, self.wptmodel.includeStates):
       if state:
         place = etree.SubElement(wptfolder, 'Placemark')
-        if point['ID'] in self.wptmodel.changedNames:
-          etree.SubElement(place, 'name').text = self.wptmodel.changedNames[point['ID']]
-        else:
-          etree.SubElement(place, 'name').text = point[NAME]
+        etree.SubElement(place, 'name').text = self.wptmodel.index(point['ID'], NAME).data()
         if point[TIME] != '':
           ts = etree.SubElement(place, 'TimeStamp')
           etree.SubElement(ts, 'when').text = point[TIME].isoformat() + 'Z'
         p = etree.SubElement(place, 'Point')
-        etree.SubElement(p, 'coordinates').text = str(point[LON]) + ',' + str(point[LAT]) + ',' + str(point[ALT])
+        etree.SubElement(p, 'coordinates').text = str(point[LON]) + ',' + str(point[LAT]) + ',' + self.wptmodel.index(point['ID'], ALT).data()
 
     for track, state in zip(self.trkmodel.tracks, self.trkmodel.includeStates):
       if state:

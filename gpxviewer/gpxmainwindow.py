@@ -466,38 +466,38 @@ class GpxMainWindow(QMainWindow):
 
   @pyqtSlot()
   def showGoogleMap(self):
-    lat = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LAT).data()
-    lon = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LON).data()
+    lat = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LAT).data(gpx.ValueRole))
+    lon = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LON).data(gpx.ValueRole))
     webbrowser.open('https://maps.google.com/maps?ll=' + lat + ',' + lon + '&t=h&q=' + lat + ',' + lon + '&z=15')
 
   @pyqtSlot()
   def showYandexMap(self):
-    lat = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LAT).data()
-    lon = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LON).data()
+    lat = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LAT).data(gpx.ValueRole))
+    lon = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LON).data(gpx.ValueRole))
     webbrowser.open('https://maps.yandex.ru?ll=' + lon + ',' + lat + '&spn=0.03,0.03&pt=' + lon + ',' + lat + '&l=sat')
 
   @pyqtSlot()
   def showZoomEarthMap(self):
-    lat = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LAT).data()
-    lon = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LON).data()
+    lat = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LAT).data(gpx.ValueRole))
+    lon = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LON).data(gpx.ValueRole))
     webbrowser.open('https://zoom.earth/#' + lat + ',' + lon + ',15z,map')
 
   @pyqtSlot()
   def showOpenCycleMap(self):
-    lat = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LAT).data()
-    lon = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LON).data()
+    lat = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LAT).data(gpx.ValueRole))
+    lon = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LON).data(gpx.ValueRole))
     webbrowser.open('https://openstreetmap.org/?mlat=' + lat + '&mlon=' + lon + '&zoom=15&layers=C')
 
   @pyqtSlot()
   def showOpenTopoMap(self):
-    lat = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LAT).data()
-    lon = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LON).data()
+    lat = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LAT).data(gpx.ValueRole))
+    lon = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LON).data(gpx.ValueRole))
     webbrowser.open('https://opentopomap.org/#marker=15/' + lat + '/' + lon)
 
   @pyqtSlot()
   def showTopoMap(self):
-    lat = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LAT).data()
-    lon = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LON).data()
+    lat = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LAT).data(gpx.ValueRole))
+    lon = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LON).data(gpx.ValueRole))
     webbrowser.open('http://loadmap.net/ru?q=' + lat + ' ' + lon + '&z=13&s=0')
 
   @pyqtSlot()
