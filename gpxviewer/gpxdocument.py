@@ -250,8 +250,7 @@ class GpxDocument(QObject):
         for i, n in zip(self.doc['ChangedNames'], self.doc['PointNames']):
           self.wptmodel.setData(self.wptmodel.index(i, gpx.NAME), n, Qt.EditRole)
       if 'ChangedAltitudes' in self.doc and 'PointAltitudes' in self.doc:
-        for i, n in zip(self.doc['ChangedAltitudes'], self.doc['PointAltitudes']):
-          self.wptmodel.setData(self.wptmodel.index(i, gpx.ALT), n, Qt.EditRole)
+        self.wptmodel.setAltitudes(self.doc['ChangedAltitudes'], self.doc['PointAltitudes'])
     else:  # GPXMAGICK not in cfg
       raise gpx.GpxWarning(QFileInfo(filename).absoluteFilePath() + QCoreApplication.translate('GpxDocument', ' is not a valid GPX Viewer project.'))
 

@@ -29,7 +29,7 @@ from gpxviewer.pointconfigdialog import PointConfigDialog
 
 class PlotCanvas(QCustomPlot):
   def __init__(self, parent=None):
-    super(QCustomPlot, self).__init__(parent)
+    super(PlotCanvas, self).__init__(parent)
 
     self.showInfo = False
     self.moveCaption = False
@@ -53,11 +53,13 @@ class PlotCanvas(QCustomPlot):
     self.xAxis.grid().setVisible(False)
 
     self.xTicker = AxisTicker(Qt.Horizontal)
+    self.xTicker2 = AxisTicker(Qt.Horizontal)
     self.xAxis.setTicker(self.xTicker)
-    self.xAxis2.setTicker(self.xTicker)
+    self.xAxis2.setTicker(self.xTicker2)
     self.yTicker = AxisTicker(Qt.Vertical)
+    self.yTicker2 = AxisTicker(Qt.Vertical)
     self.yAxis.setTicker(self.yTicker)
-    self.yAxis2.setTicker(self.yTicker)
+    self.yAxis2.setTicker(self.yTicker2)
 
     self.setAutoAddPlottableToLegend(False)
     self.legendTitle = QCPTextElement(self)
@@ -185,13 +187,13 @@ class PlotCanvas(QCustomPlot):
       elif p[0] in self.trkRows or len(self.trkRows) == 0 and len(self.wptRows) == 0:  # tracks
         if self.column == gpx.DIST or TheDocument.trkmodel.index(p[0], gpx.TRKTIME).data() != '':
           if self.column in {gpx.DIST, gpx.TIME_DAYS}:
-            self.xx += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][self.column]) - startDist]
+            self.xx += [float(TheDocument.trkmodel.getPointData(p[0], p[1], p[2], self.column)) - startDist]
           else:  # absolute time
             # Convert track time to a proper timezone
             self.xx += [QCPAxisTickerDateTime.dateTimeToKey(QDateTime.fromString(
-                        str(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][self.column]
+                        str(TheDocument.trkmodel.getPointData(p[0], p[1], p[2], self.column)
                             + timedelta(minutes=TheConfig.getValue('ProfileStyle', 'TimeZoneOffset'))), 'yyyy-MM-dd HH:mm:ss'))]
-          self.yy += [float(TheDocument.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][gpx.ALT])]
+          self.yy += [float(TheDocument.trkmodel.getPointData(p[0], p[1], p[2], gpx.ALT))]
     self.neglectPoints = [self.xx[0]] + self.neglectPoints + [self.xx[-1]]
 
     if TheConfig.getValue('ProfileStyle', 'AutoscaleAltitudes'):
@@ -228,6 +230,7 @@ class PlotCanvas(QCustomPlot):
 
     self.yAxis.setRange(self.minalt, self.maxalt)
     self.xTicker.setType(self.column)
+    self.xTicker2.setType(self.column)
 
     self.font.setFamily(TheConfig.getValue('ProfileStyle', 'FontFamily'))
     self.font.setPointSize(TheConfig.getValue('ProfileStyle', 'FontSize'))
@@ -239,7 +242,6 @@ class PlotCanvas(QCustomPlot):
     for text in {self.legendTitle, self.xLegendText, self.yLegendText}:
       text.setFont(self.font)
       text.setTextColor(textColor)
-
 
     if self.column == gpx.TIME:
       self.xAxis.setTickLabelRotation(-90)

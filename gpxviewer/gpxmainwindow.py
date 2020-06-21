@@ -67,7 +67,7 @@ class GpxMainWindow(QMainWindow):
     self.ui.trkView.installEventFilter(self)
 
     self.networkManager = QNetworkAccessManager(self)
-    self.networkManager.setTransferTimeout()
+    self.networkManager.setTransferTimeout(10000)
     self.networkManager.finished[QNetworkReply].connect(self.replyReady)
 
     self.ui.actionDetailedView.setChecked(TheConfig['MainWindow'].getboolean('DetailedView'))
@@ -404,35 +404,35 @@ class GpxMainWindow(QMainWindow):
   @pyqtSlot()
   def skipPoints(self):
     included = self.ui.wptView.currentIndex().data(gpx.IncludeRole)
-    TheDocument.wptmodel.setIncludeStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME], not included)
+    TheDocument.wptmodel.setIncludeStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], not included)
     self.filterModel.invalidateFilter()
 
   @pyqtSlot()
   def markerPoints(self):
     marked = self.ui.wptView.currentIndex().data(gpx.MarkerRole)
-    TheDocument.wptmodel.setMarkerStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME], not marked)
+    TheDocument.wptmodel.setMarkerStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], not marked)
     self.filterModel.invalidateFilter()
 
   @pyqtSlot()
   def captionPoints(self):
     captioned = self.ui.wptView.currentIndex().data(gpx.CaptionRole)
-    TheDocument.wptmodel.setCaptionStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME], not captioned)
+    TheDocument.wptmodel.setCaptionStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], not captioned)
     self.filterModel.invalidateFilter()
 
   @pyqtSlot()
   def splitLines(self):
     splited = self.ui.wptView.currentIndex().data(gpx.SplitLineRole)
-    TheDocument.wptmodel.setSplitLines([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME], not splited)
+    TheDocument.wptmodel.setSplitLines([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], not splited)
     self.filterModel.invalidateFilter()
 
   @pyqtSlot()
   def neglectDistance(self):
     neglected = self.ui.wptView.currentIndex().data(gpx.NeglectRole)
-    TheDocument.wptmodel.setNeglectStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME], not neglected)
+    TheDocument.wptmodel.setNeglectStates([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()], not neglected)
 
   @pyqtSlot()
   def resetPoints(self):
-    indexes = [i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME]
+    indexes = [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()]
     TheDocument.wptmodel.setMarkerStates(indexes, False)
     TheDocument.wptmodel.setCaptionStates(indexes, False)
     TheDocument.wptmodel.setSplitLines(indexes, False)
@@ -441,7 +441,7 @@ class GpxMainWindow(QMainWindow):
 
   @pyqtSlot()
   def renamePoints(self):
-    indexes = [i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME]
+    indexes = [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()]
     indexes.sort()
     first_name = TheDocument.wptmodel.index(indexes[0], gpx.NAME).data()
 
@@ -479,11 +479,11 @@ class GpxMainWindow(QMainWindow):
 
   @pyqtSlot()
   def resetPointNames(self):
-    TheDocument.wptmodel.resetNames([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME])
+    TheDocument.wptmodel.resetNames([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()])
 
   @pyqtSlot()
   def requestAltitudes(self):
-    allIndexes = [i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME]
+    allIndexes = [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()]
     maxCount = 20  # maximum number of coordinates requested at once
     cumNumber = 0
     self.requestedIndexes = {}
@@ -507,8 +507,14 @@ class GpxMainWindow(QMainWindow):
     else:
       request = reply.request().url().toString()
       try:
-        for ind in self.requestedIndexes[request]:
-          TheDocument.wptmodel.setData(TheDocument.wptmodel.index(ind, gpx.ALT), int(reply.readLine()), Qt.EditRole)
+        indexes = self.requestedIndexes[request]
+        alts = []
+        while not reply.atEnd():
+          alts += [int(reply.readLine())]
+
+        if type(indexes) == list:  # waypoints
+          TheDocument.wptmodel.setAltitudes(indexes, alts)
+
       except ValueError:
         QMessageBox.warning(self, self.tr('Network error'), self.tr('Error requesting SRTM data from http://geonames.org.'))
 
@@ -518,7 +524,7 @@ class GpxMainWindow(QMainWindow):
 
   @pyqtSlot()
   def resetAltitudes(self):
-    TheDocument.wptmodel.resetAltitudes([i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME])
+    TheDocument.wptmodel.resetAltitudes([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()])
 
   @pyqtSlot()
   def showGoogleMap(self):
@@ -559,7 +565,7 @@ class GpxMainWindow(QMainWindow):
   @pyqtSlot()
   def pointStyle(self):
     dlg = PointConfigDialog(self, self.ui.wptView.currentIndex().data(gpx.IDRole),
-                            [i.data(gpx.IDRole) for i in self.ui.wptView.selectedIndexes() if i.column() == gpx.NAME])
+                            [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()])
     dlg.exec_()
 
   @pyqtSlot()

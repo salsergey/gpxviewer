@@ -150,18 +150,8 @@ class WptModel(QAbstractTableModel):
     return None
 
   def setData(self, index, value, role):
-    if index.isValid() and role == Qt.EditRole:
-      if index.column() == NAME and value != self.waypoints[index.row()][NAME]:
-        self.changedNames[index.row()] = value
-
-      elif index.column() == ALT and value != self.waypoints[index.row()][ALT]:
-        self.changedAltitudes[index.row()] = value
-        self.parent().updateMinMaxAltitudes(value)
-        self.parent().updateDetailedData()
-        self.dataChanged.emit(self.index(index.row(), ALT_DELTA), self.index(index.row(), ALT_DELTA))
-        self.dataChanged.emit(self.index(index.row(), ALT_SPEED), self.index(index.row(), ALT_SPEED))
-        self.dataChanged.emit(self.index(index.row(), SLOPE), self.index(index.row(), SLOPE))
-
+    if index.isValid() and role == Qt.EditRole and index.column() == NAME and value != self.waypoints[index.row()][NAME]:
+      self.changedNames[index.row()] = value
       self.dataChanged.emit(index, index)
       self.wptDataChanged.emit()
       return True
@@ -283,15 +273,21 @@ class WptModel(QAbstractTableModel):
         self.dataChanged.emit(self.index(i, NAME), self.index(i, NAME))
     self.wptDataChanged.emit()
 
+  def setAltitudes(self, IDs, alts):
+    for i, a in zip(IDs, alts):
+      self.changedAltitudes[i] = a
+      self.parent().updateMinMaxAltitudes(a)
+      self.dataChanged.emit(self.index(i, ALT), self.index(i, SLOPE))
+
+    self.parent().updateDetailedData()
+    self.wptDataChanged.emit()
+
   def resetAltitudes(self, IDs):
     for i in IDs:
       if i in self.changedAltitudes:
         del self.changedAltitudes[i]
         self.parent().updateMinMaxAltitudes(self.waypoints[i][ALT])
-        self.dataChanged.emit(self.index(i, ALT), self.index(i, ALT))
-        self.dataChanged.emit(self.index(i, ALT_DELTA), self.index(i, ALT_DELTA))
-        self.dataChanged.emit(self.index(i, ALT_SPEED), self.index(i, ALT_SPEED))
-        self.dataChanged.emit(self.index(i, SLOPE), self.index(i, SLOPE))
+        self.dataChanged.emit(self.index(i, ALT), self.index(i, SLOPE))
 
     self.parent().updateDetailedData()
     self.wptDataChanged.emit()
@@ -332,6 +328,9 @@ class TrkModel(QAbstractTableModel):
     elif role == Qt.BackgroundRole:
       return QGuiApplication.palette().base().color() if self.includeStates[index.row()] else self.SkipColor
     return None
+
+  def getPointData(self, track, segment, index, column):
+    return self.tracks[track]['SEGMENTS'][segment][index][column]
 
   def headerData(self, section, orientation, role):
     if role == Qt.DisplayRole:
@@ -631,7 +630,7 @@ class GpxParser(QObject):
         if self.wptmodel.includeStates[i]:
           if ind < len(self.points) and \
              self.wptmodel.waypoints[i][TIME] < \
-             self.trkmodel.tracks[self.points[ind][0]]['SEGMENTS'][self.points[ind][1]][self.points[ind][2]][TIME] or \
+             self.trkmodel.getPointData(self.points[ind][0], self.points[ind][1], self.points[ind][2], TIME) or \
              ind == len(self.points):
             self.points.insert(ind, i)
             i += 1
@@ -662,8 +661,8 @@ class GpxParser(QObject):
         prev_lat = lat
         prev_lon = lon
       else:
-        lat = self.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][LAT]
-        lon = self.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][LON]
+        lat = self.trkmodel.getPointData(p[0], p[1], p[2], LAT)
+        lon = self.trkmodel.getPointData(p[0], p[1], p[2], LON)
         if prev_lat is not None and prev_lon is not None:
           dist += _distance(lat, lon, prev_lat, prev_lon) * dist_coeff
         self.trkmodel.tracks[p[0]]['SEGMENTS'][p[1]][p[2]][DIST] = dist
@@ -747,8 +746,8 @@ class GpxParser(QObject):
 
   def updateMinMaxAltitudes(self, alt=None):
     if alt is not None:
-      self.minalt = min(self.minalt, alt)
-      self.maxalt = max(self.maxalt, alt)
+      self.minalt = min(TheConfig.getValue('ProfileStyle', 'MinimumAltitude'), alt)
+      self.maxalt = max(TheConfig.getValue('ProfileStyle', 'MaximumAltitude'), alt)
 
     TheConfig['ProfileStyle']['MinimumAltitude'] = str(int(round(self.minalt, -3) - 500 if round(self.minalt, -3) > self.minalt
                                                            else round(self.minalt, -3)))
@@ -784,15 +783,15 @@ class GpxParser(QObject):
         if 'SYM' in point and point['SYM'] is not None:
           etree.SubElement(element, 'sym').text = point['SYM']
 
-    for track, state in zip(self.trkmodel.tracks, self.trkmodel.includeStates):
+    for tnum, track, state in zip(range(len(self.trkmodel.tracks)), self.trkmodel.tracks, self.trkmodel.includeStates):
       if state:
         elTrk = etree.SubElement(root, 'trk')
         etree.SubElement(elTrk, 'name').text = track[TRKNAME]
-        for seg in track['SEGMENTS']:
+        for snum, seg in enumerate(track['SEGMENTS']):
           elSeg = etree.SubElement(elTrk, 'trkseg')
-          for point in seg:
+          for i, point in enumerate(seg):
             elP = etree.SubElement(elSeg, 'trkpt', lat=str(point[LAT]), lon=str(point[LON]))
-            etree.SubElement(elP, 'ele').text = str(point[ALT])
+            etree.SubElement(elP, 'ele').text = str(self.trkmodel.getPointData(tnum, snum, i, ALT))
             minlat = min(minlat, point[LAT])
             minlon = min(minlon, point[LON])
             maxlat = max(maxlat, point[LAT])
@@ -850,7 +849,7 @@ class GpxParser(QObject):
         p = etree.SubElement(place, 'Point')
         etree.SubElement(p, 'coordinates').text = str(point[LON]) + ',' + str(point[LAT]) + ',' + self.wptmodel.index(point['ID'], ALT).data()
 
-    for track, state in zip(self.trkmodel.tracks, self.trkmodel.includeStates):
+    for tnum, track, state in zip(range(len(self.trkmodel.tracks)), self.trkmodel.tracks, self.trkmodel.includeStates):
       if state:
         place = etree.SubElement(trkfolder, 'Placemark')
         etree.SubElement(place, 'name').text = track[TRKNAME]
@@ -860,10 +859,10 @@ class GpxParser(QObject):
           tr = etree.SubElement(place, '{%(gx)s}Track' % ns)
           times = []
           coords = []
-          for seg in track['SEGMENTS']:
-            for point in seg:
+          for snum, seg in enumerate(track['SEGMENTS']):
+            for i, point in enumerate(seg):
               times += [point[TIME].isoformat() + 'Z']
-              coords += [str(point[LON]) + ' ' + str(point[LAT]) + ' ' + str(point[ALT])]
+              coords += [str(point[LON]) + ' ' + str(point[LAT]) + ' ' + str(self.trkmodel.getPointData(tnum, snum, i, ALT))]
           for t in times:
             etree.SubElement(tr, 'when').text = t
           for c in coords:
@@ -872,9 +871,9 @@ class GpxParser(QObject):
         else:
           tr = etree.SubElement(place, 'LineString')
           coords = []
-          for seg in track['SEGMENTS']:
-            for point in seg:
-              coords += [str(point[LON]) + ',' + str(point[LAT]) + ',' + str(point[ALT])]
+          for snum, seg in enumerate(track['SEGMENTS']):
+            for i, point in enumerate(seg):
+              coords += [str(point[LON]) + ',' + str(point[LAT]) + ',' + str(self.trkmodel.getPointData(tnum, snum, i, ALT))]
           etree.SubElement(tr, 'coordinates').text = ' '.join(coords)
 
     with open(filename, 'w', encoding='utf-8') as file:
