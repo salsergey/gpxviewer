@@ -81,6 +81,9 @@ class GpxDocument(QObject):
     self.doc['ChangedAltitudes'] = list(self.wptmodel.changedAltitudes.keys())
     self.doc['PointAltitudes'] = list(self.wptmodel.changedAltitudes.values())
 
+    self.doc['ChangedTrackAltitudes'] = list(self.trkmodel.changedAltitudes.keys())
+    self.doc['TrackAltitudes'] = self.trkmodel.getChangedAltitudes()
+
     cfg = GpxConfigParser()
 
     if self.projectType == TYPE_GPXV:
@@ -251,6 +254,9 @@ class GpxDocument(QObject):
           self.wptmodel.setData(self.wptmodel.index(i, gpx.NAME), n, Qt.EditRole)
       if 'ChangedAltitudes' in self.doc and 'PointAltitudes' in self.doc:
         self.wptmodel.setAltitudes(self.doc['ChangedAltitudes'], self.doc['PointAltitudes'])
+
+      if 'ChangedTrackAltitudes' in self.doc and 'TrackAltitudes' in self.doc:
+        self.trkmodel.setTracksAltitudes(self.doc['ChangedTrackAltitudes'], self.doc['TrackAltitudes'])
     else:  # GPXMAGICK not in cfg
       raise gpx.GpxWarning(QFileInfo(filename).absoluteFilePath() + QCoreApplication.translate('GpxDocument', ' is not a valid GPX Viewer project.'))
 

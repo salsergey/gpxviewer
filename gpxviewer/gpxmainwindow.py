@@ -80,6 +80,7 @@ class GpxMainWindow(QMainWindow):
     self.ui.tabWidget.currentChanged[int].connect(self.onTabChanged)
     TheDocument.gpxparser.warningSent[str, str].connect(self.showWarning)
     TheDocument.wptmodel.wptDataChanged.connect(self.setProjectChanged)
+    TheDocument.trkmodel.trkDataChanged.connect(self.setProjectChanged)
     TheDocument.fileNotFound[str].connect(self.openedFileNotFound)
     TheDocument.askToExtractFiles[list].connect(self.askedExtractFiles)
 
@@ -203,6 +204,16 @@ class GpxMainWindow(QMainWindow):
     self.actSkipTracks.triggered.connect(self.skipTracks)
     self.addAction(self.actSkipTracks)
 
+    self.actGetTrackAltitude = QAction(QIcon(self.themeSelector.select(':/icons/download.svg')), self.tr('Get altitudes from SRTM'), self)
+    self.actGetTrackAltitude.setStatusTip(self.tr('Get altitudes from online SRTM data'))
+    self.actGetTrackAltitude.triggered.connect(self.requestTrackAltitudes)
+    self.addAction(self.actGetTrackAltitude)
+
+    self.actResetTrackAltitude = QAction(QIcon(self.themeSelector.select(':/icons/edit-clear.svg')), self.tr('Reset altitude'), self)
+    self.actResetTrackAltitude.setStatusTip(self.tr('Reset the altitudes of these tracks'))
+    self.actResetTrackAltitude.triggered.connect(self.resetTrackAltitudes)
+    self.addAction(self.actResetTrackAltitude)
+
   @pyqtSlot()
   def onAboutQt(self):
     QApplication.aboutQt()
@@ -302,6 +313,9 @@ class GpxMainWindow(QMainWindow):
 
       menu = QMenu(self)
       menu.addAction(self.actSkipTracks)
+      menu.addSeparator()
+      menu.addAction(self.actGetTrackAltitude)
+      menu.addAction(self.actResetTrackAltitude)
       menu.popup(QCursor.pos())
       event.accept()
 
@@ -514,6 +528,8 @@ class GpxMainWindow(QMainWindow):
 
         if type(indexes) == list:  # waypoints
           TheDocument.wptmodel.setAltitudes(indexes, alts)
+        elif type(indexes) == tuple:  # tracks
+          TheDocument.trkmodel.setPointsAltitudes(indexes[0], indexes[1], indexes[2], alts)
 
       except ValueError:
         QMessageBox.warning(self, self.tr('Network error'), self.tr('Error requesting SRTM data from http://geonames.org.'))
@@ -525,6 +541,32 @@ class GpxMainWindow(QMainWindow):
   @pyqtSlot()
   def resetAltitudes(self):
     TheDocument.wptmodel.resetAltitudes([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()])
+    self.ui.statusBar.showMessage(self.tr('Altitudes reset to original values.'), 2000)
+
+  @pyqtSlot()
+  def requestTrackAltitudes(self):
+    trackIndexes = [i.row() for i in self.ui.trkView.selectionModel().selectedRows()]
+    maxCount = 20  # maximum number of coordinates requested at once
+    self.requestedIndexes = {}
+
+    for track in trackIndexes:
+      for s, segment in enumerate(TheDocument.trkmodel.tracks[track]['SEGMENTS']):
+        cumNumber = 0
+        while cumNumber < len(segment):
+          num = min(len(segment) - cumNumber, maxCount)
+          indexes = range(cumNumber, cumNumber + num)
+          cumNumber += num
+          lats = [str(segment[i][gpx.LAT]) for i in indexes]
+          lons = [str(segment[i][gpx.LON]) for i in indexes]
+          request = 'http://api.geonames.org/srtm1?lats=' + ','.join(lats) + '&lngs=' + ','.join(lons) + '&username=gpxviewer'
+          self.requestedIndexes[request] = (track, s, indexes)
+          self.networkManager.get(QNetworkRequest(QUrl(request)))
+          self.ui.statusBar.showMessage(self.tr('Getting altitudes from SRTM data...'))
+
+  @pyqtSlot()
+  def resetTrackAltitudes(self):
+    TheDocument.trkmodel.resetAltitudes([i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
+    self.ui.statusBar.showMessage(self.tr('Altitudes reset to original values.'), 2000)
 
   @pyqtSlot()
   def showGoogleMap(self):

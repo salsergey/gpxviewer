@@ -330,7 +330,10 @@ class TrkModel(QAbstractTableModel):
     return None
 
   def getPointData(self, track, segment, index, column):
-    return self.tracks[track]['SEGMENTS'][segment][index][column]
+    if column == ALT and track in self.changedAltitudes:
+      return self.changedAltitudes[track][(segment, index)]
+    else:
+      return self.tracks[track]['SEGMENTS'][segment][index][column]
 
   def headerData(self, section, orientation, role):
     if role == Qt.DisplayRole:
@@ -346,10 +349,14 @@ class TrkModel(QAbstractTableModel):
   def getSkippedTracks(self):
     return [i for i, s in enumerate(self.includeStates) if not s]
 
+  def getChangedAltitudes(self):
+    return [v[(s, i)] for t, v in self.changedAltitudes.items() for s, seg in enumerate(self.tracks[t]['SEGMENTS']) for i in range(len(seg))]
+
   def resetModel(self):
     self.beginResetModel()
     self.tracks = []
     self.includeStates = []
+    self.changedAltitudes = {}
     self.endResetModel()
 
   def setIncludeStates(self, IDs, state, update=True):
@@ -358,6 +365,31 @@ class TrkModel(QAbstractTableModel):
       self.dataChanged.emit(self.index(i, 0), self.index(i, self.columnCount()))
     if update:
       self.parent().updatePoints()
+
+  def setTracksAltitudes(self, tracks, alts):
+    n = 0
+    for t in tracks:
+      self.changedAltitudes[t] = {}
+      for s, seg in enumerate(self.tracks[t]['SEGMENTS']):
+        for i in range(len(seg)):
+          self.changedAltitudes[t][(s, i)] = alts[n]
+          n += 1
+
+  def setPointsAltitudes(self, track, segment, IDs, alts):
+    if track not in self.changedAltitudes:
+      self.changedAltitudes[track] = {}
+    for i, a in zip(IDs, alts):
+      self.changedAltitudes[track][(segment, i)] = a
+      self.parent().updateMinMaxAltitudes(a)
+    self.trkDataChanged.emit()
+
+  def resetAltitudes(self, tracks):
+    for t in tracks:
+      if t in self.changedAltitudes:
+        del self.changedAltitudes[t]
+    self.trkDataChanged.emit()
+
+  trkDataChanged = pyqtSignal()
 
 
 class GpxParser(QObject):
