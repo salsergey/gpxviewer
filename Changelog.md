@@ -1,3 +1,8 @@
+=== Version 2.2 ===
+* Added possibility to get altitudes for waypoints and tracks from online SRTM data.
+* Reading and writing KML files is now supported.
+* Added possibility to open files by drag & drop from file manager.
+
 === Version 2.1 ===
 * Improved user interactions in the profile window: dragging captions, changing selected markers and more.
 * Added more actions in the context menu and shortcuts to them.

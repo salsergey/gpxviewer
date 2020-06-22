@@ -23,7 +23,7 @@ from gpxviewer.configstore import TheConfig
 
 
 WPTFIELDS = NAME, LAT, LON, ALT, DIST, TIME, TIME_DELTA, TIME_DAYS, DIST_DELTA, ALT_DELTA, SPEED, ALT_SPEED, SLOPE = range(13)
-TRKFIELDS = TRKNAME, TRKSEGS, TRKPTS, TRKLEN, TRKTIME, TRKDUR = range(6)
+TRKFIELDS = TRKNAME, TRKSEGS, TRKPTS, TRKLEN, TRKALTGAIN, TRKALTDROP, TRKTIME, TRKDUR = range(8)
 ValueRole, IDRole, IncludeRole, MarkerRole, CaptionRole, SplitLineRole, NeglectRole,\
   MarkerStyleRole, CaptionStyleRole, SplitLineStyleRole = range(Qt.UserRole, Qt.UserRole + 10)
 MARKER_COLOR, MARKER_STYLE, MARKER_SIZE, CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE, LINE_COLOR, LINE_STYLE, LINE_WIDTH = \
@@ -298,7 +298,8 @@ class WptModel(QAbstractTableModel):
 class TrkModel(QAbstractTableModel):
   def __init__(self, parent=None):
     super(TrkModel, self).__init__(parent)
-    self.fields = [self.tr('Name'), self.tr('Segments'), self.tr('Points'), self.tr('Length'), self.tr('Time'), self.tr('Duration')]
+    self.fields = [self.tr('Name'), self.tr('Segments'), self.tr('Points'), self.tr('Length (km)'),
+                   self.tr('Altitude gain (m)'), self.tr('Altitude drop (m)'), self.tr('Start time'), self.tr('Duration')]
     self.resetModel()
 
     # Define colors that should look well for any color theme
@@ -321,6 +322,8 @@ class TrkModel(QAbstractTableModel):
     if role == Qt.DisplayRole:
       if index.column() == TRKTIME and self.tracks[index.row()][index.column()] != '':
         return str(self.tracks[index.row()][index.column()] + timedelta(minutes=TheConfig.getValue('ProfileStyle', 'TimeZoneOffset')))
+      elif index.column() in {TRKALTGAIN, TRKALTDROP}:
+        return str(round(self.tracks[index.row()][index.column()]))
       elif index.column() == TRKLEN:
         return str(round(self.tracks[index.row()][index.column()], 3))
       else:
@@ -370,12 +373,14 @@ class TrkModel(QAbstractTableModel):
 
   def setTracksAltitudes(self, tracks, alts):
     n = 0
-    for t in tracks:
-      self.changedAltitudes[t] = {}
-      for s, seg in enumerate(self.tracks[t]['SEGMENTS']):
+    for tnum, track in enumerate(tracks):
+      self.changedAltitudes[track] = {}
+      for s, seg in enumerate(self.tracks[track]['SEGMENTS']):
         for i in range(len(seg)):
-          self.changedAltitudes[t][(s, i)] = alts[n]
+          self.changedAltitudes[track][(s, i)] = alts[n]
           n += 1
+
+      self.updateAltitudeGainDrop(tnum)
 
   def setPointsAltitudes(self, track, segment, IDs, alts):
     if track not in self.changedAltitudes:
@@ -383,13 +388,38 @@ class TrkModel(QAbstractTableModel):
     for i, a in zip(IDs, alts):
       self.changedAltitudes[track][(segment, i)] = a
       self.parent().updateMinMaxAltitudes(a)
+
+    # Update only if all data is downloaded
+    if len(self.changedAltitudes[track]) == self.tracks[track][TRKPTS]:
+      self.updateAltitudeGainDrop(track)
+      self.dataChanged.emit(self.index(track, TRKALTGAIN), self.index(track, TRKALTDROP))
     self.trkDataChanged.emit()
 
   def resetAltitudes(self, tracks):
     for t in tracks:
       if t in self.changedAltitudes:
         del self.changedAltitudes[t]
+      self.updateAltitudeGainDrop(t)
+      self.dataChanged.emit(self.index(t, TRKALTGAIN), self.index(t, TRKALTDROP))
+
     self.trkDataChanged.emit()
+
+  def updateAltitudeGainDrop(self, track):
+    gain = 0
+    drop = 0
+    for snum, seg in enumerate(self.tracks[track]['SEGMENTS']):
+      prev_alt = None
+      for p in range(len(seg)):
+        if prev_alt is not None:
+          delta = self.getPointData(track, snum, p, ALT) - prev_alt
+          if delta >= 0:
+            gain += delta
+          else:
+            drop += delta
+        prev_alt = self.getPointData(track, snum, p, ALT)
+
+    self.tracks[track][TRKALTGAIN] = gain
+    self.tracks[track][TRKALTDROP] = drop
 
   trkDataChanged = pyqtSignal()
 
@@ -630,6 +660,8 @@ class GpxParser(QObject):
   def addTrackToModel(self, track):
     track[TRKSEGS] = len(track['SEGMENTS'])
     track[TRKLEN] = ''
+    track[TRKALTGAIN] = ''
+    track[TRKALTDROP] = ''
     if all([p[TIME] != '' for s in track['SEGMENTS'] for p in s]):
       track[TRKTIME] = track['SEGMENTS'][0][0][TIME]
       track[TRKDUR] = track['SEGMENTS'][-1][-1][TIME] - track['SEGMENTS'][0][0][TIME]
@@ -641,6 +673,7 @@ class GpxParser(QObject):
     self.trkmodel.beginInsertRows(QModelIndex(), trkid, trkid)
     self.trkmodel.tracks += [track]
     self.trkmodel.includeStates += [True]
+    self.trkmodel.updateAltitudeGainDrop(trkid)
     self.trkmodel.endInsertRows()
 
   def updatePoints(self):

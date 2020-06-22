@@ -7,6 +7,7 @@
 
 == Minor ==
 
+* Rework API of GpxModel for better access to coordinates and altitudes.
 * Make movable toolbars.
 
 == Fixes ==
