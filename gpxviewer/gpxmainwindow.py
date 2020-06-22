@@ -501,6 +501,7 @@ class GpxMainWindow(QMainWindow):
     maxCount = 20  # maximum number of coordinates requested at once
     cumNumber = 0
     self.requestedIndexes = {}
+    self.showNetworkError = True
 
     while cumNumber < len(allIndexes):
       num = min(len(allIndexes) - cumNumber, maxCount)
@@ -515,16 +516,19 @@ class GpxMainWindow(QMainWindow):
 
   @pyqtSlot(QNetworkReply)
   def replyReady(self, reply):
-    if reply.error() != QNetworkReply.NoError:
-      QMessageBox.warning(self, self.tr('Network error'), self.tr('Error requesting SRTM data from http://geonames.org.'))
+    if reply.error() != QNetworkReply.NoError and self.showNetworkError:
+      self.showNetworkError = False
+      QMessageBox.warning(self, self.tr('Network error'),
+                          self.tr('Error requesting SRTM data from http://geonames.org.') + '\n\n' + reply.errorString())
 
     else:
       request = reply.request().url().toString()
       try:
-        indexes = self.requestedIndexes[request]
+        indexes = self.requestedIndexes.pop(request)
         alts = []
         while not reply.atEnd():
-          alts += [int(reply.readLine())]
+          line = reply.readLine()
+          alts += [int(line)]
 
         if type(indexes) == list:  # waypoints
           TheDocument.wptmodel.setAltitudes(indexes, alts)
@@ -532,9 +536,10 @@ class GpxMainWindow(QMainWindow):
           TheDocument.trkmodel.setPointsAltitudes(indexes[0], indexes[1], indexes[2], alts)
 
       except ValueError:
-        QMessageBox.warning(self, self.tr('Network error'), self.tr('Error requesting SRTM data from http://geonames.org.'))
+        self.showNetworkError = False
+        QMessageBox.warning(self, self.tr('Network error'),
+                            self.tr('Error requesting SRTM data from http://geonames.org.') + '\n\n' + str(line, 'utf-8'))
 
-      del self.requestedIndexes[request]
       if len(self.requestedIndexes) == 0:
         self.ui.statusBar.showMessage(self.tr('Getting altitudes from SRTM data finished.'), 2000)
 
@@ -545,23 +550,22 @@ class GpxMainWindow(QMainWindow):
 
   @pyqtSlot()
   def requestTrackAltitudes(self):
-    trackIndexes = [i.row() for i in self.ui.trkView.selectionModel().selectedRows()]
+    track = self.ui.trkView.currentIndex().row()
     maxCount = 20  # maximum number of coordinates requested at once
     self.requestedIndexes = {}
 
-    for track in trackIndexes:
-      for s, segment in enumerate(TheDocument.trkmodel.tracks[track]['SEGMENTS']):
-        cumNumber = 0
-        while cumNumber < len(segment):
-          num = min(len(segment) - cumNumber, maxCount)
-          indexes = range(cumNumber, cumNumber + num)
-          cumNumber += num
-          lats = [str(segment[i][gpx.LAT]) for i in indexes]
-          lons = [str(segment[i][gpx.LON]) for i in indexes]
-          request = 'http://api.geonames.org/srtm1?lats=' + ','.join(lats) + '&lngs=' + ','.join(lons) + '&username=gpxviewer'
-          self.requestedIndexes[request] = (track, s, indexes)
-          self.networkManager.get(QNetworkRequest(QUrl(request)))
-          self.ui.statusBar.showMessage(self.tr('Getting altitudes from SRTM data...'))
+    for s, segment in enumerate(TheDocument.trkmodel.tracks[track]['SEGMENTS']):
+      cumNumber = 0
+      while cumNumber < len(segment):
+        num = min(len(segment) - cumNumber, maxCount)
+        indexes = range(cumNumber, cumNumber + num)
+        cumNumber += num
+        lats = [str(segment[i][gpx.LAT]) for i in indexes]
+        lons = [str(segment[i][gpx.LON]) for i in indexes]
+        request = 'http://api.geonames.org/srtm1?lats=' + ','.join(lats) + '&lngs=' + ','.join(lons) + '&username=gpxviewer'
+        self.requestedIndexes[request] = (track, s, indexes)
+        self.networkManager.get(QNetworkRequest(QUrl(request)))
+        self.ui.statusBar.showMessage(self.tr('Getting altitudes from SRTM data...'))
 
   @pyqtSlot()
   def resetTrackAltitudes(self):

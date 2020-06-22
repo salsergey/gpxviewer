@@ -111,16 +111,16 @@ class StatWindow(QMainWindow):
     for i, p in enumerate(TheDocument.wptmodel.waypoints):
       if TheDocument.wptmodel.index(i, 0).data(gpx.IncludeRole):
         if p[gpx.ALT] > point_prev[gpx.ALT]:
-          alt_raise += round(p[gpx.ALT] - point_prev[gpx.ALT])
+          alt_raise += p[gpx.ALT] - point_prev[gpx.ALT]
         else:
-          alt_drop += round(point_prev[gpx.ALT] - p[gpx.ALT])
+          alt_drop += point_prev[gpx.ALT] - p[gpx.ALT]
         point_prev = p
 
         if i in segments:
           self.ui.statWidget.setItem(n, NAME, QTableWidgetItem(point_start[gpx.NAME] + ' — ' + p[gpx.NAME]))
           self.ui.statWidget.setItem(n, DIST, QTableWidgetItem(str(round(p[gpx.DIST] - point_start[gpx.DIST], 3))))
-          self.ui.statWidget.setItem(n, RAISE, QTableWidgetItem(str(alt_raise)))
-          self.ui.statWidget.setItem(n, DROP, QTableWidgetItem(str(alt_drop)))
+          self.ui.statWidget.setItem(n, RAISE, QTableWidgetItem(str(round(alt_raise))))
+          self.ui.statWidget.setItem(n, DROP, QTableWidgetItem(str(round(alt_drop))))
           time_item = QTableWidgetItem(str(p[gpx.TIME] - point_start[gpx.TIME]))
           time_item.setData(Qt.UserRole, p[gpx.TIME] - point_start[gpx.TIME])
           self.ui.statWidget.setItem(n, TIME, time_item)
@@ -146,7 +146,7 @@ class StatWindow(QMainWindow):
       self.ui.totalGroupBox.setTitle(self.tr('Total'))
 
     for i in rows:
-      total_dist += round(float(self.ui.statWidget.item(i, DIST).data(Qt.DisplayRole)), 3)
+      total_dist += float(self.ui.statWidget.item(i, DIST).data(Qt.DisplayRole))
       total_raise += int(self.ui.statWidget.item(i, RAISE).data(Qt.DisplayRole))
       total_drop += int(self.ui.statWidget.item(i, DROP).data(Qt.DisplayRole))
       total_time += self.ui.statWidget.item(i, TIME).data(Qt.UserRole)

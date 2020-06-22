@@ -321,6 +321,8 @@ class TrkModel(QAbstractTableModel):
     if role == Qt.DisplayRole:
       if index.column() == TRKTIME and self.tracks[index.row()][index.column()] != '':
         return str(self.tracks[index.row()][index.column()] + timedelta(minutes=TheConfig.getValue('ProfileStyle', 'TimeZoneOffset')))
+      elif index.column() == TRKLEN:
+        return str(round(self.tracks[index.row()][index.column()], 3))
       else:
         return str(self.tracks[index.row()][index.column()])
     elif role == IncludeRole:
@@ -459,12 +461,11 @@ class GpxParser(QObject):
         track = {TRKNAME: name.strip() if name is not None else ''}
 
         pts = 0
-        tot_dist = 0.0
+        dist = 0.0
         track['SEGMENTS'] = []
         for s in t.iterfind('{%(ns)s}trkseg' % self.ns):
           prev_lat = None
           prev_lon = None
-          dist = 0.0
           segment = []
           for p in s.iterfind('{%(ns)s}trkpt' % self.ns):
             ele = p.findtext('{%(ns)s}ele' % self.ns)
@@ -486,10 +487,9 @@ class GpxParser(QObject):
             pts += 1
 
           track['SEGMENTS'] += [segment]
-          tot_dist += dist
 
         track[TRKPTS] = pts
-        track['LENGTH'] = tot_dist
+        track['LENGTH'] = dist
         self.addTrackToModel(track)
 
       except (TypeError, ValueError):
@@ -705,7 +705,7 @@ class GpxParser(QObject):
       self.wptmodel.waypoints[i][DIST] = ''
 
     for t in self.trkmodel.tracks:
-      t[TRKLEN] = round(t['LENGTH'] * dist_coeff, 3)
+      t[TRKLEN] = t['LENGTH'] * dist_coeff
 
     self.updateDetailedData()
 

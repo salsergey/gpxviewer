@@ -36,17 +36,17 @@
       </column>
       <column>
        <property name="text">
-        <string>Distance</string>
+        <string>Distance (km)</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Altitude gain</string>
+        <string>Altitude gain (m)</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Altitude drop</string>
+        <string>Altitude drop (m)</string>
        </property>
       </column>
       <column>
@@ -86,7 +86,7 @@
          <item>
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>Distance</string>
+            <string>Distance (km)</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -123,7 +123,7 @@
          <item>
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>Altitude gain</string>
+            <string>Altitude gain (m)</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -160,7 +160,7 @@
          <item>
           <widget class="QLabel" name="label_3">
            <property name="text">
-            <string>Altitude drop</string>
+            <string>Altitude drop (m)</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
