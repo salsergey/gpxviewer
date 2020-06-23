@@ -17,7 +17,7 @@
 import sys
 import re
 import webbrowser
-from PyQt5.QtCore import Qt, QCoreApplication, QEvent, QFileInfo, QFileSelector, QUrl, QT_VERSION_STR, PYQT_VERSION_STR, pyqtSlot
+from PyQt5.QtCore import Qt, QCoreApplication, QEvent, QFileInfo, QFileSelector, QUrl, QT_VERSION, QT_VERSION_STR, PYQT_VERSION_STR, pyqtSlot
 from PyQt5.QtGui import QCursor, QIcon, QKeyEvent, QKeySequence
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QDialogButtonBox, QFileDialog, QHBoxLayout, QLabel, QLineEdit,
@@ -67,7 +67,8 @@ class GpxMainWindow(QMainWindow):
     self.ui.trkView.installEventFilter(self)
 
     self.networkManager = QNetworkAccessManager(self)
-    self.networkManager.setTransferTimeout(10000)
+    if QT_VERSION >= 0x050f00:  # function introduced in 5.15.0
+      self.networkManager.setTransferTimeout(10000)
     self.networkManager.finished[QNetworkReply].connect(self.replyReady)
 
     self.ui.actionDetailedView.setChecked(TheConfig['MainWindow'].getboolean('DetailedView'))
