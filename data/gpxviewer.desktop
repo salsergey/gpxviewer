@@ -3,7 +3,7 @@ Encoding=UTF-8
 Version=1.0
 Name=GPX Viewer
 GenericName=GPX Viewer
-Comment=View GPX files and draw elevation profiles
+Comment=View GPX/KML files and draw elevation profiles
 
 Type=Application
 Categories=Office;Viewer;
@@ -15,4 +15,4 @@ Icon=gpxviewer
 Terminal=false
 StartupNotify=true
 
-MimeType=application/x-gpx+xml;application/gpxv;application/gpxz;
+MimeType=application/x-gpx+xml;application/vnd.google-earth.kml+xml;application/gpxv;application/gpxz;
