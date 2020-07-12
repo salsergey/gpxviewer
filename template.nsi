@@ -9,11 +9,12 @@
 
 ; Marker file to tell the uninstaller that it's a user installation
 !define USER_INSTALL_MARKER _user_install_marker
- 
+
+Unicode True
 SetCompressor lzma
 
 !define MULTIUSER_EXECUTIONLEVEL Highest
-!define MULTIUSER_INSTALLMODE_DEFAULT_CURRENTUSER
+; !define MULTIUSER_INSTALLMODE_DEFAULT_CURRENTUSER
 !define MULTIUSER_MUI
 !define MULTIUSER_INSTALLMODE_COMMANDLINE
 !define MULTIUSER_INSTALLMODE_INSTDIR "[[ib.appname]]"
@@ -144,6 +145,18 @@ Section "!${PRODUCT_NAME}" sec_app
   WriteRegDWORD SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" \
                    "NoRepair" 1
 
+  ; Add file assosiations
+  WriteRegStr HKCR ".gpxv" "" "GPXViewer.gpxvfile"
+  WriteRegStr HKCR ".gpxz" "" "GPXViewer.gpxzfile"
+  WriteRegStr HKCR "GPXViewer.gpxvfile" "" "GPX Viewer project"
+  WriteRegStr HKCR "GPXViewer.gpxvfile\DefaultIcon" "" "$INSTDIR\gpxviewer.ico,0"
+  WriteRegStr HKCR "GPXViewer.gpxvfile\shell\open\command" "" \
+                  '"$INSTDIR\Python\pythonw.exe" "$INSTDIR\GPX_Viewer.launch.pyw" "%1"'
+  WriteRegStr HKCR "GPXViewer.gpxzfile" "" "GPX Viewer archive"
+  WriteRegStr HKCR "GPXViewer.gpxzfile\DefaultIcon" "" "$INSTDIR\gpxviewer.ico,0"
+  WriteRegStr HKCR "GPXViewer.gpxzfile\shell\open\command" "" \
+                  '"$INSTDIR\Python\pythonw.exe" "$INSTDIR\GPX_Viewer.launch.pyw" "%1"'
+
   ; Check if we need to reboot
   IfRebootFlag 0 noreboot
     MessageBox MB_YESNO "A reboot is required to finish the installation. Do you wish to reboot now?" \
@@ -193,6 +206,12 @@ Section "Uninstall"
   [% endblock uninstall_shortcuts %]
   RMDir $INSTDIR
   DeleteRegKey SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+
+  ; Remove file assosiations
+  DeleteRegKey HKCR ".gpxv"
+  DeleteRegKey HKCR ".gpxz"
+  DeleteRegKey HKCR "GPXViewer.gpxvfile"
+  DeleteRegKey HKCR "GPXViewer.gpxzfile"
 SectionEnd
 
 [% endblock sections %]
