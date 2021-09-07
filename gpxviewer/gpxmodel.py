@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2020 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2021 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -826,7 +826,7 @@ class GpxParser(QObject):
 
     minlat = 90
     minlon = 180
-    maxlat = 0
+    maxlat = -90
     maxlon = -180
 
     for point, state in zip(self.wptmodel.waypoints, self.wptmodel.includeStates):
