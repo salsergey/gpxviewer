@@ -17,6 +17,7 @@
 from datetime import datetime, timedelta
 from lxml import etree
 from math import acos, cos, modf, pi, sin, sqrt
+import re
 from PyQt5.QtCore import Qt, QAbstractTableModel, QFileInfo, QModelIndex, QObject, QPointF, QSortFilterProxyModel, pyqtSignal
 from PyQt5.QtGui import QColor, QFont, QGuiApplication, QPainter, QPainterPath, QPen, QPixmap, QPolygonF
 from gpxviewer.configstore import TheConfig
@@ -541,7 +542,7 @@ class GpxParser(QObject):
               NAME: name.strip() if name is not None else '',
               TIME: datetime.fromisoformat(time[0:-1]) if time is not None else '',
             }
-            point[LON], point[LAT], point[ALT] = eval(element.findtext('.//{%(ns)s}coordinates' % self.ns))
+            point[LON], point[LAT], point[ALT] = [float(n) for n in element.findtext('.//{%(ns)s}coordinates' % self.ns).split(',')]
 
             self.addPointToModel(point)
 
@@ -556,7 +557,7 @@ class GpxParser(QObject):
             track = {TRKNAME: name.strip() if name is not None else ''}
 
             coords = [el.text.split(' ') for el in element.iterfind('.//{%(gx)s}coord' % self.ns)]
-            times = [datetime.fromisoformat(el.text[0:-1]) for el in element.iterfind('.//{%(ns)s}when' % self.ns)]
+            times = [datetime.fromisoformat(el.text[0:19]) for el in element.iterfind('.//{%(ns)s}when' % self.ns)]
             if len(coords) != len(times):
               times = [None] * len(coords)
 
@@ -596,7 +597,7 @@ class GpxParser(QObject):
             track = {TRKNAME: name.strip() if name is not None else ''}
 
             coords = element.findtext('.//{%(ns)s}coordinates' % self.ns)
-            coords = coords.strip().split(' ') if coords is not None else []
+            coords = re.split(r'\s+', coords.strip()) if coords is not None else []
             times = [None] * len(coords)
 
             prev_lat = None
@@ -605,7 +606,7 @@ class GpxParser(QObject):
             segment = []
             for c, t in zip(coords, times):
               point = {TIME: ''}
-              point[LON], point[LAT], point[ALT] = [float(n) for n in eval(c)]
+              point[LON], point[LAT], point[ALT] = [float(n) for n in c.split(',')]
               self.minalt = min(self.minalt, point[ALT])
               self.maxalt = max(self.maxalt, point[ALT])
 
