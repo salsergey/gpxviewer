@@ -84,37 +84,37 @@ class PlotCanvas(QCustomPlot):
 
   def initShortcuts(self):
     self.actMarker = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-marker.svg')), self.tr('Point with marker'), self)
-    self.actMarker.setShortcut(Qt.Key_M)
+    self.actMarker.setShortcut(QKeySequence(Qt.Key_M))
     self.actMarker.setCheckable(True)
     self.actMarker.triggered.connect(self.onMarkerPoints)
     self.addAction(self.actMarker)
 
     self.actCaption = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-caption.svg')), self.tr('Point with caption'), self)
-    self.actCaption.setShortcut(Qt.Key_C)
+    self.actCaption.setShortcut(QKeySequence(Qt.Key_C))
     self.actCaption.setCheckable(True)
     self.actCaption.triggered.connect(self.onCaptionPoints)
     self.addAction(self.actCaption)
 
     self.actSplit = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-splitline.svg')), self.tr('Point with splitting line'), self)
-    self.actSplit.setShortcut(Qt.Key_S)
+    self.actSplit.setShortcut(QKeySequence(Qt.Key_S))
     self.actSplit.setCheckable(True)
     self.actSplit.triggered.connect(self.onSplitLines)
     self.addAction(self.actSplit)
 
     self.actNeglect = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-neglect-distance.svg')), self.tr('Neglect previous distance'), self)
-    self.actNeglect.setShortcut(Qt.Key_N)
+    self.actNeglect.setShortcut(QKeySequence(Qt.Key_N))
     self.actNeglect.setCheckable(True)
     self.actNeglect.triggered.connect(self.onNeglectDistance)
     self.addAction(self.actNeglect)
 
     self.actSkip = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-skip.svg')), self.tr('Skip point'), self)
-    self.actSkip.setShortcut(Qt.Key_Delete)
+    self.actSkip.setShortcut(QKeySequence(Qt.Key_Delete))
     self.actSkip.setCheckable(True)
     self.actSkip.triggered.connect(self.onSkipPoints)
     self.addAction(self.actSkip)
 
     self.actRename = QAction(QIcon(self.themeSelector.select(':/icons/edit-rename.svg')), self.tr('Rename...'), self)
-    self.actRename.setShortcut(Qt.Key_F2)
+    self.actRename.setShortcut(QKeySequence(Qt.Key_F2))
     self.actRename.triggered.connect(self.onRenamePoints)
     self.addAction(self.actRename)
 
@@ -280,7 +280,7 @@ class PlotCanvas(QCustomPlot):
       self.graph().setBrush(QColor.fromRgba(TheConfig.getValue('ProfileStyle', 'FillColor')))
       self.graph().setData(self.xx[self.xx.index(self.neglectPoints[n-1]) + (1 if n > 1 else 0):self.xx.index(self.neglectPoints[n]) + 1],
                            self.yy[self.xx.index(self.neglectPoints[n-1]) + (1 if n > 1 else 0):self.xx.index(self.neglectPoints[n]) + 1])
-      self.graph().setSelectable(False)
+      self.graph().setSelectable(QCP.stNone)
 
     self.setCurrentLayer('main')
     if self.showInfo:
@@ -318,7 +318,7 @@ class PlotCanvas(QCustomPlot):
     for m in self.markers:
       if m.idx not in markedPoints:
         m.setVisible(enable)
-        m.setSelectable(enable)
+        m.setSelectable(QCP.stWhole if enable else QCP.stNone)
 
     self.deselectAll()
     self.replot()
@@ -530,10 +530,10 @@ class PlotCanvas(QCustomPlot):
     index = [m.idx for m in self.markers].index(self.selectedElement.idx)
     if not marked:
       self.markers[index].setVisible(True)
-      self.markers[index].setSelectable(True)
+      self.markers[index].setSelectable(QCP.stWhole)
     elif not self.showInfo:
       self.markers[index].setVisible(False)
-      self.markers[index].setSelectable(False)
+      self.markers[index].setSelectable(QCP.stNone)
     self.replot()
 
   @pyqtSlot()

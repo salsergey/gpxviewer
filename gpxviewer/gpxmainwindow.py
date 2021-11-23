@@ -133,35 +133,35 @@ class GpxMainWindow(QMainWindow):
 
     self.actSkipPoints = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-skip.svg')), self.tr('Skip points'), self)
     self.actSkipPoints.setStatusTip(self.tr('Skip these waypoints when plotting profiles or calculating statistics'))
-    self.actSkipPoints.setShortcut(Qt.Key_Delete)
+    self.actSkipPoints.setShortcut(QKeySequence(Qt.Key_Delete))
     self.actSkipPoints.setCheckable(True)
     self.actSkipPoints.triggered.connect(self.skipPoints)
     self.addAction(self.actSkipPoints)
 
     self.actMarker = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-marker.svg')), self.tr('Points with markers'), self)
     self.actMarker.setStatusTip(self.tr('Add markers to these waypoints when plotting profiles'))
-    self.actMarker.setShortcut(Qt.Key_M)
+    self.actMarker.setShortcut(QKeySequence(Qt.Key_M))
     self.actMarker.setCheckable(True)
     self.actMarker.triggered.connect(self.markerPoints)
     self.addAction(self.actMarker)
 
     self.actCaption = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-caption.svg')), self.tr('Points with captions'), self)
     self.actCaption.setStatusTip(self.tr('Add captions to these waypoints when plotting profiles'))
-    self.actCaption.setShortcut(Qt.Key_C)
+    self.actCaption.setShortcut(QKeySequence(Qt.Key_C))
     self.actCaption.setCheckable(True)
     self.actCaption.triggered.connect(self.captionPoints)
     self.addAction(self.actCaption)
 
     self.actSplit = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-splitline.svg')), self.tr('Points with splitting lines'), self)
     self.actSplit.setStatusTip(self.tr('Add splitting lines to these waypoints when plotting profiles'))
-    self.actSplit.setShortcut(Qt.Key_S)
+    self.actSplit.setShortcut(QKeySequence(Qt.Key_S))
     self.actSplit.setCheckable(True)
     self.actSplit.triggered.connect(self.splitLines)
     self.addAction(self.actSplit)
 
     self.actNeglect = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-neglect-distance.svg')), self.tr('Neglect previous distance'), self)
     self.actNeglect.setStatusTip(self.tr('Neglect distance before these waypoints when plotting profiles'))
-    self.actNeglect.setShortcut(Qt.Key_N)
+    self.actNeglect.setShortcut(QKeySequence(Qt.Key_N))
     self.actNeglect.setCheckable(True)
     self.actNeglect.triggered.connect(self.neglectDistance)
     self.addAction(self.actNeglect)
@@ -173,7 +173,7 @@ class GpxMainWindow(QMainWindow):
 
     self.actRename = QAction(QIcon(self.themeSelector.select(':/icons/edit-rename.svg')), self.tr('Rename...'), self)
     self.actRename.setStatusTip(self.tr('Rename these waypoints'))
-    self.actRename.setShortcut(Qt.Key_F2)
+    self.actRename.setShortcut(QKeySequence(Qt.Key_F2))
     self.actRename.triggered.connect(self.renamePoints)
     self.addAction(self.actRename)
 
@@ -200,7 +200,7 @@ class GpxMainWindow(QMainWindow):
 
     self.actSkipTracks = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-skip.svg')), self.tr('Skip tracks'), self)
     self.actSkipTracks.setStatusTip(self.tr('Skip these tracks when plotting profiles or calculating statistics'))
-    self.actSkipTracks.setShortcut(Qt.Key_Delete)
+    self.actSkipTracks.setShortcut(QKeySequence(Qt.Key_Delete))
     self.actSkipTracks.setCheckable(True)
     self.actSkipTracks.triggered.connect(self.skipTracks)
     self.addAction(self.actSkipTracks)
