@@ -17,7 +17,7 @@
 import webbrowser
 from datetime import timedelta
 from PyQt5.QtCore import Qt, QCoreApplication, QDate, QDateTime, QFileSelector, QMargins, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QColor, QCursor, QFont, QGuiApplication, QIcon, QPen
+from PyQt5.QtGui import QColor, QCursor, QFont, QFontMetrics, QGuiApplication, QIcon, QKeySequence, QPen
 from PyQt5.QtWidgets import QAction, QDialog, QInputDialog, QLineEdit, QMenu, QMessageBox
 from QCustomPlot2 import (QCP, QCustomPlot, QCPAxisTickerDateTime, QCPAxisTickerFixed, QCPDataRange, QCPDataSelection,
                           QCPGraph, QCPItemPosition, QCPItemText, QCPItemTracer, QCPScatterStyle, QCPTextElement)
@@ -427,18 +427,20 @@ class PlotCanvas(QCustomPlot):
   def wheelEvent(self, event):
     # Outside the axes rect
     if event.pos().x() < self.axisRect().rect().left():
-      if event.pos().y() < self.axisRect().rect().center().y():
-        self.maxalt = max(self.maxalt + (100 if event.angleDelta().y() > 0 else -100), self.minalt + 100)
-      else:
-        self.minalt = min(self.minalt + (100 if event.angleDelta().y() > 0 else -100), self.maxalt - 100)
-      if not TheConfig.getValue('ProfileStyle', 'AutoscaleAltitudes'):
-        TheConfig['ProfileStyle']['MinimumAltitude'] = str(self.minalt)
-        TheConfig['ProfileStyle']['MaximumAltitude'] = str(self.maxalt)
-      self.updateAxes()
-      self.replot()
-      self.profileChanged.emit()
+      if event.modifiers() == Qt.NoModifier:
+        if event.pos().y() < self.axisRect().rect().center().y():
+          self.maxalt = max(self.maxalt + (100 if event.angleDelta().y() > 0 else -100), self.minalt + 100)
+        else:
+          self.minalt = min(self.minalt + (100 if event.angleDelta().y() > 0 else -100), self.maxalt - 100)
+        if not TheConfig.getValue('ProfileStyle', 'AutoscaleAltitudes'):
+          TheConfig['ProfileStyle']['MinimumAltitude'] = str(self.minalt)
+          TheConfig['ProfileStyle']['MaximumAltitude'] = str(self.maxalt)
+        self.updateAxes()
+        self.replot()
+        self.profileChanged.emit()
 
     else:  # inside the axes rect
+      self.setInteraction(QCP.iRangeZoom, event.modifiers() == Qt.NoModifier)
       super(PlotCanvas, self).wheelEvent(event)
 
   def updateCursorShape(self, pos):
@@ -456,13 +458,16 @@ class PlotCanvas(QCustomPlot):
 
   def updateLegend(self):
     if self.selectedElement is not None:
-      self.legendTitle.setText(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data())
+      title = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data()
+      self.legendTitle.setText(title)
+      self.legendTitle.setMinimumSize(QFontMetrics(self.font).horizontalAdvance(title), 0)
       xTitle = self.tr('Distance: ') if self.column == gpx.DIST else self.tr('Time: ')
       self.xLegendText.setText(xTitle + TheDocument.wptmodel.index(self.selectedElement.idx, self.column).data())
       self.yLegendText.setText(self.tr('Altitude: ') + TheDocument.wptmodel.index(self.selectedElement.idx, gpx.ALT).data())
 
     else:  # no item is selected
       self.legendTitle.setText(self.tr('Cursor'))
+      self.legendTitle.setMinimumSize(200, 0)
       if self.column == gpx.DIST:
         self.xLegendText.setText(self.tr('Distance: ') + str(round(self.tracer.position.key(), 3)))
       elif self.column == gpx.TIME_DAYS:
