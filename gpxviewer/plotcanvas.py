@@ -210,8 +210,7 @@ class PlotCanvas(QCustomPlot):
       self.setBackground(QGuiApplication.palette().base())
       self.legend.setBorderPen(textColor)
       self.legend.setBrush(QGuiApplication.palette().base())
-      gridColor = QGuiApplication.palette().light().color() if TheConfig['MainWindow']['ColorTheme'] == 'dark_theme' \
-             else QGuiApplication.palette().mid().color()
+      gridColor = QGuiApplication.palette().light().color() if TheConfig['MainWindow']['ColorTheme'] == 'dark_theme' else QGuiApplication.palette().mid().color()
     else:
       textColor = QColor(Qt.black)
       self.setBackground(QColor(Qt.white))
@@ -533,6 +532,7 @@ class PlotCanvas(QCustomPlot):
     marked = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.MarkerRole)
     TheDocument.wptmodel.setMarkerStates([self.selectedElement.idx], not marked)
     index = [m.idx for m in self.markers].index(self.selectedElement.idx)
+    self.markers[index].updateStyle()
     if not marked:
       self.markers[index].setVisible(True)
       self.markers[index].setSelectable(QCP.stWhole)
@@ -616,6 +616,10 @@ class PlotCanvas(QCustomPlot):
   def onPointStyle(self):
     dlg = PointConfigDialog(self, self.selectedElement.idx)
     if dlg.exec_() == QDialog.Accepted:
+      for point in self.markers + self.captions + self.splitLines:
+        if point.idx == self.selectedElement.idx:
+          point.updateStyle()
+
       self.replot()
 
   @pyqtSlot()
@@ -746,13 +750,10 @@ class MarkerItem(QCPGraph):
     self.posX, self.posY = x, y
     self.setData([self.posX], [self.posY])
     self.setLineStyle(QCPGraph.lsNone)
+    self.updateStyle()
 
   def setSelected(self, selected):
     self.setSelection(QCPDataSelection(QCPDataRange(0, 1)) if selected else QCPDataSelection())
-
-  def draw(self, painter):
-    self.updateStyle()
-    super(MarkerItem, self).draw(painter)
 
   def updateStyle(self):
     scatterStyle = QCPScatterStyle()
@@ -769,7 +770,7 @@ class MarkerItem(QCPGraph):
       selectedScatterStyle.setCustomPath(gpx.markerPath(markerStyle[gpx.MARKER_STYLE], 3 * markerStyle[gpx.MARKER_SIZE]))
       selectedScatterStyle.setPen(QPen(QGuiApplication.palette().highlight().color(), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
 
-    else:
+    else:  # not in marked points
       scatterStyle.setShape(QCPScatterStyle.ssDisc)
       scatterStyle.setSize(3 * TheConfig.getValue('ProfileStyle', 'ProfileWidth'))
       scatterStyle.setBrush(QColor.fromRgba(TheConfig.getValue('ProfileStyle', 'ProfileColor')))
@@ -791,7 +792,6 @@ class CaptionItem(QCPItemText):
     self.font = QFont()
     self.font.setStyleHint(QFont.SansSerif)
     self.font.setFamily(TheConfig.getValue('ProfileStyle', 'FontFamily'))
-    self.setText(TheDocument.wptmodel.index(self.idx, gpx.NAME).data())
 
     if TheConfig.getValue('ProfileStyle', 'UseSystemTheme'):
       self.setColor(QGuiApplication.palette().text().color())
@@ -802,7 +802,6 @@ class CaptionItem(QCPItemText):
 
     self.setClipToAxisRect(False)
     self.setPadding(QMargins(3, 1, 3, 1))
-    self.setRotation(-TheDocument.wptmodel.index(self.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_ROTATION])
     self.setPositionAlignment(Qt.AlignLeft | Qt.AlignVCenter)
     self.position.setType(QCPItemPosition.ptPlotCoords)
 
@@ -811,20 +810,25 @@ class CaptionItem(QCPItemText):
     self.setSelectedBrush(fillColor)
     self.setSelectedPen(QGuiApplication.palette().highlight().color())
 
+    self.updateStyle()
+
   def draw(self, painter):
-    self.update()
+    self.updatePosition()
     super(CaptionItem, self).draw(painter)
 
-  def update(self):
+  def updateStyle(self):
+    self.setText(TheDocument.wptmodel.index(self.idx, gpx.NAME).data())
+    self.setRotation(-TheDocument.wptmodel.index(self.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_ROTATION])
     self.font.setPointSize(TheDocument.wptmodel.index(self.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_SIZE])
     self.setFont(self.font)
     self.setSelectedFont(self.font)
 
+  def updatePosition(self):
     xscale = float(self.parentPlot().xAxis.range().size()) / self.parentPlot().axisRect().width()
     yscale = float(self.parentPlot().yAxis.range().size()) / self.parentPlot().axisRect().height()
     captionStyle = TheDocument.wptmodel.index(self.idx, gpx.NAME).data(gpx.CaptionStyleRole)
-    self.position.setCoords((self.posX / xscale + captionStyle[gpx.CAPTION_POSX]) * xscale,
-                            (self.posY / yscale + captionStyle[gpx.CAPTION_POSY]) * yscale)
+    self.position.setCoords(self.posX + captionStyle[gpx.CAPTION_POSX] * xscale,
+                            self.posY + captionStyle[gpx.CAPTION_POSY] * yscale)
 
 
 class SplitLine(QCPGraph):
@@ -833,11 +837,8 @@ class SplitLine(QCPGraph):
     self.idx = idx
     self.posX, self.posY = x, y
     self.setData([self.posX] * 2, [0, self.posY])
-    self.setSelectable(False)
-
-  def draw(self, painter):
+    self.setSelectable(QCP.stNone)
     self.updateStyle()
-    super(SplitLine, self).draw(painter)
 
   def updateStyle(self):
     splitLineStyle = TheDocument.wptmodel.index(self.idx, gpx.NAME).data(gpx.SplitLineStyleRole)
