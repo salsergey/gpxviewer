@@ -18,9 +18,7 @@
         <file>icons/gpxviewer.svg</file>
         <file>icons/help-contents.svg</file>
         <file>icons/internet-services.svg</file>
-        <file>icons/loadmap.png</file>
-        <file>icons/openstreetmap.png</file>
-        <file>icons/opentopomap.png</file>
+        <file>icons/nakarte.png</file>
         <file>icons/qtlogo.svg</file>
         <file>icons/showinfo.svg</file>
         <file>icons/timeprofile.svg</file>
@@ -33,7 +31,6 @@
         <file>icons/xml-element-new.svg</file>
         <file>icons/yandexmaps.png</file>
         <file>icons/zoom-fit-width.svg</file>
-        <file>icons/zoomearth.png</file>
         <file>icons/+dark_theme/configure.svg</file>
         <file>icons/+dark_theme/distanceprofile.svg</file>
         <file>icons/+dark_theme/document-new.svg</file>

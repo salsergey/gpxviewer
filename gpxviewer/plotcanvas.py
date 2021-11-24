@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2020 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2021 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -504,23 +504,14 @@ class PlotCanvas(QCustomPlot):
     actShowGoogleMap.triggered.connect(self.showGoogleMap)
     actShowYandexMap = QAction(QIcon(':/icons/yandexmaps.png'), self.tr('Yandex Maps'), self)
     actShowYandexMap.triggered.connect(self.showYandexMap)
-    actShowZoomEarthMap = QAction(QIcon(':/icons/zoomearth.png'), self.tr('Zoom Earth'), self)
-    actShowZoomEarthMap.triggered.connect(self.showZoomEarthMap)
-    actShowOpenCycleMap = QAction(QIcon(':/icons/openstreetmap.png'), self.tr('OpenCycleMap'), self)
-    actShowOpenCycleMap.triggered.connect(self.showOpenCycleMap)
-    actShowOpenTopoMap = QAction(QIcon(':/icons/opentopomap.png'), self.tr('OpenTopoMap'), self)
-    actShowOpenTopoMap.triggered.connect(self.showOpenTopoMap)
-    actShowTopoMap = QAction(QIcon(':/icons/loadmap.png'), self.tr('Loadmap.net'), self)
-    actShowTopoMap.triggered.connect(self.showTopoMap)
+    actShowNakarteMap = QAction(QIcon(':/icons/nakarte.png'), self.tr('Nakarte.me'), self)
+    actShowNakarteMap.triggered.connect(self.showNakarteMap)
 
     showMapMenu = QMenu(self.tr('Show on map'), self)
     showMapMenu.setIcon(QIcon(self.themeSelector.select(':/icons/internet-services.svg')))
     showMapMenu.addAction(actShowGoogleMap)
     showMapMenu.addAction(actShowYandexMap)
-    showMapMenu.addAction(actShowZoomEarthMap)
-    showMapMenu.addAction(actShowOpenCycleMap)
-    showMapMenu.addAction(actShowOpenTopoMap)
-    showMapMenu.addAction(actShowTopoMap)
+    showMapMenu.addAction(actShowNakarteMap)
     menu.addMenu(showMapMenu)
     menu.popup(QCursor.pos())
 
@@ -635,28 +626,11 @@ class PlotCanvas(QCustomPlot):
     webbrowser.open('https://maps.yandex.ru?ll=' + lon + ',' + lat + '&spn=0.03,0.03&pt=' + lon + ',' + lat + '&l=sat')
 
   @pyqtSlot()
-  def showZoomEarthMap(self):
+  def showNakarteMap(self):
     lat = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.LAT).data()
     lon = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.LON).data()
-    webbrowser.open('https://zoom.earth/#' + lat + ',' + lon + ',15z,map')
-
-  @pyqtSlot()
-  def showOpenCycleMap(self):
-    lat = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.LAT).data()
-    lon = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.LON).data()
-    webbrowser.open('https://openstreetmap.org/?mlat=' + lat + '&mlon=' + lon + '&zoom=15&layers=C')
-
-  @pyqtSlot()
-  def showOpenTopoMap(self):
-    lat = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.LAT).data()
-    lon = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.LON).data()
-    webbrowser.open('https://opentopomap.org/#marker=15/' + lat + '/' + lon)
-
-  @pyqtSlot()
-  def showTopoMap(self):
-    lat = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.LAT).data()
-    lon = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.LON).data()
-    webbrowser.open('http://loadmap.net/ru?q=' + lat + ' ' + lon + '&z=13&s=0')
+    name = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data()
+    webbrowser.open('https://nakarte.me/#m=15/' + lat + '/' + lon + '&l=Otm&r=' + lat + '/' + lon + '/' + name)
 
   @pyqtSlot()
   def onSelectionChanged(self):

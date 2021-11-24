@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2020 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2021 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -279,30 +279,20 @@ class GpxMainWindow(QMainWindow):
       actShowGoogleMap = QAction(QIcon(':/icons/googlemaps.png'), self.tr('Google Maps'), self)
       actShowGoogleMap.setStatusTip(self.tr('Show this waypoint on the website maps.google.com'))
       actShowGoogleMap.triggered.connect(self.showGoogleMap)
+
       actShowYandexMap = QAction(QIcon(':/icons/yandexmaps.png'), self.tr('Yandex Maps'), self)
       actShowYandexMap.setStatusTip(self.tr('Show this waypoint on the website maps.yandex.ru'))
       actShowYandexMap.triggered.connect(self.showYandexMap)
-      actShowZoomEarthMap = QAction(QIcon(':/icons/zoomearth.png'), self.tr('Zoom Earth'), self)
-      actShowZoomEarthMap.setStatusTip(self.tr('Show this waypoint on the website zoom.earth'))
-      actShowZoomEarthMap.triggered.connect(self.showZoomEarthMap)
-      actShowOpenCycleMap = QAction(QIcon(':/icons/openstreetmap.png'), self.tr('OpenCycleMap'), self)
-      actShowOpenCycleMap.setStatusTip(self.tr('Show this waypoint on the website openstreetmap.org'))
-      actShowOpenCycleMap.triggered.connect(self.showOpenCycleMap)
-      actShowOpenTopoMap = QAction(QIcon(':/icons/opentopomap.png'), self.tr('OpenTopoMap'), self)
-      actShowOpenTopoMap.setStatusTip(self.tr('Show this waypoint on the website opentopomap.org'))
-      actShowOpenTopoMap.triggered.connect(self.showOpenTopoMap)
-      actShowTopoMap = QAction(QIcon(':/icons/loadmap.png'), self.tr('Loadmap.net'), self)
-      actShowTopoMap.setStatusTip(self.tr('Show this waypoint on the website loadmap.net'))
-      actShowTopoMap.triggered.connect(self.showTopoMap)
+
+      actShowNakarteMap = QAction(QIcon(':/icons/nakarte.png'), self.tr('Nakarte.me'), self)
+      actShowNakarteMap.setStatusTip(self.tr('Show this waypoint on the website nakarte.me'))
+      actShowNakarteMap.triggered.connect(self.showNakarteMap)
 
       showMapMenu = QMenu(self.tr('Show on map'), self)
       showMapMenu.setIcon(QIcon(self.themeSelector.select(':/icons/internet-services.svg')))
       showMapMenu.addAction(actShowGoogleMap)
       showMapMenu.addAction(actShowYandexMap)
-      showMapMenu.addAction(actShowZoomEarthMap)
-      showMapMenu.addAction(actShowOpenCycleMap)
-      showMapMenu.addAction(actShowOpenTopoMap)
-      showMapMenu.addAction(actShowTopoMap)
+      showMapMenu.addAction(actShowNakarteMap)
       menu.addMenu(showMapMenu)
 
       menu.popup(QCursor.pos())
@@ -370,7 +360,7 @@ class GpxMainWindow(QMainWindow):
                 self.tr('Using') + ' Python ' + str(sys.version_info.major) + '.' + str(sys.version_info.minor) + '.' + str(sys.version_info.micro) + ', ' + \
                 'PyQt5 ' + PYQT_VERSION_STR + ', ' + \
                 'Qt ' + QT_VERSION_STR + '<br><br>' + \
-                'Copyright 2016-2020 Sergey Salnikov <a href=mailto:salsergey@gmail.com>&lt;salsergey@gmail.com&gt;</a><br><br>' + \
+                'Copyright 2016-2021 Sergey Salnikov <a href=mailto:salsergey@gmail.com>&lt;salsergey@gmail.com&gt;</a><br><br>' + \
                 self.tr('License:') + ' <a href=http://www.gnu.org/licenses/gpl.html>GNU General Public License, version 3</a>'
     QMessageBox.about(self, self.tr('About GPX Viewer'), aboutText)
 
@@ -397,6 +387,7 @@ class GpxMainWindow(QMainWindow):
                            Several interactions are possible in profile window:
                            <ul>
                            <li>Left/right mouse buttons select markers or captions</li>
+                           <li>Hold Ctrl button to select multiple points</li>
                            <li>Selected captions are moved by up/down/left/right buttons (with or without Ctrl)</li>
                            <li>Selected markers are changed by left/right buttons (with or without Ctrl)</li>
                            <li>Mouse wheel zooms the image horizontally</li>
@@ -586,28 +577,11 @@ class GpxMainWindow(QMainWindow):
     webbrowser.open('https://maps.yandex.ru?ll=' + lon + ',' + lat + '&spn=0.03,0.03&pt=' + lon + ',' + lat + '&l=sat')
 
   @pyqtSlot()
-  def showZoomEarthMap(self):
+  def showNakarteMap(self):
     lat = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LAT).data(gpx.ValueRole))
     lon = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LON).data(gpx.ValueRole))
-    webbrowser.open('https://zoom.earth/#' + lat + ',' + lon + ',15z,map')
-
-  @pyqtSlot()
-  def showOpenCycleMap(self):
-    lat = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LAT).data(gpx.ValueRole))
-    lon = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LON).data(gpx.ValueRole))
-    webbrowser.open('https://openstreetmap.org/?mlat=' + lat + '&mlon=' + lon + '&zoom=15&layers=C')
-
-  @pyqtSlot()
-  def showOpenTopoMap(self):
-    lat = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LAT).data(gpx.ValueRole))
-    lon = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LON).data(gpx.ValueRole))
-    webbrowser.open('https://opentopomap.org/#marker=15/' + lat + '/' + lon)
-
-  @pyqtSlot()
-  def showTopoMap(self):
-    lat = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LAT).data(gpx.ValueRole))
-    lon = str(TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.LON).data(gpx.ValueRole))
-    webbrowser.open('http://loadmap.net/ru?q=' + lat + ' ' + lon + '&z=13&s=0')
+    name = TheDocument.wptmodel.index(self.ui.wptView.currentIndex().data(gpx.IDRole), gpx.NAME).data()
+    webbrowser.open('https://nakarte.me/#m=15/' + lat + '/' + lon + '&l=Otm&r=' + lat + '/' + lon + '/' + name)
 
   @pyqtSlot()
   def pointStyle(self):
