@@ -97,6 +97,7 @@ class GpxMainWindow(QMainWindow):
 
     self.plotWindow = plt.PlotWindow()
     self.plotWindow.profileChanged.connect(self.setProjectChanged)
+    self.plotWindow.gotoMainWindow[int].connect(self.onGotoMainWindow)
     self.statWindow = stat.StatWindow()
 
   def updateTheme(self):
@@ -563,6 +564,19 @@ class GpxMainWindow(QMainWindow):
   def resetTrackAltitudes(self):
     TheDocument.trkmodel.resetAltitudes([i.row() for i in self.ui.trkView.selectionModel().selectedRows()])
     self.ui.statusBar.showMessage(self.tr('Altitudes reset to original values.'), 2000)
+
+  @pyqtSlot(int)
+  def onGotoMainWindow(self, index):
+    model = self.ui.wptView.model()
+    for row in range(model.rowCount()):
+      if model.index(row, 0).data(gpx.IDRole) == index:
+        self.ui.wptView.selectRow(row)
+        self.activateWindow()
+        break
+    else:
+      self.ui.wptView.clearSelection()
+      self.activateWindow()
+      QMessageBox.warning(self, self.tr('Go to point error'), self.tr('This point is hidden because of filter settings.'))
 
   @pyqtSlot()
   def showGoogleMap(self):

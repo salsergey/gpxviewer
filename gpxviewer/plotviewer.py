@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2020 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2021 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -56,6 +56,7 @@ class PlotWindow(QMainWindow):
     self.widthSpinBox.valueChanged.connect(self.setExportWidth)
     self.heightSpinBox.valueChanged.connect(self.setExportHeight)
     self.ui.canvasWidget.profileChanged.connect(self.profileChanged)
+    self.ui.canvasWidget.gotoMainWindow[int].connect(self.gotoMainWindow)
 
     self.resize(TheConfig['PlotWindow'].getint('WindowWidth'), TheConfig['PlotWindow'].getint('WindowHeight'))
 
@@ -120,3 +121,4 @@ class PlotWindow(QMainWindow):
     TheConfig['PlotWindow']['SaveProfileHeight'] = str(self.heightSpinBox.value())
 
   profileChanged = pyqtSignal()
+  gotoMainWindow = pyqtSignal(int)

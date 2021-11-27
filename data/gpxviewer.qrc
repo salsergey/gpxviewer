@@ -15,6 +15,7 @@
         <file>icons/edit-copy.svg</file>
         <file>icons/edit-rename.svg</file>
         <file>icons/googlemaps.png</file>
+        <file>icons/go-to-main.svg</file>
         <file>icons/gpxviewer.svg</file>
         <file>icons/help-contents.svg</file>
         <file>icons/internet-services.svg</file>
@@ -44,6 +45,7 @@
         <file>icons/+dark_theme/edit-clear.svg</file>
         <file>icons/+dark_theme/edit-copy.svg</file>
         <file>icons/+dark_theme/edit-rename.svg</file>
+        <file>icons/+dark_theme/go-to-main.svg</file>
         <file>icons/+dark_theme/help-contents.svg</file>
         <file>icons/+dark_theme/internet-services.svg</file>
         <file>icons/+dark_theme/showinfo.svg</file>

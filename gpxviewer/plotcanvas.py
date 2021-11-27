@@ -500,6 +500,11 @@ class PlotCanvas(QCustomPlot):
     menu.addAction(self.actStyle)
     menu.addSeparator()
 
+    actGotoMainWindow = QAction(QIcon(self.themeSelector.select(':/icons/go-to-main.svg')), self.tr('Go to main window'), self)
+    actGotoMainWindow.triggered.connect(self.onGotoMainWindow)
+    menu.addAction(actGotoMainWindow)
+    menu.addSeparator()
+
     actShowGoogleMap = QAction(QIcon(':/icons/googlemaps.png'), self.tr('Google Maps'), self)
     actShowGoogleMap.triggered.connect(self.showGoogleMap)
     actShowYandexMap = QAction(QIcon(':/icons/yandexmaps.png'), self.tr('Yandex Maps'), self)
@@ -614,6 +619,10 @@ class PlotCanvas(QCustomPlot):
       self.replot()
 
   @pyqtSlot()
+  def onGotoMainWindow(self):
+    self.gotoMainWindow.emit(self.currentSelection.idx)
+
+  @pyqtSlot()
   def showGoogleMap(self):
     lat = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.LAT).data()
     lon = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.LON).data()
@@ -645,6 +654,7 @@ class PlotCanvas(QCustomPlot):
       self.updateLegend()
 
   profileChanged = pyqtSignal()
+  gotoMainWindow = pyqtSignal(int)
 
 
 class AxisTicker(QCPAxisTickerFixed):
