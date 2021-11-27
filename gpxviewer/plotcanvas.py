@@ -40,6 +40,7 @@ class PlotCanvas(QCustomPlot):
 
     self.addLayer('profile', self.layer('main'), QCustomPlot.limBelow)
 
+    self.setInteraction(QCP.iMultiSelect)
     self.setInteraction(QCP.iSelectItems)
     self.setInteraction(QCP.iSelectPlottables)
     self.setInteraction(QCP.iRangeDrag)
@@ -127,9 +128,10 @@ class PlotCanvas(QCustomPlot):
     self.actStyle.triggered.connect(self.onPointStyle)
     self.addAction(self.actStyle)
 
-  def deselectAll(self):
+  def deselectAll(self, updateSelection=True):
     super(PlotCanvas, self).deselectAll()
-    self.onSelectionChanged()
+    if updateSelection:
+      self.onSelectionChanged()
 
   def removeGraph(self, graph):
     if graph.selected():
@@ -145,13 +147,14 @@ class PlotCanvas(QCustomPlot):
     self.clearPlottables()
     self.clearItems()
 
-    self.selectedElement = None
     self.xx = []
     self.yy = []
     self.markers = []
     self.captions = []
     self.splitLines = []
     self.neglectPoints = []
+    self.selectedElements = []
+    self.currentSelection = None
 
   def fitWidth(self):
     self.xAxis.setRange(self.xx[0], self.xx[-1])
@@ -324,46 +327,50 @@ class PlotCanvas(QCustomPlot):
 
   def keyPressEvent(self, event):
     if event.key() == Qt.Key_Escape:
-      if self.selectedElement is not None:
+      if len(self.selectedElements) != 0:
         self.deselectAll()
         self.replot()
       else:
         super(PlotCanvas, self).keyPressEvent(event)
 
-    elif event.key() == Qt.Key_Menu and event.modifiers() == Qt.NoModifier and self.selectedElement is not None:
+    elif event.key() == Qt.Key_Menu and event.modifiers() == Qt.NoModifier and len(self.selectedElements) != 0:
       self.contextMenu()
 
-    # Move caption
-    elif event.key() in {Qt.Key_Left, Qt.Key_Right, Qt.Key_Down, Qt.Key_Up} and type(self.selectedElement) == CaptionItem:
-      x = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSX]
-      y = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSY]
+    elif event.key() in {Qt.Key_Left, Qt.Key_Right, Qt.Key_Down, Qt.Key_Up}:
+      # Move captions
+      captionSelected = False
       d = 10 if event.modifiers() == Qt.ControlModifier else 1
-      if event.key() == Qt.Key_Left:
-        TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSX, x - d)
-      elif event.key() == Qt.Key_Right:
-        TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSX, x + d)
-      elif event.key() == Qt.Key_Down:
-        TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSY, y - d)
-      elif event.key() == Qt.Key_Up:
-        TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSY, y + d)
+      for el in self.selectedElements:
+        if type(el) == CaptionItem:
+          captionSelected = True
+          x = TheDocument.wptmodel.index(el.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSX]
+          y = TheDocument.wptmodel.index(el.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSY]
+          if event.key() == Qt.Key_Left:
+            TheDocument.wptmodel.setPointStyle([el.idx], gpx.CAPTION_POSX, x - d)
+          elif event.key() == Qt.Key_Right:
+            TheDocument.wptmodel.setPointStyle([el.idx], gpx.CAPTION_POSX, x + d)
+          elif event.key() == Qt.Key_Down:
+            TheDocument.wptmodel.setPointStyle([el.idx], gpx.CAPTION_POSY, y - d)
+          elif event.key() == Qt.Key_Up:
+            TheDocument.wptmodel.setPointStyle([el.idx], gpx.CAPTION_POSY, y + d)
       self.replot()
 
-    # Select previous/next marker
-    elif event.key() in {Qt.Key_Left, Qt.Key_Right} and type(self.selectedElement) == MarkerItem:
-      step = 1 if event.key() == Qt.Key_Right else -1
-      ind = [m.idx for m in self.markers].index(self.selectedElement.idx)
-      self.markers[ind].setSelection(QCPDataSelection())
+      # Select previous/next marker
+      if event.key() in {Qt.Key_Left, Qt.Key_Right} and not captionSelected and len(self.selectedElements) != 0:
+        step = 1 if event.key() == Qt.Key_Right else -1
+        ind = [m.idx for m in self.markers].index(self.currentSelection.idx)
+        self.deselectAll(updateSelection=False)
 
-      while True:
-        ind += step
-        if (not 0 < ind < len(self.markers) - 1) or TheDocument.wptmodel.index(self.markers[ind].idx, gpx.NAME).data(gpx.MarkerRole) or \
-           (self.showInfo and event.modifiers() != Qt.ControlModifier):
-          break
-      ind = min(max(ind, 0), len(self.markers) - 1)
+        while True:
+          ind += step
+          if (not 0 < ind < len(self.markers) - 1) or TheDocument.wptmodel.index(self.markers[ind].idx, gpx.NAME).data(gpx.MarkerRole) or \
+             (self.showInfo and event.modifiers() != Qt.ControlModifier):
+            break
+        ind = min(max(ind, 0), len(self.markers) - 1)
 
-      self.markers[ind].setSelection(QCPDataSelection(QCPDataRange(0, 1)))
-      self.onSelectionChanged()
-      self.replot()
+        self.markers[ind].setSelection(QCPDataSelection(QCPDataRange(0, 1)))
+        self.onSelectionChanged()
+        self.replot()
 
     else:
       super(PlotCanvas, self).keyPressEvent(event)
@@ -375,20 +382,19 @@ class PlotCanvas(QCustomPlot):
         if profile.getKeyRange()[0].contains(self.xAxis.pixelToCoord(event.pos().x())):
           self.tracer.setGraph(profile)
       self.tracer.setGraphKey(self.xAxis.pixelToCoord(event.pos().x()))
-      if self.selectedElement is None:
+      if len(self.selectedElements) == 0:
         self.updateLegend()
-      else:
-        self.replot()
 
     self.updateCursorShape(event.pos())
+    self.replot()
 
     # Move caption
     if self.moveCaption and QGuiApplication.mouseButtons() == Qt.LeftButton:
-      x = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSX]
-      y = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSY]
+      x = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSX]
+      y = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSY]
       delta = event.pos() - self.prevPos
-      TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSX, x + delta.x())
-      TheDocument.wptmodel.setPointStyle([self.selectedElement.idx], gpx.CAPTION_POSY, y - delta.y())
+      TheDocument.wptmodel.setPointStyle([self.currentSelection.idx], gpx.CAPTION_POSX, x + delta.x())
+      TheDocument.wptmodel.setPointStyle([self.currentSelection.idx], gpx.CAPTION_POSY, y - delta.y())
       self.replot()
     else:  # no caption is selected
       super(PlotCanvas, self).mouseMoveEvent(event)
@@ -400,8 +406,18 @@ class PlotCanvas(QCustomPlot):
       if self.plottableAt(event.pos(), True) is None and self.itemAt(event.pos(), True) is None:
         self.setCursor(QCursor(Qt.ClosedHandCursor))
 
-      if type(self.selectedElement) == CaptionItem and self.itemAt(event.pos(), True) == self.selectedElement:
+      item = self.itemAt(event.pos(), True)
+      if type(item) == CaptionItem and item in self.selectedElements and event.modifiers() != self.multiSelectModifier():
         self.moveCaption = True
+        self.deselectAll()
+        item.setSelected(True)
+        self.onSelectionChanged()
+
+      if event.modifiers() == self.multiSelectModifier():
+        self.setSelectionRectMode(QCP.srmSelect)
+        self.deselectAll()
+      else:
+        self.setSelectionRectMode(QCP.srmNone)
 
     super(PlotCanvas, self).mousePressEvent(event)
 
@@ -410,14 +426,19 @@ class PlotCanvas(QCustomPlot):
       self.updateCursorShape(event.pos())
 
     if event.button() == Qt.RightButton:
-      self.deselectAll()
       item = self.itemAt(event.pos(), True)
       if item is None:
         item = self.plottableAt(event.pos(), True)
+
+      if item is not None and item not in self.selectedElements or item is None:
+        self.deselectAll(updateSelection=False)
+
       if item is not None:
         item.setSelected(True)
-        self.onSelectionChanged()
+        self.currentSelection = item
+        self.onSelectionChanged(resetCurrentSelection=False)
         self.contextMenu()
+
       self.replot()
 
     self.moveCaption = False
@@ -456,13 +477,13 @@ class PlotCanvas(QCustomPlot):
         self.setCursor(QCursor(Qt.SizeVerCursor if pos.x() < self.axisRect().rect().left() else Qt.ArrowCursor))
 
   def updateLegend(self):
-    if self.selectedElement is not None:
-      title = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data()
+    if len(self.selectedElements) != 0:
+      title = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data()
       self.legendTitle.setText(title)
       self.legendTitle.setMinimumSize(QFontMetrics(self.font).horizontalAdvance(title), 0)
       xTitle = self.tr('Distance: ') if self.column == gpx.DIST else self.tr('Time: ')
-      self.xLegendText.setText(xTitle + TheDocument.wptmodel.index(self.selectedElement.idx, self.column).data())
-      self.yLegendText.setText(self.tr('Altitude: ') + TheDocument.wptmodel.index(self.selectedElement.idx, gpx.ALT).data())
+      self.xLegendText.setText(xTitle + TheDocument.wptmodel.index(self.currentSelection.idx, self.column).data())
+      self.yLegendText.setText(self.tr('Altitude: ') + TheDocument.wptmodel.index(self.currentSelection.idx, gpx.ALT).data())
 
     else:  # no item is selected
       self.legendTitle.setText(self.tr('Cursor'))
@@ -479,11 +500,11 @@ class PlotCanvas(QCustomPlot):
     self.replot()
 
   def contextMenu(self):
-    self.actMarker.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.MarkerRole))
-    self.actCaption.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionRole))
-    self.actSplit.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.SplitLineRole))
-    self.actNeglect.setChecked(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.NeglectRole))
-    self.actSkip.setChecked(not TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.IncludeRole))
+    self.actMarker.setChecked(TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.MarkerRole))
+    self.actCaption.setChecked(TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.CaptionRole))
+    self.actSplit.setChecked(TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.SplitLineRole))
+    self.actNeglect.setChecked(TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.NeglectRole))
+    self.actSkip.setChecked(not TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.IncludeRole))
 
     menu = QMenu(self)
     menu.addAction(self.actMarker)
@@ -493,10 +514,12 @@ class PlotCanvas(QCustomPlot):
     menu.addSeparator()
     menu.addAction(self.actSkip)
     menu.addSeparator()
-    if type(self.selectedElement) == CaptionItem:
+
+    if type(self.currentSelection) == CaptionItem:
       menu.addAction(self.actRename)
       menu.addAction(self.actResetName)
       menu.addSeparator()
+
     menu.addAction(self.actStyle)
     menu.addSeparator()
 
@@ -522,98 +545,107 @@ class PlotCanvas(QCustomPlot):
 
   @pyqtSlot()
   def onMarkerPoints(self):
-    if self.selectedElement is None:
+    if len(self.selectedElements) == 0:
       return
 
-    marked = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.MarkerRole)
-    TheDocument.wptmodel.setMarkerStates([self.selectedElement.idx], not marked)
-    index = [m.idx for m in self.markers].index(self.selectedElement.idx)
-    self.markers[index].updateStyle()
-    if not marked:
-      self.markers[index].setVisible(True)
-      self.markers[index].setSelectable(QCP.stWhole)
-    elif not self.showInfo:
-      self.markers[index].setVisible(False)
-      self.markers[index].setSelectable(QCP.stNone)
+    marked = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.MarkerRole)
+    indexes = [el.idx for el in self.selectedElements]
+    TheDocument.wptmodel.setMarkerStates(indexes, not marked)
+    for m in self.markers:
+      if m.idx in indexes:
+        m.updateStyle()
+        m.setVisible(not marked or self.showInfo)
+        m.setSelectable(QCP.stWhole if not marked or self.showInfo else QCP.stNone)
     self.replot()
 
   @pyqtSlot()
   def onCaptionPoints(self):
-    if self.selectedElement is None:
+    if len(self.selectedElements) == 0:
       return
 
-    captioned = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.CaptionRole)
-    TheDocument.wptmodel.setCaptionStates([self.selectedElement.idx], not captioned)
+    captioned = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.CaptionRole)
+    indexes = [el.idx for el in self.selectedElements]
     if not captioned:
-      self.captions += [CaptionItem(self, self.selectedElement.idx, self.selectedElement.posX, self.selectedElement.posY)]
+      for el in self.selectedElements:
+        if el.idx not in TheDocument.wptmodel.getCaptionedPoints():
+          self.captions += [CaptionItem(self, el.idx, el.posX, el.posY)]
     else:
-      for i, c in enumerate(self.captions):
-        if c.idx == self.selectedElement.idx:
+      for i, c in reversed(list(enumerate(self.captions))):
+        if c.idx in indexes:
           self.removeItem(c)
           del self.captions[i]
-          break
+
+    TheDocument.wptmodel.setCaptionStates(indexes, not captioned)
     self.replot()
 
   @pyqtSlot()
   def onSplitLines(self):
-    if self.selectedElement is None:
+    if len(self.selectedElements) == 0:
       return
 
-    splited = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.SplitLineRole)
-    TheDocument.wptmodel.setSplitLines([self.selectedElement.idx], not splited)
+    splited = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.SplitLineRole)
+    indexes = [el.idx for el in self.selectedElements]
     if not splited:
-      self.splitLines += [SplitLine(self, self.selectedElement.idx, self.selectedElement.posX, self.selectedElement.posY)]
+      for el in self.selectedElements:
+        if el.idx not in TheDocument.wptmodel.getSplitLines():
+          self.splitLines += [SplitLine(self, el.idx, el.posX, el.posY)]
     else:
-      for i, l in enumerate(self.splitLines):
-        if l.idx == self.selectedElement.idx:
+      for i, l in reversed(list(enumerate(self.splitLines))):
+        if l.idx in indexes:
           self.removeGraph(l)
           del self.splitLines[i]
-          break
+
+    TheDocument.wptmodel.setSplitLines(indexes, not splited)
     self.replot()
 
   @pyqtSlot()
   def onNeglectDistance(self):
-    if self.selectedElement is None:
+    if len(self.selectedElements) == 0:
       return
 
-    neglected = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.NeglectRole)
-    TheDocument.wptmodel.setNeglectStates([self.selectedElement.idx], not neglected)
-    self.plotProfile(self.column, self.wptRows, self.trkRows, False)
+    neglected = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.NeglectRole)
+    TheDocument.wptmodel.setNeglectStates([el.idx for el in self.selectedElements], not neglected)
+    self.plotProfile(self.column, self.wptRows, self.trkRows, fit=False)
 
   @pyqtSlot()
   def onSkipPoints(self):
-    if self.selectedElement is None:
+    if len(self.selectedElements) == 0:
       return
 
-    included = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data(gpx.IncludeRole)
-    TheDocument.wptmodel.setIncludeStates([self.selectedElement.idx], not included)
-    self.plotProfile(self.column, self.wptRows, self.trkRows, False)
+    TheDocument.wptmodel.setIncludeStates([el.idx for el in self.selectedElements], False)
+    self.plotProfile(self.column, self.wptRows, self.trkRows, fit=False)
 
   @pyqtSlot()
   def onRenamePoints(self):
-    if type(self.selectedElement) != CaptionItem:
+    if len(self.selectedItems()) == 0:
       return
 
-    oldName = self.selectedElement.text()
+    item = self.selectedItems()[0]
+    oldName = item.text()
     name, ok = QInputDialog.getText(self, self.tr('Rename waypoint'),
                                     self.tr('Enter new name for waypoint:'), QLineEdit.Normal, oldName)
 
     if ok and len(name) > 0:
-      TheDocument.wptmodel.setData(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME), name, Qt.EditRole)
-      self.selectedElement.setText(name)
+      TheDocument.wptmodel.setData(TheDocument.wptmodel.index(item.idx, gpx.NAME), name, Qt.EditRole)
+      item.setText(name)
       self.replot()
 
   @pyqtSlot()
   def onResetPointNames(self):
-    TheDocument.wptmodel.resetNames([self.selectedElement.idx])
-    self.selectedElement.setText(TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data())
+    if len(self.selectedItems()) == 0:
+      return
+
+    TheDocument.wptmodel.resetNames([el.idx for el in self.selectedItems()])
+    for el in self.selectedItems():
+      el.setText(TheDocument.wptmodel.index(el.idx, gpx.NAME).data())
     self.replot()
 
   def onPointStyle(self):
-    dlg = PointConfigDialog(self, self.selectedElement.idx)
+    indexes = [el.idx for el in self.selectedElements]
+    dlg = PointConfigDialog(self, self.currentSelection.idx, indexes)
     if dlg.exec_() == QDialog.Accepted:
       for point in self.markers + self.captions + self.splitLines:
-        if point.idx == self.selectedElement.idx:
+        if point.idx in indexes:
           point.updateStyle()
 
       self.replot()
@@ -624,31 +656,30 @@ class PlotCanvas(QCustomPlot):
 
   @pyqtSlot()
   def showGoogleMap(self):
-    lat = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.LAT).data()
-    lon = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.LON).data()
+    lat = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.LAT).data()
+    lon = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.LON).data()
     webbrowser.open('https://maps.google.com/maps?ll=' + lat + ',' + lon + '&t=h&q=' + lat + ',' + lon + '&z=15')
 
   @pyqtSlot()
   def showYandexMap(self):
-    lat = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.LAT).data()
-    lon = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.LON).data()
+    lat = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.LAT).data()
+    lon = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.LON).data()
     webbrowser.open('https://maps.yandex.ru?ll=' + lon + ',' + lat + '&spn=0.03,0.03&pt=' + lon + ',' + lat + '&l=sat')
 
   @pyqtSlot()
   def showNakarteMap(self):
-    lat = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.LAT).data()
-    lon = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.LON).data()
-    name = TheDocument.wptmodel.index(self.selectedElement.idx, gpx.NAME).data()
+    lat = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.LAT).data()
+    lon = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.LON).data()
+    name = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data()
     webbrowser.open('https://nakarte.me/#m=15/' + lat + '/' + lon + '&l=Otm&r=' + lat + '/' + lon + '/' + name)
 
   @pyqtSlot()
-  def onSelectionChanged(self):
-    if len(self.selectedItems()) == 1:
-      self.selectedElement = self.selectedItems()[0]
-    elif len(self.selectedPlottables()) == 1:
-      self.selectedElement = self.selectedPlottables()[0]
-    else:
-      self.selectedElement = None
+  def onSelectionChanged(self, resetCurrentSelection=True):
+    self.selectedElements = self.selectedItems() + self.selectedPlottables()
+    if len(self.selectedElements) == 0:
+      self.currentSelection = None
+    elif resetCurrentSelection:
+      self.currentSelection = self.selectedElements[0]
 
     if self.showInfo:
       self.updateLegend()
@@ -753,6 +784,7 @@ class MarkerItem(QCPGraph):
         scatterStyle.setPen(QPen(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]), 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
       selectedScatterStyle.setCustomPath(gpx.markerPath(markerStyle[gpx.MARKER_STYLE], 3 * markerStyle[gpx.MARKER_SIZE]))
       selectedScatterStyle.setPen(QPen(QGuiApplication.palette().highlight().color(), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+      self.setSelectable(QCP.stWhole)
 
     else:  # not in marked points
       scatterStyle.setShape(QCPScatterStyle.ssDisc)
@@ -762,6 +794,7 @@ class MarkerItem(QCPGraph):
       selectedScatterStyle.setShape(QCPScatterStyle.ssCircle)
       selectedScatterStyle.setSize(6 * TheConfig.getValue('ProfileStyle', 'ProfileWidth'))
       selectedScatterStyle.setPen(QPen(QGuiApplication.palette().highlight().color(), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+      self.setSelectable(QCP.stNone)
 
     self.setScatterStyle(scatterStyle)
     self.selectionDecorator().setScatterStyle(selectedScatterStyle)
