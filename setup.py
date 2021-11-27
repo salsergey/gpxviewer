@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2020 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2021 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -63,7 +63,7 @@ else:
 
 setup(
   name='gpxviewer',
-  version='2.2',
+  version='2.3',
   description='GPX Viewer is an application for viewing GPX files and plotting altitude profiles',
   url='https://osdn.net/projects/gpxviewer',
   author='Sergey Salnikov',

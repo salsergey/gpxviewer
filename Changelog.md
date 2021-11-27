@@ -1,3 +1,8 @@
+=== Version 2.3 ===
+* Added posibility to select multiple points in profile window.
+* Added "go to main window" button in the profile window.
+* Several fixes and performance improvements.
+
 === Version 2.2 ===
 * Added possibility to get altitudes for waypoints and tracks from online SRTM data.
 * Reading and writing KML files is now supported.
