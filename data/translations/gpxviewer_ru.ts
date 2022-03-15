@@ -330,7 +330,7 @@ Do you want to remove it from recent projects?</source>
     <message>
         <location filename="../../gpxviewer/gpxmainwindow.py" line="467"/>
         <source>Several symbols &quot;#&quot; will be replaced by sequential numbers starting from:</source>
-        <translation>Несколько символов &amp;quot;#&amp;quot; будут заменены порядковым номером, начиная с:</translation>
+        <translation>Несколько символов &quot;#&quot; будут заменены порядковым номером, начиная с:</translation>
     </message>
     <message>
         <location filename="../../gpxviewer/gpxmainwindow.py" line="758"/>
@@ -532,8 +532,8 @@ NOTE: Some files can be overwritten.</source>
                            &lt;i&gt;Курсив&lt;/i&gt; - расстояние перед этими точками пропущено&lt;br&gt;
                            &lt;br&gt;
                            F2 - Переименовать несколько точек.
-                           Несколько символов &amp;quot;#&amp;quot; заменяются порядковым номером.
-                           Количество знаков равно количеству символов &amp;quot;#&amp;quot;.&lt;br&gt;
+                           Несколько символов &quot;#&quot; заменяются порядковым номером.
+                           Количество знаков равно количеству символов &quot;#&quot;.&lt;br&gt;
                            &lt;br&gt;
                            При построении профиля возможно несколько случаев:
                            &lt;ul&gt;
