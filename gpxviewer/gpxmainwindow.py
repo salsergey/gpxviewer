@@ -361,7 +361,7 @@ class GpxMainWindow(QMainWindow):
                 self.tr('Using') + ' Python ' + str(sys.version_info.major) + '.' + str(sys.version_info.minor) + '.' + str(sys.version_info.micro) + ', ' + \
                 'PyQt' + PYQT_VERSION_STR[0] + ' ' + PYQT_VERSION_STR + ', ' + \
                 'Qt ' + QT_VERSION_STR + '<br><br>' + \
-                'Copyright 2016-2021 Sergey Salnikov <a href=mailto:salsergey@gmail.com>&lt;salsergey@gmail.com&gt;</a><br><br>' + \
+                'Copyright 2016-2023 Sergey Salnikov <a href=mailto:salsergey@gmail.com>&lt;salsergey@gmail.com&gt;</a><br><br>' + \
                 self.tr('License:') + ' <a href=http://www.gnu.org/licenses/gpl.html>GNU General Public License, version 3</a>'
     QMessageBox.about(self, self.tr('About GPX Viewer'), aboutText)
 
@@ -998,11 +998,16 @@ class GpxMainWindow(QMainWindow):
     self.ui.actionClearList.setDisabled(True)
 
   def initColumnsToCopy(self):
+    if TheConfig.getboolean('MainWindow', 'DetailedView'):
+      TheConfig.columnsToCopy += list(range(gpx.TIME_DAYS, len(gpx.WPTFIELDS)))
+    else:
+      TheConfig.columnsToCopy = [c for c in TheConfig.columnsToCopy if c < gpx.TIME_DAYS]
+
     for act in self.actionsColumns:
       self.ui.menuCoLumns.removeAction(act)
     self.actionsColumns = []
 
-    for i, f in enumerate(TheDocument.wptmodel.fields[:self.filterModel.columnCount()]):
+    for f in TheDocument.wptmodel.fields[:self.filterModel.columnCount()]:
       act = QAction(f, self)
       act.setCheckable(True)
       act.triggered[bool].connect(self.columnsToCopyChanged)
