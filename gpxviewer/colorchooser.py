@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2019 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -32,7 +32,7 @@ class ColorChooser(QPushButton):
   def paintEvent(self, event):
     optBtn = QStyleOptionButton()
     optBtn.initFrom(self)
-    optBtn.state = QStyle.State_Sunken if self.isDown() else QStyle.State_Raised
+    optBtn.state = QStyle.StateFlag.State_Sunken if self.isDown() else QStyle.StateFlag.State_Raised
     optBtn.rect.setLeft(optBtn.rect.right() - self.buttonWidth)
     label = self.text()[1:] if self.text().startswith('&') else self.text()
     color = self.color
@@ -44,8 +44,8 @@ class ColorChooser(QPushButton):
                                                                  str(color.alpha()) + ')}')
 
     p = QPainter(self)
-    p.drawText(QRect(0, 0, self.width() - self.buttonWidth, self.height()), Qt.AlignVCenter, label)
-    self.style().drawControl(QStyle.CE_PushButton, optBtn, p, self)
+    p.drawText(QRect(0, 0, self.width() - self.buttonWidth, self.height()), Qt.AlignmentFlag.AlignVCenter, label)
+    self.style().drawControl(QStyle.ControlElement.CE_PushButton, optBtn, p, self)
 
   def setColor(self, rgba):
     self.color = QColor(rgba)
@@ -54,9 +54,9 @@ class ColorChooser(QPushButton):
   @pyqtSlot()
   def openColorDialog(self):
     dlg = QColorDialog()
-    dlg.setOption(QColorDialog.ShowAlphaChannel)
+    dlg.setOption(QColorDialog.ColorDialogOption.ShowAlphaChannel)
     dlg.setCurrentColor(self.color)
-    if dlg.exec_() == QDialog.Accepted:
+    if dlg.exec() == QDialog.DialogCode.Accepted:
       self.color = dlg.currentColor()
       self.colorSet.emit()
 

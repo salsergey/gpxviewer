@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2021 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -43,7 +43,7 @@ class build_dep(Command):
     for ts_file in os.listdir('data/translations'):
       if ts_file.endswith('.ts'):
         print('updating ' + os.path.join('data/translations', ts_file))
-        subprocess.call('pylupdate5 gpxviewer/*.py -ts ' + os.path.join('data/translations', ts_file), shell=True)
+        subprocess.call('pylupdate5 gpxviewer/*.py ui/*.ui -ts ' + os.path.join('data/translations', ts_file), shell=True)
         subprocess.call('lrelease-qt5 ' + os.path.join('data/translations', ts_file), shell=True)
 
     print('compiling data/gpxviewer.qrc')
@@ -70,7 +70,7 @@ setup(
   author_email='salsergey@gmail.com',
   license='GNU GPL3',
   packages=['gpxviewer'],
-  install_requires=['lxml', 'QCustomPlot2>=2'],
+  install_requires=['lxml', 'QCustomPlot_PyQt5>=2'],
   data_files=datafiles,
   entry_points={
     'gui_scripts': ['gpxv = gpxviewer:main']

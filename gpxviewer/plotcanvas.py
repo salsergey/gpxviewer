@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2021 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -16,11 +16,11 @@
 
 import webbrowser
 from datetime import timedelta
-from PyQt5.QtCore import Qt, QCoreApplication, QDate, QDateTime, QFileSelector, QMargins, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import Qt, QCoreApplication, QDate, QDateTime, QFileSelector, QLocale, QMargins, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QColor, QCursor, QFont, QFontMetrics, QGuiApplication, QIcon, QKeySequence, QPen
 from PyQt5.QtWidgets import QAction, QDialog, QInputDialog, QLineEdit, QMenu, QMessageBox
-from QCustomPlot2 import (QCP, QCustomPlot, QCPAxisTickerDateTime, QCPAxisTickerFixed, QCPDataRange, QCPDataSelection,
-                          QCPGraph, QCPItemPosition, QCPItemText, QCPItemTracer, QCPScatterStyle, QCPTextElement)
+from QCustomPlot_PyQt5 import (QCP, QCustomPlot, QCPAxisTickerDateTime, QCPAxisTickerFixed, QCPDataRange, QCPDataSelection,
+                               QCPGraph, QCPItemPosition, QCPItemText, QCPItemTracer, QCPScatterStyle, QCPTextElement)
 import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import TheConfig
 from gpxviewer.gpxdocument import TheDocument
@@ -34,31 +34,31 @@ class PlotCanvas(QCustomPlot):
     self.showInfo = False
     self.moveCaption = False
     self.font = QFont()
-    self.font.setStyleHint(QFont.SansSerif)
+    self.font.setStyleHint(QFont.StyleHint.SansSerif)
     self.themeSelector = QFileSelector()
     self.themeSelector.setExtraSelectors([TheConfig['MainWindow']['ColorTheme']])
 
-    self.addLayer('profile', self.layer('main'), QCustomPlot.limBelow)
+    self.addLayer('profile', self.layer('main'), QCustomPlot.LayerInsertMode.limBelow)
 
-    self.setInteraction(QCP.iMultiSelect)
-    self.setInteraction(QCP.iSelectItems)
-    self.setInteraction(QCP.iSelectPlottables)
-    self.setInteraction(QCP.iRangeDrag)
-    self.setInteraction(QCP.iRangeZoom)
-    self.axisRect().setRangeDrag(Qt.Horizontal)
-    self.axisRect().setRangeZoom(Qt.Horizontal)
+    self.setInteraction(QCP.Interaction.iMultiSelect)
+    self.setInteraction(QCP.Interaction.iSelectItems)
+    self.setInteraction(QCP.Interaction.iSelectPlottables)
+    self.setInteraction(QCP.Interaction.iRangeDrag)
+    self.setInteraction(QCP.Interaction.iRangeZoom)
+    self.axisRect().setRangeDrag(Qt.Orientation.Horizontal)
+    self.axisRect().setRangeZoom(Qt.Orientation.Horizontal)
 
     self.axisRect().setupFullAxesBox(True)
     self.xAxis.setTickLabelPadding(10)
     self.yAxis.setTickLabelPadding(10)
     self.xAxis.grid().setVisible(False)
 
-    self.xTicker = AxisTicker(Qt.Horizontal)
-    self.xTicker2 = AxisTicker(Qt.Horizontal)
+    self.xTicker = AxisTicker(Qt.Orientation.Horizontal)
+    self.xTicker2 = AxisTicker(Qt.Orientation.Horizontal)
     self.xAxis.setTicker(self.xTicker)
     self.xAxis2.setTicker(self.xTicker2)
-    self.yTicker = AxisTicker(Qt.Vertical)
-    self.yTicker2 = AxisTicker(Qt.Vertical)
+    self.yTicker = AxisTicker(Qt.Orientation.Vertical)
+    self.yTicker2 = AxisTicker(Qt.Orientation.Vertical)
     self.yAxis.setTicker(self.yTicker)
     self.yAxis2.setTicker(self.yTicker2)
 
@@ -85,37 +85,37 @@ class PlotCanvas(QCustomPlot):
 
   def initShortcuts(self):
     self.actMarker = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-marker.svg')), self.tr('Point with marker'), self)
-    self.actMarker.setShortcut(QKeySequence(Qt.Key_M))
+    self.actMarker.setShortcut(QKeySequence(Qt.Key.Key_M))
     self.actMarker.setCheckable(True)
     self.actMarker.triggered.connect(self.onMarkerPoints)
     self.addAction(self.actMarker)
 
     self.actCaption = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-caption.svg')), self.tr('Point with caption'), self)
-    self.actCaption.setShortcut(QKeySequence(Qt.Key_C))
+    self.actCaption.setShortcut(QKeySequence(Qt.Key.Key_C))
     self.actCaption.setCheckable(True)
     self.actCaption.triggered.connect(self.onCaptionPoints)
     self.addAction(self.actCaption)
 
     self.actSplit = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-splitline.svg')), self.tr('Point with splitting line'), self)
-    self.actSplit.setShortcut(QKeySequence(Qt.Key_S))
+    self.actSplit.setShortcut(QKeySequence(Qt.Key.Key_S))
     self.actSplit.setCheckable(True)
     self.actSplit.triggered.connect(self.onSplitLines)
     self.addAction(self.actSplit)
 
     self.actNeglect = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-neglect-distance.svg')), self.tr('Neglect previous distance'), self)
-    self.actNeglect.setShortcut(QKeySequence(Qt.Key_N))
+    self.actNeglect.setShortcut(QKeySequence(Qt.Key.Key_N))
     self.actNeglect.setCheckable(True)
     self.actNeglect.triggered.connect(self.onNeglectDistance)
     self.addAction(self.actNeglect)
 
     self.actSkip = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-skip.svg')), self.tr('Skip point'), self)
-    self.actSkip.setShortcut(QKeySequence(Qt.Key_Delete))
+    self.actSkip.setShortcut(QKeySequence(Qt.Key.Key_Delete))
     self.actSkip.setCheckable(True)
     self.actSkip.triggered.connect(self.onSkipPoints)
     self.addAction(self.actSkip)
 
     self.actRename = QAction(QIcon(self.themeSelector.select(':/icons/edit-rename.svg')), self.tr('Rename...'), self)
-    self.actRename.setShortcut(QKeySequence(Qt.Key_F2))
+    self.actRename.setShortcut(QKeySequence(Qt.Key.Key_F2))
     self.actRename.triggered.connect(self.onRenamePoints)
     self.addAction(self.actRename)
 
@@ -124,7 +124,7 @@ class PlotCanvas(QCustomPlot):
     self.addAction(self.actResetName)
 
     self.actStyle = QAction(QIcon(self.themeSelector.select(':/icons/configure.svg')), self.tr('Point style'), self)
-    self.actStyle.setShortcut(Qt.ALT + Qt.Key_Return)
+    self.actStyle.setShortcut(QKeySequence(Qt.Modifier.ALT | Qt.Key.Key_Return))
     self.actStyle.triggered.connect(self.onPointStyle)
     self.addAction(self.actStyle)
 
@@ -215,11 +215,11 @@ class PlotCanvas(QCustomPlot):
       self.legend.setBrush(QGuiApplication.palette().base())
       gridColor = QGuiApplication.palette().light().color() if TheConfig['MainWindow']['ColorTheme'] == 'dark_theme' else QGuiApplication.palette().mid().color()
     else:
-      textColor = QColor(Qt.black)
-      self.setBackground(QColor(Qt.white))
+      textColor = QColor(Qt.GlobalColor.black)
+      self.setBackground(QColor(Qt.GlobalColor.white))
       self.legend.setBorderPen(textColor)
-      self.legend.setBrush(QColor(Qt.white))
-      gridColor = QColor(Qt.gray)
+      self.legend.setBrush(QColor(Qt.GlobalColor.white))
+      gridColor = QColor(Qt.GlobalColor.gray)
 
     for axis in {self.xAxis, self.xAxis2, self.yAxis, self.yAxis2}:
       axis.setBasePen(QPen(textColor))
@@ -228,7 +228,7 @@ class PlotCanvas(QCustomPlot):
       axis.setLabelColor(textColor)
       axis.setTickLabelColor(textColor)
     gridColor.setAlpha(150)
-    self.yAxis.grid().setPen(QPen(gridColor, 1, Qt.DashLine))
+    self.yAxis.grid().setPen(QPen(gridColor, 1, Qt.PenStyle.DashLine))
 
     self.yAxis.setRange(self.minalt, self.maxalt)
     self.xTicker.setType(self.column)
@@ -278,11 +278,11 @@ class PlotCanvas(QCustomPlot):
     for n in range(1, len(self.neglectPoints)):
       self.addGraph()
       self.graph().setPen(QPen(QColor.fromRgba(TheConfig.getValue('ProfileStyle', 'ProfileColor')),
-                               TheConfig.getValue('ProfileStyle', 'ProfileWidth'), Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+                               TheConfig.getValue('ProfileStyle', 'ProfileWidth'), Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
       self.graph().setBrush(QColor.fromRgba(TheConfig.getValue('ProfileStyle', 'FillColor')))
       self.graph().setData(self.xx[self.xx.index(self.neglectPoints[n-1]) + (1 if n > 1 else 0):self.xx.index(self.neglectPoints[n]) + 1],
                            self.yy[self.xx.index(self.neglectPoints[n-1]) + (1 if n > 1 else 0):self.xx.index(self.neglectPoints[n]) + 1])
-      self.graph().setSelectable(QCP.stNone)
+      self.graph().setSelectable(QCP.SelectionType.stNone)
 
     self.setCurrentLayer('main')
     if self.showInfo:
@@ -295,7 +295,7 @@ class PlotCanvas(QCustomPlot):
       figsize = self.width(), self.height()
 
     if filename.lower().endswith('.pdf'):
-      result = self.savePdf(filename, figsize[0], figsize[1], QCP.epNoCosmetic, QCoreApplication.applicationName())
+      result = self.savePdf(filename, figsize[0], figsize[1], QCP.ExportPen.epNoCosmetic, QCoreApplication.applicationName())
     else:
       result = self.saveRastered(filename, figsize[0], figsize[1], 1, None)
     self.replot()
@@ -309,7 +309,7 @@ class PlotCanvas(QCustomPlot):
       self.tracer = QCPItemTracer(self)
       self.tracer.setInterpolating(True)
       self.tracer.setSelectable(False)
-      lineColor = QGuiApplication.palette().text().color() if TheConfig.getValue('ProfileStyle', 'UseSystemTheme') else QColor(Qt.black)
+      lineColor = QGuiApplication.palette().text().color() if TheConfig.getValue('ProfileStyle', 'UseSystemTheme') else QColor(Qt.GlobalColor.black)
       self.tracer.setPen(QPen(lineColor))
 
     self.showInfo = enable
@@ -320,51 +320,51 @@ class PlotCanvas(QCustomPlot):
     for m in self.markers:
       if m.idx not in markedPoints:
         m.setVisible(enable)
-        m.setSelectable(QCP.stWhole if enable else QCP.stNone)
+        m.setSelectable(QCP.SelectionType.stWhole if enable else QCP.SelectionType.stNone)
 
     self.deselectAll()
     self.replot()
 
   def keyPressEvent(self, event):
-    if event.key() == Qt.Key_Escape:
+    if event.key() == Qt.Key.Key_Escape:
       if len(self.selectedElements) != 0:
         self.deselectAll()
         self.replot()
       else:
         super(PlotCanvas, self).keyPressEvent(event)
 
-    elif event.key() == Qt.Key_Menu and event.modifiers() == Qt.NoModifier and len(self.selectedElements) != 0:
+    elif event.key() == Qt.Key.Key_Menu and event.modifiers() == Qt.KeyboardModifier.NoModifier and len(self.selectedElements) != 0:
       self.contextMenu()
 
-    elif event.key() in {Qt.Key_Left, Qt.Key_Right, Qt.Key_Down, Qt.Key_Up}:
+    elif event.key() in {Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Down, Qt.Key.Key_Up}:
       # Move captions
       captionSelected = False
-      d = 10 if event.modifiers() == Qt.ControlModifier else 1
+      d = 10 if event.modifiers() == Qt.KeyboardModifier.ControlModifier else 1
       for el in self.selectedElements:
         if type(el) == CaptionItem:
           captionSelected = True
           x = TheDocument.wptmodel.index(el.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSX]
           y = TheDocument.wptmodel.index(el.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSY]
-          if event.key() == Qt.Key_Left:
+          if event.key() == Qt.Key.Key_Left:
             TheDocument.wptmodel.setPointStyle([el.idx], gpx.CAPTION_POSX, x - d)
-          elif event.key() == Qt.Key_Right:
+          elif event.key() == Qt.Key.Key_Right:
             TheDocument.wptmodel.setPointStyle([el.idx], gpx.CAPTION_POSX, x + d)
-          elif event.key() == Qt.Key_Down:
+          elif event.key() == Qt.Key.Key_Down:
             TheDocument.wptmodel.setPointStyle([el.idx], gpx.CAPTION_POSY, y - d)
-          elif event.key() == Qt.Key_Up:
+          elif event.key() == Qt.Key.Key_Up:
             TheDocument.wptmodel.setPointStyle([el.idx], gpx.CAPTION_POSY, y + d)
       self.replot()
 
       # Select previous/next marker
-      if event.key() in {Qt.Key_Left, Qt.Key_Right} and not captionSelected and len(self.selectedElements) != 0:
-        step = 1 if event.key() == Qt.Key_Right else -1
+      if event.key() in {Qt.Key.Key_Left, Qt.Key.Key_Right} and not captionSelected and len(self.selectedElements) != 0:
+        step = 1 if event.key() == Qt.Key.Key_Right else -1
         ind = [m.idx for m in self.markers].index(self.currentSelection.idx)
         self.deselectAll(updateSelection=False)
 
         while True:
           ind += step
           if (not 0 < ind < len(self.markers) - 1) or TheDocument.wptmodel.index(self.markers[ind].idx, gpx.NAME).data(gpx.MarkerRole) or \
-             (self.showInfo and event.modifiers() != Qt.ControlModifier):
+             (self.showInfo and event.modifiers() != Qt.KeyboardModifier.ControlModifier):
             break
         ind = min(max(ind, 0), len(self.markers) - 1)
 
@@ -389,7 +389,7 @@ class PlotCanvas(QCustomPlot):
     self.replot()
 
     # Move caption
-    if self.moveCaption and QGuiApplication.mouseButtons() == Qt.LeftButton:
+    if self.moveCaption and QGuiApplication.mouseButtons() == Qt.MouseButton.LeftButton:
       x = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSX]
       y = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSY]
       delta = event.pos() - self.prevPos
@@ -402,9 +402,9 @@ class PlotCanvas(QCustomPlot):
     self.prevPos = event.pos()
 
   def mousePressEvent(self, event):
-    if event.button() == Qt.LeftButton:
+    if event.button() == Qt.MouseButton.LeftButton:
       if self.plottableAt(event.pos(), True) is None and self.itemAt(event.pos(), True) is None:
-        self.setCursor(QCursor(Qt.ClosedHandCursor))
+        self.setCursor(QCursor(Qt.CursorShape.ClosedHandCursor))
 
       item = self.itemAt(event.pos(), True)
       if type(item) == CaptionItem and item in self.selectedElements and event.modifiers() != self.multiSelectModifier():
@@ -414,18 +414,18 @@ class PlotCanvas(QCustomPlot):
         self.onSelectionChanged()
 
       if event.modifiers() == self.multiSelectModifier():
-        self.setSelectionRectMode(QCP.srmSelect)
+        self.setSelectionRectMode(QCP.SelectionRectMode.srmSelect)
         self.deselectAll()
       else:
-        self.setSelectionRectMode(QCP.srmNone)
+        self.setSelectionRectMode(QCP.SelectionRectMode.srmNone)
 
     super(PlotCanvas, self).mousePressEvent(event)
 
   def mouseReleaseEvent(self, event):
-    if event.button() == Qt.LeftButton:
+    if event.button() == Qt.MouseButton.LeftButton:
       self.updateCursorShape(event.pos())
 
-    if event.button() == Qt.RightButton:
+    if event.button() == Qt.MouseButton.RightButton:
       item = self.itemAt(event.pos(), True)
       if item is None:
         item = self.plottableAt(event.pos(), True)
@@ -447,7 +447,7 @@ class PlotCanvas(QCustomPlot):
   def wheelEvent(self, event):
     # Outside the axes rect
     if event.pos().x() < self.axisRect().rect().left():
-      if event.modifiers() == Qt.NoModifier:
+      if event.modifiers() == Qt.KeyboardModifier.NoModifier:
         if event.pos().y() < self.axisRect().rect().center().y():
           self.maxalt = max(self.maxalt + (100 if event.angleDelta().y() > 0 else -100), self.minalt + 100)
         else:
@@ -460,21 +460,21 @@ class PlotCanvas(QCustomPlot):
         self.profileChanged.emit()
 
     else:  # inside the axes rect
-      self.setInteraction(QCP.iRangeZoom, event.modifiers() == Qt.NoModifier)
+      self.setInteraction(QCP.Interaction.iRangeZoom, event.modifiers() == Qt.KeyboardModifier.NoModifier)
       super(PlotCanvas, self).wheelEvent(event)
 
   def updateCursorShape(self, pos):
-    if QGuiApplication.mouseButtons() == Qt.LeftButton:
-      self.setCursor(QCursor(Qt.ClosedHandCursor))
+    if QGuiApplication.mouseButtons() == Qt.MouseButton.LeftButton:
+      self.setCursor(QCursor(Qt.CursorShape.ClosedHandCursor))
     else:
       # Inside the axes rect
       if self.axisRect().rect().contains(pos):
         if self.plottableAt(pos, True) is None and self.itemAt(pos, True) is None:
-          self.setCursor(QCursor(Qt.CrossCursor if self.showInfo else Qt.OpenHandCursor))
+          self.setCursor(QCursor(Qt.CursorShape.CrossCursor if self.showInfo else Qt.CursorShape.OpenHandCursor))
         else:
-          self.setCursor(QCursor(Qt.PointingHandCursor))
+          self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
       else:  # outside the axes rect
-        self.setCursor(QCursor(Qt.SizeVerCursor if pos.x() < self.axisRect().rect().left() else Qt.ArrowCursor))
+        self.setCursor(QCursor(Qt.CursorShape.SizeVerCursor if pos.x() < self.axisRect().rect().left() else Qt.CursorShape.ArrowCursor))
 
   def updateLegend(self):
     if len(self.selectedElements) != 0:
@@ -494,7 +494,7 @@ class PlotCanvas(QCustomPlot):
         self.xLegendText.setText(self.tr('Time: ') + str(round(self.tracer.position.key(), 3)))
       else:  # absolute time
         self.xLegendText.setText(self.tr('Time: ') +
-                                 QCPAxisTickerDateTime.keyToDateTime(self.tracer.position.key()).toString('yyyy-MM-dd HH:mm:ss'))
+                                 QLocale.system().toString(QCPAxisTickerDateTime.keyToDateTime(self.tracer.position.key()), 'yyyy-MM-dd HH:mm:ss'))
       self.yLegendText.setText(self.tr('Altitude: ') + str(round(self.tracer.position.value())))
 
     self.replot()
@@ -555,7 +555,7 @@ class PlotCanvas(QCustomPlot):
       if m.idx in indexes:
         m.updateStyle()
         m.setVisible(not marked or self.showInfo)
-        m.setSelectable(QCP.stWhole if not marked or self.showInfo else QCP.stNone)
+        m.setSelectable(QCP.SelectionType.stWhole if not marked or self.showInfo else QCP.SelectionType.stNone)
     self.replot()
 
   @pyqtSlot()
@@ -623,10 +623,10 @@ class PlotCanvas(QCustomPlot):
     item = self.selectedItems()[0]
     oldName = item.text()
     name, ok = QInputDialog.getText(self, self.tr('Rename waypoint'),
-                                    self.tr('Enter new name for waypoint:'), QLineEdit.Normal, oldName)
+                                    self.tr('Enter new name for waypoint:'), QLineEdit.EchoMode.Normal, oldName)
 
     if ok and len(name) > 0:
-      TheDocument.wptmodel.setData(TheDocument.wptmodel.index(item.idx, gpx.NAME), name, Qt.EditRole)
+      TheDocument.wptmodel.setData(TheDocument.wptmodel.index(item.idx, gpx.NAME), name, Qt.ItemDataRole.EditRole)
       item.setText(name)
       self.replot()
 
@@ -643,7 +643,7 @@ class PlotCanvas(QCustomPlot):
   def onPointStyle(self):
     indexes = [el.idx for el in self.selectedElements]
     dlg = PointConfigDialog(self, self.currentSelection.idx, indexes)
-    if dlg.exec_() == QDialog.Accepted:
+    if dlg.exec() == QDialog.DialogCode.Accepted:
       for point in self.markers + self.captions + self.splitLines:
         if point.idx in indexes:
           point.updateStyle()
@@ -702,7 +702,7 @@ class AxisTicker(QCPAxisTickerFixed):
       self.setTickOrigin(0)
 
   def getTickStep(self, range):
-    if self.orientation == Qt.Horizontal:
+    if self.orientation == Qt.Orientation.Horizontal:
       if self.type == gpx.DIST:
         availableSteps = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100]
       else:  # time
@@ -715,7 +715,7 @@ class AxisTicker(QCPAxisTickerFixed):
       return self.pickClosest(range.size() / 7, availableSteps)
 
   def getSubTickCount(self, tickStep):
-    if self.orientation == Qt.Horizontal:
+    if self.orientation == Qt.Orientation.Horizontal:
       if self.type == gpx.DIST:
         if tickStep in {0.1, 0.5, 1, 5, 10, 50, 100}:
           return 4
@@ -737,7 +737,7 @@ class AxisTicker(QCPAxisTickerFixed):
         return 1
 
   def createLabelVector(self, ticks, locale, formatChar, precision):
-    if self.orientation == Qt.Horizontal:
+    if self.orientation == Qt.Orientation.Horizontal:
       if self.type == gpx.TIME_DAYS:
         if ticks[-1] < 1:  # hours
           return [str(int(round(24 * t))) for t in ticks]
@@ -748,12 +748,12 @@ class AxisTicker(QCPAxisTickerFixed):
           else:
             return [str(int(t)) if t % 1.0 == 0 else "" for t in ticks]
       elif self.type == gpx.TIME:
-        if any([QCPAxisTickerDateTime.keyToDateTime(t).toString('HH') != '00' for t in ticks]) \
+        if any([QLocale.system().toString(QCPAxisTickerDateTime.keyToDateTime(t), 'HH') != '00' for t in ticks]) \
            and TheConfig.getValue('ProfileStyle', 'ShowHours'):  # days and hours
-          return [QCPAxisTickerDateTime.keyToDateTime(t).toString('d MMM\nHH:mm') for t in ticks]
+          return [QLocale.system().toString(QCPAxisTickerDateTime.keyToDateTime(t), 'd MMM\nHH:mm') for t in ticks]
         else:
-          return [QCPAxisTickerDateTime.keyToDateTime(t).toString('d MMM')
-                  if QCPAxisTickerDateTime.keyToDateTime(t).toString('HH') == '00' else "" for t in ticks]
+          return [QLocale.system().toString(QCPAxisTickerDateTime.keyToDateTime(t), 'd MMM')
+                  if QLocale.system().toString(QCPAxisTickerDateTime.keyToDateTime(t), 'HH') == '00' else "" for t in ticks]
 
     return super(AxisTicker, self).createLabelVector(ticks, locale, formatChar, precision)
 
@@ -764,7 +764,7 @@ class MarkerItem(QCPGraph):
     self.idx = idx
     self.posX, self.posY = x, y
     self.setData([self.posX], [self.posY])
-    self.setLineStyle(QCPGraph.lsNone)
+    self.setLineStyle(QCPGraph.LineStyle.lsNone)
     self.updateStyle()
 
   def setSelected(self, selected):
@@ -779,26 +779,26 @@ class MarkerItem(QCPGraph):
       scatterStyle.setCustomPath(gpx.markerPath(markerStyle[gpx.MARKER_STYLE], 2 * markerStyle[gpx.MARKER_SIZE]))  # for better compatibility with matplotlib
       scatterStyle.setBrush(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]))
       if markerStyle[gpx.MARKER_STYLE] in {'1', '2', '3', '4', 'ad', 'au', 'al', 'ar', '+', 'x', '_', '|'}:
-        scatterStyle.setPen(QPen(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+        scatterStyle.setPen(QPen(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]), 3, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
       else:
-        scatterStyle.setPen(QPen(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]), 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+        scatterStyle.setPen(QPen(QColor.fromRgba(markerStyle[gpx.MARKER_COLOR]), 1, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
       selectedScatterStyle.setCustomPath(gpx.markerPath(markerStyle[gpx.MARKER_STYLE], 3 * markerStyle[gpx.MARKER_SIZE]))
-      selectedScatterStyle.setPen(QPen(QGuiApplication.palette().highlight().color(), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-      self.setSelectable(QCP.stWhole)
+      selectedScatterStyle.setPen(QPen(QGuiApplication.palette().highlight().color(), 3, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
+      self.setSelectable(QCP.SelectionType.stWhole)
 
     else:  # not in marked points
-      scatterStyle.setShape(QCPScatterStyle.ssDisc)
+      scatterStyle.setShape(QCPScatterStyle.ScatterShape.ssDisc)
       scatterStyle.setSize(3 * TheConfig.getValue('ProfileStyle', 'ProfileWidth'))
       scatterStyle.setBrush(QColor.fromRgba(TheConfig.getValue('ProfileStyle', 'ProfileColor')))
-      scatterStyle.setPen(QPen(QColor.fromRgba(TheConfig.getValue('ProfileStyle', 'ProfileColor')), 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-      selectedScatterStyle.setShape(QCPScatterStyle.ssCircle)
+      scatterStyle.setPen(QPen(QColor.fromRgba(TheConfig.getValue('ProfileStyle', 'ProfileColor')), 1, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
+      selectedScatterStyle.setShape(QCPScatterStyle.ScatterShape.ssCircle)
       selectedScatterStyle.setSize(6 * TheConfig.getValue('ProfileStyle', 'ProfileWidth'))
-      selectedScatterStyle.setPen(QPen(QGuiApplication.palette().highlight().color(), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-      self.setSelectable(QCP.stNone)
+      selectedScatterStyle.setPen(QPen(QGuiApplication.palette().highlight().color(), 3, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
+      self.setSelectable(QCP.SelectionType.stNone)
 
     self.setScatterStyle(scatterStyle)
     self.selectionDecorator().setScatterStyle(selectedScatterStyle)
-    self.selectionDecorator().setUsedScatterProperties(QCPScatterStyle.ScatterProperty(QCPScatterStyle.spPen | QCPScatterStyle.spShape))
+    self.selectionDecorator().setUsedScatterProperties(QCPScatterStyle.ScatterProperty(QCPScatterStyle.ScatterProperty.spPen | QCPScatterStyle.ScatterProperty.spShape))
 
 
 class CaptionItem(QCPItemText):
@@ -807,20 +807,20 @@ class CaptionItem(QCPItemText):
     self.idx = idx
     self.posX, self.posY = x, y
     self.font = QFont()
-    self.font.setStyleHint(QFont.SansSerif)
+    self.font.setStyleHint(QFont.StyleHint.SansSerif)
     self.font.setFamily(TheConfig.getValue('ProfileStyle', 'FontFamily'))
 
     if TheConfig.getValue('ProfileStyle', 'UseSystemTheme'):
       self.setColor(QGuiApplication.palette().text().color())
       self.setSelectedColor(QGuiApplication.palette().highlightedText().color())
     else:
-      self.setColor(QColor(Qt.black))
-      self.setSelectedColor(QColor(Qt.black))
+      self.setColor(QColor(Qt.GlobalColor.black))
+      self.setSelectedColor(QColor(Qt.GlobalColor.black))
 
     self.setClipToAxisRect(False)
     self.setPadding(QMargins(3, 1, 3, 1))
-    self.setPositionAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-    self.position.setType(QCPItemPosition.ptPlotCoords)
+    self.setPositionAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+    self.position.setType(QCPItemPosition.PositionType.ptPlotCoords)
 
     fillColor = QGuiApplication.palette().highlight().color()
     fillColor.setAlpha(150)
@@ -854,18 +854,18 @@ class SplitLine(QCPGraph):
     self.idx = idx
     self.posX, self.posY = x, y
     self.setData([self.posX] * 2, [0, self.posY])
-    self.setSelectable(QCP.stNone)
+    self.setSelectable(QCP.SelectionType.stNone)
     self.updateStyle()
 
   def updateStyle(self):
     splitLineStyle = TheDocument.wptmodel.index(self.idx, gpx.NAME).data(gpx.SplitLineStyleRole)
     slPen = QPen(QColor.fromRgba(splitLineStyle[gpx.LINE_COLOR]), splitLineStyle[gpx.LINE_WIDTH])
     if splitLineStyle[gpx.LINE_STYLE] == '-':
-      slPen.setStyle(Qt.SolidLine)
+      slPen.setStyle(Qt.PenStyle.SolidLine)
     elif splitLineStyle[gpx.LINE_STYLE] == '--':
-      slPen.setStyle(Qt.DashLine)
+      slPen.setStyle(Qt.PenStyle.DashLine)
     elif splitLineStyle[gpx.LINE_STYLE] == '-.':
-      slPen.setStyle(Qt.DashDotLine)
+      slPen.setStyle(Qt.PenStyle.DashDotLine)
     elif splitLineStyle[gpx.LINE_STYLE] == ':':
-      slPen.setStyle(Qt.DotLine)
+      slPen.setStyle(Qt.PenStyle.DotLine)
     self.setPen(slPen)

@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2021 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -35,12 +35,12 @@ class PlotWindow(QMainWindow):
     self.ui.actFitWidth.setIcon(QIcon(self.themeSelector.select(':/icons/zoom-fit-width.svg')))
     self.ui.actShowInformation.setIcon(QIcon(self.themeSelector.select(':/icons/showinfo.svg')))
 
-    self.ui.actExportCurrentSize.setShortcut(QKeySequence.Save)
-    self.ui.actExportSelectedSize.setShortcut(QKeySequence.SaveAs)
+    self.ui.actExportCurrentSize.setShortcut(QKeySequence.StandardKey.Save)
+    self.ui.actExportSelectedSize.setShortcut(QKeySequence.StandardKey.SaveAs)
 
     wdg = QWidget()
     wdg.setLayout(QHBoxLayout())
-    wdg.layout().addItem(QSpacerItem(40, 20, QSizePolicy.Expanding))
+    wdg.layout().addItem(QSpacerItem(40, 20, QSizePolicy.Policy.Expanding))
     wdg.layout().addWidget(QLabel(self.tr('Set size for export:')))
     self.widthSpinBox = QSpinBox()
     self.widthSpinBox.setMaximum(10000)
@@ -61,7 +61,7 @@ class PlotWindow(QMainWindow):
     self.resize(TheConfig['PlotWindow'].getint('WindowWidth'), TheConfig['PlotWindow'].getint('WindowHeight'))
 
   def keyPressEvent(self, event):
-    if event.key() == Qt.Key_Escape:
+    if event.key() == Qt.Key.Key_Escape:
       self.hide()
     super(PlotWindow, self).keyPressEvent(event)
 

@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2021 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -18,7 +18,7 @@ import sys
 import re
 import webbrowser
 from PyQt5.QtCore import Qt, QCoreApplication, QEvent, QFileInfo, QFileSelector, QUrl, QT_VERSION, QT_VERSION_STR, PYQT_VERSION_STR, pyqtSlot
-from PyQt5.QtGui import QCursor, QIcon, QKeyEvent, QKeySequence
+from PyQt5.QtGui import QCursor, QIcon, QKeySequence
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QDialogButtonBox, QFileDialog, QHBoxLayout, QLabel, QLineEdit,
                              QMainWindow, QMenu, QMessageBox, QSizePolicy, QSpacerItem, QSpinBox, QVBoxLayout, QWidget)
@@ -44,7 +44,7 @@ class GpxMainWindow(QMainWindow):
 
     wdg = QWidget()
     wdg.setLayout(QHBoxLayout())
-    wdg.layout().addItem(QSpacerItem(40, 20, QSizePolicy.Expanding))
+    wdg.layout().addItem(QSpacerItem(40, 20, QSizePolicy.Policy.Expanding))
     wdg.layout().addWidget(QLabel(self.tr('Filter by name:')))
     self.filterLineEdit = QLineEdit()
     self.filterLineEdit.setMinimumWidth(200)
@@ -56,12 +56,12 @@ class GpxMainWindow(QMainWindow):
     self.filterModel = gpx.GpxSortFilterModel(self)
     self.filterModel.setSourceModel(TheDocument.wptmodel)
     self.filterModel.setFilterKeyColumn(gpx.NAME)
-    self.filterLineEdit.textChanged.connect(self.filterModel.setFilterRegExp)
+    self.filterLineEdit.textChanged.connect(self.filterModel.setFilterRegularExpression)
     self.updateIncludeFilter()
 
     self.ui.wptView.setModel(self.filterModel)
     self.ui.wptView.setSortingEnabled(True)
-    self.ui.wptView.sortByColumn(gpx.TIME, Qt.AscendingOrder)
+    self.ui.wptView.sortByColumn(gpx.TIME, Qt.SortOrder.AscendingOrder)
     self.ui.trkView.setModel(TheDocument.trkmodel)
     self.ui.wptView.installEventFilter(self)
     self.ui.trkView.installEventFilter(self)
@@ -123,46 +123,46 @@ class GpxMainWindow(QMainWindow):
     self.ui.actionAboutGPXViewer.setIcon(QIcon(':/icons/gpxviewer.svg'))
 
   def initActions(self):
-    self.ui.actionNew.setShortcut(QKeySequence.New)
-    self.ui.actionOpen.setShortcut(QKeySequence.Open)
-    self.ui.actionSave.setShortcut(QKeySequence.Save)
-    self.ui.actionSaveAs.setShortcut(QKeySequence.SaveAs)
-    self.ui.actionQuit.setShortcut(QKeySequence.Quit)
-    self.ui.actionCopy.setShortcut(QKeySequence.Copy)
-    self.ui.actionSettings.setShortcut(QKeySequence.Preferences)
-    self.ui.actionGpxViewerHelp.setShortcut(QKeySequence.HelpContents)
+    self.ui.actionNew.setShortcut(QKeySequence.StandardKey.New)
+    self.ui.actionOpen.setShortcut(QKeySequence.StandardKey.Open)
+    self.ui.actionSave.setShortcut(QKeySequence.StandardKey.Save)
+    self.ui.actionSaveAs.setShortcut(QKeySequence.StandardKey.SaveAs)
+    self.ui.actionQuit.setShortcut(QKeySequence.StandardKey.Quit)
+    self.ui.actionCopy.setShortcut(QKeySequence.StandardKey.Copy)
+    self.ui.actionSettings.setShortcut(QKeySequence.StandardKey.Preferences)
+    self.ui.actionGpxViewerHelp.setShortcut(QKeySequence.StandardKey.HelpContents)
 
     self.actSkipPoints = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-skip.svg')), self.tr('Skip points'), self)
     self.actSkipPoints.setStatusTip(self.tr('Skip these waypoints when plotting profiles or calculating statistics'))
-    self.actSkipPoints.setShortcut(QKeySequence(Qt.Key_Delete))
+    self.actSkipPoints.setShortcut(QKeySequence(Qt.Key.Key_Delete))
     self.actSkipPoints.setCheckable(True)
     self.actSkipPoints.triggered.connect(self.skipPoints)
     self.addAction(self.actSkipPoints)
 
     self.actMarker = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-marker.svg')), self.tr('Points with markers'), self)
     self.actMarker.setStatusTip(self.tr('Add markers to these waypoints when plotting profiles'))
-    self.actMarker.setShortcut(QKeySequence(Qt.Key_M))
+    self.actMarker.setShortcut(QKeySequence(Qt.Key.Key_M))
     self.actMarker.setCheckable(True)
     self.actMarker.triggered.connect(self.markerPoints)
     self.addAction(self.actMarker)
 
     self.actCaption = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-caption.svg')), self.tr('Points with captions'), self)
     self.actCaption.setStatusTip(self.tr('Add captions to these waypoints when plotting profiles'))
-    self.actCaption.setShortcut(QKeySequence(Qt.Key_C))
+    self.actCaption.setShortcut(QKeySequence(Qt.Key.Key_C))
     self.actCaption.setCheckable(True)
     self.actCaption.triggered.connect(self.captionPoints)
     self.addAction(self.actCaption)
 
     self.actSplit = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-splitline.svg')), self.tr('Points with splitting lines'), self)
     self.actSplit.setStatusTip(self.tr('Add splitting lines to these waypoints when plotting profiles'))
-    self.actSplit.setShortcut(QKeySequence(Qt.Key_S))
+    self.actSplit.setShortcut(QKeySequence(Qt.Key.Key_S))
     self.actSplit.setCheckable(True)
     self.actSplit.triggered.connect(self.splitLines)
     self.addAction(self.actSplit)
 
     self.actNeglect = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-neglect-distance.svg')), self.tr('Neglect previous distance'), self)
     self.actNeglect.setStatusTip(self.tr('Neglect distance before these waypoints when plotting profiles'))
-    self.actNeglect.setShortcut(QKeySequence(Qt.Key_N))
+    self.actNeglect.setShortcut(QKeySequence(Qt.Key.Key_N))
     self.actNeglect.setCheckable(True)
     self.actNeglect.triggered.connect(self.neglectDistance)
     self.addAction(self.actNeglect)
@@ -174,7 +174,7 @@ class GpxMainWindow(QMainWindow):
 
     self.actRename = QAction(QIcon(self.themeSelector.select(':/icons/edit-rename.svg')), self.tr('Rename...'), self)
     self.actRename.setStatusTip(self.tr('Rename these waypoints'))
-    self.actRename.setShortcut(QKeySequence(Qt.Key_F2))
+    self.actRename.setShortcut(QKeySequence(Qt.Key.Key_F2))
     self.actRename.triggered.connect(self.renamePoints)
     self.addAction(self.actRename)
 
@@ -185,7 +185,7 @@ class GpxMainWindow(QMainWindow):
 
     self.actStyle = QAction(QIcon(self.themeSelector.select(':/icons/configure.svg')), self.tr('Point style'), self)
     self.actStyle.setStatusTip(self.tr('Change the style of these waypoints when plotting profiles'))
-    self.actStyle.setShortcut(Qt.ALT + Qt.Key_Return)
+    self.actStyle.setShortcut(QKeySequence(Qt.Modifier.ALT | Qt.Key.Key_Return))
     self.actStyle.triggered.connect(self.pointStyle)
     self.addAction(self.actStyle)
 
@@ -201,7 +201,7 @@ class GpxMainWindow(QMainWindow):
 
     self.actSkipTracks = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-skip.svg')), self.tr('Skip tracks'), self)
     self.actSkipTracks.setStatusTip(self.tr('Skip these tracks when plotting profiles or calculating statistics'))
-    self.actSkipTracks.setShortcut(QKeySequence(Qt.Key_Delete))
+    self.actSkipTracks.setShortcut(QKeySequence(Qt.Key.Key_Delete))
     self.actSkipTracks.setCheckable(True)
     self.actSkipTracks.triggered.connect(self.skipTracks)
     self.addAction(self.actSkipTracks)
@@ -222,21 +222,21 @@ class GpxMainWindow(QMainWindow):
 
   def eventFilter(self, obj, event):
     if obj == self.ui.wptView:
-      if event.type() == QEvent.ContextMenu or (event.type() == QEvent.KeyPress and event.key() == Qt.Key_Menu and event.modifiers() == Qt.NoModifier):
+      if event.type() == QEvent.Type.ContextMenu or (event.type() == QEvent.Type.KeyPress and event.key() == Qt.Key.Key_Menu and event.modifiers() == Qt.KeyboardModifier.NoModifier):
         self.wptContextMenuEvent(event)
         return True
 
-      elif event.type() == QEvent.KeyPress:
-        self.keyPressEvent(QKeyEvent(event))
+      elif event.type() == QEvent.Type.KeyPress:
+        self.keyPressEvent(event)
         # Do not return True
 
     elif obj == self.ui.trkView:
-      if event.type() == QEvent.ContextMenu or (event.type() == QEvent.KeyPress and event.key() == Qt.Key_Menu and event.modifiers() == Qt.NoModifier):
+      if event.type() == QEvent.Type.ContextMenu or (event.type() == QEvent.Type.KeyPress and event.key() == Qt.Key.Key_Menu and event.modifiers() == Qt.KeyboardModifier.NoModifier):
         self.trkContextMenuEvent(event)
         return True
 
-      elif event.type() == QEvent.KeyPress:
-        self.keyPressEvent(QKeyEvent(event))
+      elif event.type() == QEvent.Type.KeyPress:
+        self.keyPressEvent(event)
         # Do not return True
 
     return super(GpxMainWindow, self).eventFilter(obj, event)
@@ -312,11 +312,11 @@ class GpxMainWindow(QMainWindow):
       event.accept()
 
   def keyPressEvent(self, event):
-    if event.matches(QKeySequence.Find):
+    if event.matches(QKeySequence.StandardKey.Find):
       self.filterLineEdit.setFocus()
       self.filterLineEdit.selectAll()
 
-    elif event.key() == Qt.Key_Escape:
+    elif event.key() == Qt.Key.Key_Escape:
       if self.ui.tabWidget.currentWidget() == self.ui.wptTab:
         if self.ui.wptView.hasFocus():
           self.ui.wptView.clearSelection()
@@ -328,7 +328,7 @@ class GpxMainWindow(QMainWindow):
         else:
           self.ui.trkView.setFocus()
 
-    elif event.key() == Qt.Key_Tab and event.modifiers() == Qt.ControlModifier:
+    elif event.key() == Qt.Key.Key_Tab and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
       self.ui.tabWidget.setCurrentIndex(1 - self.ui.tabWidget.currentIndex())
 
     super(GpxMainWindow, self).keyPressEvent(event)
@@ -359,7 +359,7 @@ class GpxMainWindow(QMainWindow):
   def onAboutGPXViewer(self):
     aboutText = '<h3>GPX Viewer</h3><b>' + self.tr('Version') + ' ' + QCoreApplication.applicationVersion() + '</b><br><br>' + \
                 self.tr('Using') + ' Python ' + str(sys.version_info.major) + '.' + str(sys.version_info.minor) + '.' + str(sys.version_info.micro) + ', ' + \
-                'PyQt5 ' + PYQT_VERSION_STR + ', ' + \
+                'PyQt' + PYQT_VERSION_STR[0] + ' ' + PYQT_VERSION_STR + ', ' + \
                 'Qt ' + QT_VERSION_STR + '<br><br>' + \
                 'Copyright 2016-2021 Sergey Salnikov <a href=mailto:salsergey@gmail.com>&lt;salsergey@gmail.com&gt;</a><br><br>' + \
                 self.tr('License:') + ' <a href=http://www.gnu.org/licenses/gpl.html>GNU General Public License, version 3</a>'
@@ -397,10 +397,10 @@ class GpxMainWindow(QMainWindow):
                            </ul>''')
     msg = QMessageBox(self)
     msg.setWindowTitle(self.tr('GPX Viewer Help'))
-    msg.setTextFormat(Qt.RichText)
+    msg.setTextFormat(Qt.TextFormat.RichText)
     msg.setText(aboutText)
-    msg.setIcon(QMessageBox.Information)
-    msg.exec_()
+    msg.setIcon(QMessageBox.Icon.Information)
+    msg.exec()
 
   @pyqtSlot()
   @pyqtSlot(bool)
@@ -471,18 +471,18 @@ class GpxMainWindow(QMainWindow):
     numberBox.setValue(1)
     hLayout.addWidget(numberBox)
 
-    buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+    buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
     buttons.accepted.connect(dlg.accept)
     buttons.rejected.connect(dlg.reject)
     vLayout.addWidget(buttons)
 
-    if dlg.exec_() == QDialog.Accepted and len(nameEdit.text()) > 0:
+    if dlg.exec() == QDialog.DialogCode.Accepted and len(nameEdit.text()) > 0:
       for n, ind in enumerate(indexes, numberBox.value()):
         name = nameEdit.text()
         if re.match('.*#+', name):
           digits = len(re.findall('(#+)', name)[0])
           name = re.sub('#+', str(n).zfill(digits), name, 1)
-        TheDocument.wptmodel.setData(TheDocument.wptmodel.index(ind, gpx.NAME), name, Qt.EditRole)
+        TheDocument.wptmodel.setData(TheDocument.wptmodel.index(ind, gpx.NAME), name, Qt.ItemDataRole.EditRole)
 
   @pyqtSlot()
   def resetPointNames(self):
@@ -509,13 +509,15 @@ class GpxMainWindow(QMainWindow):
 
   @pyqtSlot(QNetworkReply)
   def replyReady(self, reply):
-    if reply.error() != QNetworkReply.NoError and self.showNetworkError:
+    reply.deleteLater()
+    if reply.error() != QNetworkReply.NetworkError.NoError and self.showNetworkError:
       self.showNetworkError = False
       QMessageBox.warning(self, self.tr('Network error'),
                           self.tr('Error requesting SRTM data from http://geonames.org.') + '\n\n' + reply.errorString())
 
     else:
       request = reply.request().url().toString()
+      line = ''
       try:
         indexes = self.requestedIndexes.pop(request)
         alts = []
@@ -601,7 +603,7 @@ class GpxMainWindow(QMainWindow):
   def pointStyle(self):
     dlg = PointConfigDialog(self, self.ui.wptView.currentIndex().data(gpx.IDRole),
                             [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()])
-    dlg.exec_()
+    dlg.exec()
 
   @pyqtSlot()
   def skipTracks(self):
@@ -753,14 +755,14 @@ class GpxMainWindow(QMainWindow):
   def openedFileNotFound(self, file):
     result = QMessageBox.warning(self, self.tr('File read error'),
                                  self.tr('The file ') + file + self.tr(' doesn\'t exist.\n\nDo you want to choose another location of this file?'),
-                                 QMessageBox.Yes | QMessageBox.YesToAll | QMessageBox.No, QMessageBox.Yes)
-    if result in (QMessageBox.Yes, QMessageBox.YesToAll):
+                                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.StandardButton.YesToAll | QMessageBox.StandardButton.No, QMessageBox.StandardButton.Yes)
+    if result in (QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.YesToAll):
       filename = QFileDialog.getOpenFileName(self, self.tr('Open GPX file') + ' ' + QFileInfo(file).fileName(), TheConfig['MainWindow']['LoadGPXDirectory'],
                                              self.tr('GPX XML (*.gpx *.GPX);;All files (*)'))[0]
       if filename != '':
         TheConfig['MainWindow']['LoadGPXDirectory'] = QFileInfo(filename).path()
         TheDocument.newFilePath = filename
-        if result == QMessageBox.YesToAll:
+        if result == QMessageBox.StandardButton.YesToAll:
           TheDocument.applyToAll = True
 
   @pyqtSlot(list)
@@ -769,8 +771,8 @@ class GpxMainWindow(QMainWindow):
                                                                   + '\n'.join(files)
                                                                   + self.tr('\n\nDo you want to write these files along with the saved project?\n'
                                                                             'NOTE: Some files can be overwritten.'),
-                                 QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
-    if result == QMessageBox.Yes:
+                                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.Yes)
+    if result == QMessageBox.StandardButton.Yes:
       TheDocument.doExtractFiles = True
 
   @pyqtSlot()
@@ -786,8 +788,8 @@ class GpxMainWindow(QMainWindow):
         else:
           result = QMessageBox.information(self, self.tr('File read error'),
                                            self.tr('The file ') + filename + self.tr(' doesn\'t exist.\n\nDo you want to remove it from recent projects?'),
-                                           QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-          if result == QMessageBox.Yes:
+                                           QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+          if result == QMessageBox.StandardButton.Yes:
             del TheConfig.recentProjects[i]
             self.updateRecentProjects()
 
@@ -900,7 +902,7 @@ class GpxMainWindow(QMainWindow):
   @pyqtSlot()
   def onShowSettings(self):
     dlg = SettingsDialog(self)
-    if dlg.exec_() == QDialog.Accepted and (TheDocument.wptmodel.rowCount() != 0 or TheDocument.trkmodel.rowCount() != 0):
+    if dlg.exec() == QDialog.DialogCode.Accepted and (TheDocument.wptmodel.rowCount() != 0 or TheDocument.trkmodel.rowCount() != 0):
       self.setProjectChanged()
       TheDocument.gpxparser.updateDistance()
       self.ui.wptView.resizeColumnsToContents()
@@ -913,11 +915,11 @@ class GpxMainWindow(QMainWindow):
     if self.projectChanged and len(TheDocument.doc['GPXFile']) != 0:
       result = QMessageBox.information(self, title,
                                        self.tr('There are unsaved changes. Do you want to save the project?'),
-                                       QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Yes)
-      if result == QMessageBox.Yes:
+                                       QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel, QMessageBox.StandardButton.Yes)
+      if result == QMessageBox.StandardButton.Yes:
         if not self.onFileSave():
           return False
-      if result == QMessageBox.Cancel:
+      if result == QMessageBox.StandardButton.Cancel:
         return False
 
     return True

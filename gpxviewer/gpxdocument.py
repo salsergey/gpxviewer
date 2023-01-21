@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2020 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -40,8 +40,7 @@ class GpxDocument(QObject):
     self.trkmodel = self.gpxparser.trkmodel
     self.tmpdir = mkdtemp(prefix='gpxviewer_tmpdir.')
     self.projectType = TYPE_GPXV
-    self.doc = {}
-    self.doc['GPXFile'] = []
+    self.doc = {'GPXFile': []}
 
   def close(self):
     shutil.rmtree(self.tmpdir)
@@ -251,7 +250,7 @@ class GpxDocument(QObject):
 
       if 'ChangedNames' in self.doc and 'PointNames' in self.doc:
         for i, n in zip(self.doc['ChangedNames'], self.doc['PointNames']):
-          self.wptmodel.setData(self.wptmodel.index(i, gpx.NAME), n, Qt.EditRole)
+          self.wptmodel.setData(self.wptmodel.index(i, gpx.NAME), n, Qt.ItemDataRole.EditRole)
       if 'ChangedAltitudes' in self.doc and 'PointAltitudes' in self.doc:
         self.wptmodel.setAltitudes(self.doc['ChangedAltitudes'], self.doc['PointAltitudes'])
 

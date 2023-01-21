@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2021 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -45,7 +45,7 @@ def main():
       gpxMainWindow.openGPXFiles(sys.argv[1:])
     else:
       gpxMainWindow.openGPXProject(sys.argv[1])
-  sys.exit(app.exec_())
+  sys.exit(app.exec())
 
 
 if __name__ == '__main__':

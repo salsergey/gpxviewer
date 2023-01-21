@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2020 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -128,7 +128,7 @@ class PointConfigDialog(QDialog):
     super(PointConfigDialog, self).accept()
 
     if not self.ui.nameWidget.isHidden() and len(self.ui.nameEdit.text()) > 0:
-      TheDocument.wptmodel.setData(TheDocument.wptmodel.index(self.indexes[0], gpx.NAME), self.ui.nameEdit.text(), Qt.EditRole)
+      TheDocument.wptmodel.setData(TheDocument.wptmodel.index(self.indexes[0], gpx.NAME), self.ui.nameEdit.text(), Qt.ItemDataRole.EditRole)
 
     TheConfig['PointStyle']['MarkerColor'] = str(self.style[gpx.MARKER_COLOR])
     TheConfig['PointStyle']['MarkerStyle'] = self.style[gpx.MARKER_STYLE]

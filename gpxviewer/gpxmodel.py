@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2021 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -26,7 +26,7 @@ from gpxviewer.configstore import TheConfig
 WPTFIELDS = NAME, LAT, LON, ALT, DIST, TIME, TIME_DELTA, TIME_DAYS, DIST_DELTA, ALT_DELTA, SPEED, ALT_SPEED, SLOPE = range(13)
 TRKFIELDS = TRKNAME, TRKSEGS, TRKPTS, TRKLEN, TRKALTGAIN, TRKALTDROP, TRKTIME, TRKDUR = range(8)
 ValueRole, IDRole, IncludeRole, MarkerRole, CaptionRole, SplitLineRole, NeglectRole,\
-  MarkerStyleRole, CaptionStyleRole, SplitLineStyleRole = range(Qt.UserRole, Qt.UserRole + 10)
+  MarkerStyleRole, CaptionStyleRole, SplitLineStyleRole = range(Qt.ItemDataRole.UserRole, Qt.ItemDataRole.UserRole + 10)
 MARKER_COLOR, MARKER_STYLE, MARKER_SIZE, CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE, LINE_COLOR, LINE_STYLE, LINE_WIDTH = \
   ('MarkerColor', 'MarkerStyle', 'MarkerSize', 'CaptionPositionX', 'CaptionPositionY',
    'CaptionRotation', 'CaptionSize', 'SplitLineColor', 'SplitLineStyle', 'SplitLineWidth')
@@ -51,7 +51,7 @@ class WptModel(QAbstractTableModel):
                    self.tr('Speed (km/h)'), self.tr('Climbing speed (m/h)'), self.tr('Slope (m/km)')]
     self.resetModel()
     self.pix = QPixmap(16, 16)
-    self.pix.fill(Qt.transparent)
+    self.pix.fill(Qt.GlobalColor.transparent)
 
     # Define colors that should look well for any color theme
     lightness = max(50, min(240, QGuiApplication.palette().base().color().lightness()))
@@ -71,8 +71,8 @@ class WptModel(QAbstractTableModel):
     else:
       return len(self.fields)
 
-  def data(self, index, role=Qt.DisplayRole):
-    if role == Qt.DisplayRole or role == Qt.EditRole:
+  def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+    if role == Qt.ItemDataRole.DisplayRole or role == Qt.ItemDataRole.EditRole:
       if index.column() == NAME and index.row() in self.changedNames:
         return self.changedNames[index.row()]
       elif index.column() == TIME and self.waypoints[index.row()][index.column()] != '':
@@ -81,15 +81,15 @@ class WptModel(QAbstractTableModel):
         if TheConfig.getValue('ProfileStyle', 'CoordinateFormat') == 0:  # Decimal degrees
           return str(round(self.waypoints[index.row()][index.column()], 6))
         elif TheConfig.getValue('ProfileStyle', 'CoordinateFormat') == 1:  # Degrees with decimal minutes
-          min, deg = modf(self.waypoints[index.row()][index.column()])
-          min = round(min * 60, 4)
-          return str(int(deg)) + '° ' + str(min) + '\''
+          mins, degs = modf(self.waypoints[index.row()][index.column()])
+          mins = round(mins * 60, 4)
+          return str(int(degs)) + '° ' + str(mins) + '\''
         else:  # Degrees, minutes, seconds
-          min, deg = modf(self.waypoints[index.row()][index.column()])
-          min = min * 60
-          sec, min = modf(min)
+          mins, degs = modf(self.waypoints[index.row()][index.column()])
+          mins = mins * 60
+          sec, mins = modf(mins)
           sec = round(sec * 60, 2)
-          return str(int(deg)) + '°' + str(int(min)) + '\'' + str(sec) + '"'
+          return str(int(degs)) + '°' + str(int(mins)) + '\'' + str(sec) + '"'
       elif index.column() == ALT and index.row() in self.changedAltitudes:
         return str(self.changedAltitudes[index.row()])
       elif index.column() in {ALT, ALT_DELTA, ALT_SPEED, SLOPE} and self.waypoints[index.row()][index.column()] != '':
@@ -98,7 +98,7 @@ class WptModel(QAbstractTableModel):
         return str(round(self.waypoints[index.row()][index.column()], 3))
       else:
         return str(self.waypoints[index.row()][index.column()])
-    elif role == Qt.DecorationRole and index.column() == NAME:
+    elif role == Qt.ItemDataRole.DecorationRole and index.column() == NAME:
       if index.data(MarkerRole) and index.data(IncludeRole):
         return _markerIcon(index.data(MarkerStyleRole)[MARKER_STYLE], index.data(MarkerStyleRole)[MARKER_COLOR])
       else:
@@ -132,7 +132,7 @@ class WptModel(QAbstractTableModel):
         return {k: self.pointStyles[index.row()][k] for k in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}}
       else:
         return {k: TheConfig.getValue('PointStyle', k) for k in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}}
-    elif role == Qt.BackgroundRole:
+    elif role == Qt.ItemDataRole.BackgroundRole:
       if not self.includeStates[index.row()]:
         return self.SkipColor
       elif self.captionStates[index.row()]:
@@ -140,8 +140,8 @@ class WptModel(QAbstractTableModel):
       elif self.markerStates[index.row()]:
         return self.MarkerColor
       else:
-        return Qt.transparent
-    elif role == Qt.FontRole:
+        return Qt.GlobalColor.transparent
+    elif role == Qt.ItemDataRole.FontRole:
       font = QFont()
       if self.splitStates[index.row()]:
         font.setBold(True)
@@ -151,7 +151,7 @@ class WptModel(QAbstractTableModel):
     return None
 
   def setData(self, index, value, role):
-    if index.isValid() and role == Qt.EditRole and index.column() == NAME and value != self.waypoints[index.row()][NAME]:
+    if index.isValid() and role == Qt.ItemDataRole.EditRole and index.column() == NAME and value != self.waypoints[index.row()][NAME]:
       self.changedNames[index.row()] = value
       self.dataChanged.emit(index, index)
       self.wptDataChanged.emit()
@@ -161,13 +161,13 @@ class WptModel(QAbstractTableModel):
 
   def flags(self, index):
     if index.column() == NAME:
-      return super(WptModel, self).flags(index) | Qt.ItemIsEditable
+      return super(WptModel, self).flags(index) | Qt.ItemFlag.ItemIsEditable
     else:
       return super(WptModel, self).flags(index)
 
   def headerData(self, section, orientation, role):
-    if role == Qt.DisplayRole:
-      return self.fields[section] if orientation == Qt.Horizontal else section + 1
+    if role == Qt.ItemDataRole.DisplayRole:
+      return self.fields[section] if orientation == Qt.Orientation.Horizontal else section + 1
     return None
 
   def parent(self, index=None):
@@ -319,8 +319,8 @@ class TrkModel(QAbstractTableModel):
     else:
       return len(self.fields)
 
-  def data(self, index, role=Qt.DisplayRole):
-    if role == Qt.DisplayRole:
+  def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+    if role == Qt.ItemDataRole.DisplayRole:
       if index.column() == TRKTIME and self.tracks[index.row()][index.column()] != '':
         return str(self.tracks[index.row()][index.column()] + timedelta(minutes=TheConfig.getValue('ProfileStyle', 'TimeZoneOffset')))
       elif index.column() in {TRKALTGAIN, TRKALTDROP}:
@@ -331,7 +331,7 @@ class TrkModel(QAbstractTableModel):
         return str(self.tracks[index.row()][index.column()])
     elif role == IncludeRole:
       return self.includeStates[index.row()]
-    elif role == Qt.BackgroundRole:
+    elif role == Qt.ItemDataRole.BackgroundRole:
       return QGuiApplication.palette().base().color() if self.includeStates[index.row()] else self.SkipColor
     return None
 
@@ -342,8 +342,8 @@ class TrkModel(QAbstractTableModel):
       return self.tracks[track]['SEGMENTS'][segment][index][column]
 
   def headerData(self, section, orientation, role):
-    if role == Qt.DisplayRole:
-      return self.fields[section] if orientation == Qt.Horizontal else section + 1
+    if role == Qt.ItemDataRole.DisplayRole:
+      return self.fields[section] if orientation == Qt.Orientation.Horizontal else section + 1
     return None
 
   def copyToClipboard(self, IDs):
@@ -461,6 +461,7 @@ class GpxParser(QObject):
       tag = 'cmt'
     elif TheConfig.getValue('ProfileStyle', 'ReadNameFromTag') == 2:  # Description
       tag = 'desc'
+    name = None
 
     for p in root.iterfind('{%(ns)s}wpt' % self.ns):
       try:
@@ -529,6 +530,7 @@ class GpxParser(QObject):
                               self.tr('is invalid and will be skipped.', 'Track'))
 
   def parseKMLDocument(self, root):
+    name = None
     for element in root.iterchildren():
       if element.tag == '{%(ns)s}Folder' % self.ns:
         self.parseKMLDocument(element)
@@ -777,6 +779,7 @@ class GpxParser(QObject):
       return
 
     i = 0
+    prev = {}
     for i, p in enumerate(self.wptmodel.waypoints):
       if self.wptmodel.includeStates[i]:
         prev = p
@@ -949,7 +952,7 @@ class GpxParser(QObject):
 
 
 class GpxSortFilterModel(QSortFilterProxyModel):
-  def __init__(self, parent):
+  def __init__(self, parent=None):
     super(GpxSortFilterModel, self).__init__(parent)
 
     self.includeSkipped = True
@@ -1157,13 +1160,13 @@ def markerPath(style, size):
 def _markerIcon(style, color):
   size = 16
   pix = QPixmap(size, size)
-  pix.fill(Qt.transparent)
+  pix.fill(Qt.GlobalColor.transparent)
   p = QPainter(pix)
-  p.setRenderHint(QPainter.Antialiasing)
+  p.setRenderHint(QPainter.RenderHint.Antialiasing)
   if style in {'1', '2', '3', '4', 'ad', 'au', 'al', 'ar', '+', 'x', '_', '|'}:
-    p.setPen(QPen(QColor(color), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+    p.setPen(QPen(QColor(color), 3, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
   else:
-    p.setPen(QPen(QColor(color), 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+    p.setPen(QPen(QColor(color), 1, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
   p.setBrush(QColor(color))
   p.drawPath(markerPath(style, 0.8 * size).translated(QPointF(size / 2.0, size / 2.0)))
 

@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2017-2019 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2017-2023 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -37,7 +37,7 @@ class StatWindow(QMainWindow):
 
     wdg = QWidget()
     wdg.setLayout(QHBoxLayout())
-    wdg.layout().addItem(QSpacerItem(40, 20, QSizePolicy.Expanding))
+    wdg.layout().addItem(QSpacerItem(40, 20, QSizePolicy.Policy.Expanding))
     self.filterLabel = QLabel(self.tr('By name:'))
     wdg.layout().addWidget(self.filterLabel)
     self.filterLineEdit = QLineEdit()
@@ -54,12 +54,12 @@ class StatWindow(QMainWindow):
     self.resize(TheConfig['StatWindow'].getint('WindowWidth'), TheConfig['StatWindow'].getint('WindowHeight'))
 
   def keyPressEvent(self, event):
-    if event.key() == Qt.Key_Escape:
+    if event.key() == Qt.Key.Key_Escape:
       if self.ui.statWidget.selectionModel().hasSelection():
         self.ui.statWidget.clearSelection()
       else:
         self.hide()
-    if event.key() == Qt.Key_C and event.modifiers() == Qt.ControlModifier:
+    if event.key() == Qt.Key.Key_C and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
       self.copyToClipboard()
     super(StatWindow, self).keyPressEvent(event)
 
@@ -122,7 +122,7 @@ class StatWindow(QMainWindow):
           self.ui.statWidget.setItem(n, RAISE, QTableWidgetItem(str(round(alt_raise))))
           self.ui.statWidget.setItem(n, DROP, QTableWidgetItem(str(round(alt_drop))))
           time_item = QTableWidgetItem(str(p[gpx.TIME] - point_start[gpx.TIME]))
-          time_item.setData(Qt.UserRole, p[gpx.TIME] - point_start[gpx.TIME])
+          time_item.setData(Qt.ItemDataRole.UserRole, p[gpx.TIME] - point_start[gpx.TIME])
           self.ui.statWidget.setItem(n, TIME, time_item)
           point_start = p
           n += 1
@@ -146,10 +146,10 @@ class StatWindow(QMainWindow):
       self.ui.totalGroupBox.setTitle(self.tr('Total'))
 
     for i in rows:
-      total_dist += float(self.ui.statWidget.item(i, DIST).data(Qt.DisplayRole))
-      total_raise += int(self.ui.statWidget.item(i, RAISE).data(Qt.DisplayRole))
-      total_drop += int(self.ui.statWidget.item(i, DROP).data(Qt.DisplayRole))
-      total_time += self.ui.statWidget.item(i, TIME).data(Qt.UserRole)
+      total_dist += float(self.ui.statWidget.item(i, DIST).data(Qt.ItemDataRole.DisplayRole))
+      total_raise += int(self.ui.statWidget.item(i, RAISE).data(Qt.ItemDataRole.DisplayRole))
+      total_drop += int(self.ui.statWidget.item(i, DROP).data(Qt.ItemDataRole.DisplayRole))
+      total_time += self.ui.statWidget.item(i, TIME).data(Qt.ItemDataRole.UserRole)
 
     self.ui.labelDist.setText(str(round(total_dist, 3)))
     self.ui.labelRaise.setText(str(total_raise))
@@ -159,5 +159,5 @@ class StatWindow(QMainWindow):
   def copyToClipboard(self):
     text = ''
     for i in self.ui.statWidget.selectionModel().selectedRows():
-      text += '\t'.join([self.ui.statWidget.item(i.row(), c).data(Qt.DisplayRole) for c in range(self.ui.statWidget.columnCount())]) + '\n'
+      text += '\t'.join([self.ui.statWidget.item(i.row(), c).data(Qt.ItemDataRole.DisplayRole) for c in range(self.ui.statWidget.columnCount())]) + '\n'
     QGuiApplication.clipboard().setText(text)
