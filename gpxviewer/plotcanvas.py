@@ -236,6 +236,8 @@ class PlotCanvas(QCustomPlot):
 
     self.font.setFamily(TheConfig.getValue('ProfileStyle', 'FontFamily'))
     self.font.setPointSize(TheConfig.getValue('ProfileStyle', 'FontSize'))
+    self.font.setBold(TheConfig.getValue('ProfileStyle', 'BoldFont'))
+    self.font.setItalic(TheConfig.getValue('ProfileStyle', 'ItalicFont'))
     self.xAxis.setTickLabelFont(self.font)
     self.xAxis.setLabelFont(self.font)
     self.yAxis.setTickLabelFont(self.font)
@@ -837,6 +839,8 @@ class CaptionItem(QCPItemText):
     self.setText(TheDocument.wptmodel.index(self.idx, gpx.NAME).data())
     self.setRotation(-TheDocument.wptmodel.index(self.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_ROTATION])
     self.font.setPointSize(TheDocument.wptmodel.index(self.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_SIZE])
+    self.font.setBold(TheDocument.wptmodel.index(self.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_BOLD])
+    self.font.setItalic(TheDocument.wptmodel.index(self.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_ITALIC])
     self.setFont(self.font)
     self.setSelectedFont(self.font)
 

@@ -27,9 +27,12 @@ WPTFIELDS = NAME, LAT, LON, ALT, DIST, TIME, TIME_DELTA, TIME_DAYS, DIST_DELTA, 
 TRKFIELDS = TRKNAME, TRKSEGS, TRKPTS, TRKLEN, TRKALTGAIN, TRKALTDROP, TRKTIME, TRKDUR = range(8)
 ValueRole, IDRole, IncludeRole, MarkerRole, CaptionRole, SplitLineRole, NeglectRole,\
   MarkerStyleRole, CaptionStyleRole, SplitLineStyleRole = range(Qt.ItemDataRole.UserRole, Qt.ItemDataRole.UserRole + 10)
-MARKER_COLOR, MARKER_STYLE, MARKER_SIZE, CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE, LINE_COLOR, LINE_STYLE, LINE_WIDTH = \
-  ('MarkerColor', 'MarkerStyle', 'MarkerSize', 'CaptionPositionX', 'CaptionPositionY',
-   'CaptionRotation', 'CaptionSize', 'SplitLineColor', 'SplitLineStyle', 'SplitLineWidth')
+MARKER_COLOR, MARKER_STYLE, MARKER_SIZE,\
+  CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE, CAPTION_BOLD, CAPTION_ITALIC,\
+  LINE_COLOR, LINE_STYLE, LINE_WIDTH = \
+  ('MarkerColor', 'MarkerStyle', 'MarkerSize',
+   'CaptionPositionX', 'CaptionPositionY', 'CaptionRotation', 'CaptionSize', 'CaptionBold', 'CaptionItalic',
+   'SplitLineColor', 'SplitLineStyle', 'SplitLineWidth')
 
 
 class GpxWarning(Exception):
@@ -123,10 +126,10 @@ class WptModel(QAbstractTableModel):
       else:
         return {k: TheConfig.getValue('PointStyle', k) for k in {MARKER_COLOR, MARKER_STYLE, MARKER_SIZE}}
     elif role == CaptionStyleRole:
-      if all([k in self.pointStyles[index.row()] for k in {CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE}]):
-        return {k: self.pointStyles[index.row()][k] for k in {CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE}}
+      if all([k in self.pointStyles[index.row()] for k in {CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE, CAPTION_BOLD, CAPTION_ITALIC}]):
+        return {k: self.pointStyles[index.row()][k] for k in {CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE, CAPTION_BOLD, CAPTION_ITALIC}}
       else:
-        return {k: TheConfig.getValue('PointStyle', k) for k in {CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE}}
+        return {k: TheConfig.getValue('PointStyle', k) for k in {CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE, CAPTION_BOLD, CAPTION_ITALIC}}
     elif role == SplitLineStyleRole:
       if all([k in self.pointStyles[index.row()] for k in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}]):
         return {k: self.pointStyles[index.row()][k] for k in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}}
@@ -201,7 +204,7 @@ class WptModel(QAbstractTableModel):
   def getPointStyles(self, key):
     if key in {MARKER_COLOR, MARKER_STYLE, MARKER_SIZE}:
       return [p[key] for i, p in enumerate(self.pointStyles) if self.markerStates[i]]
-    if key in {CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE}:
+    if key in {CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE, CAPTION_BOLD, CAPTION_ITALIC}:
       return [p[key] for i, p in enumerate(self.pointStyles) if self.captionStates[i]]
     if key in {LINE_COLOR, LINE_STYLE, LINE_WIDTH}:
       return [p[key] for i, p in enumerate(self.pointStyles) if self.splitStates[i]]
@@ -239,7 +242,7 @@ class WptModel(QAbstractTableModel):
   def setCaptionStates(self, IDs, state):
     for i in IDs:
       self.captionStates[i] = state
-      for key in {CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE}:
+      for key in {CAPTION_POSX, CAPTION_POSY, CAPTION_ROTATION, CAPTION_SIZE, CAPTION_BOLD, CAPTION_ITALIC}:
         if key not in self.pointStyles[i]:
           self.pointStyles[i][key] = TheConfig.getValue('PointStyle', key)
       self.dataChanged.emit(self.index(i, 0), self.index(i, self.columnCount()))

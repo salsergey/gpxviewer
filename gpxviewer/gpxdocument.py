@@ -73,6 +73,8 @@ class GpxDocument(QObject):
     self.doc['CaptionPositionYs'] = self.wptmodel.getPointStyles(gpx.CAPTION_POSY)
     self.doc['CaptionRotation'] = self.wptmodel.getPointStyles(gpx.CAPTION_ROTATION)
     self.doc['CaptionSizes'] = self.wptmodel.getPointStyles(gpx.CAPTION_SIZE)
+    self.doc['CaptionBold'] = self.wptmodel.getPointStyles(gpx.CAPTION_BOLD)
+    self.doc['CaptionItalic'] = self.wptmodel.getPointStyles(gpx.CAPTION_ITALIC)
 
     self.doc['ChangedNames'] = list(self.wptmodel.changedNames.keys())
     self.doc['PointNames'] = list(self.wptmodel.changedNames.values())
@@ -237,6 +239,12 @@ class GpxDocument(QObject):
       if 'CaptionPoints' in self.doc and 'CaptionSizes' in self.doc:
         for i, m in zip(self.doc['CaptionPoints'], self.doc['CaptionSizes']):
           self.wptmodel.setPointStyle([i], gpx.CAPTION_SIZE, m)
+      if 'CaptionPoints' in self.doc and 'CaptionBold' in self.doc:
+        for i, m in zip(self.doc['CaptionPoints'], self.doc['CaptionBold']):
+          self.wptmodel.setPointStyle([i], gpx.CAPTION_BOLD, m)
+      if 'CaptionPoints' in self.doc and 'CaptionItalic' in self.doc:
+        for i, m in zip(self.doc['CaptionPoints'], self.doc['CaptionItalic']):
+          self.wptmodel.setPointStyle([i], gpx.CAPTION_ITALIC, m)
 
       if 'SplitLines' in self.doc and 'SplitLineColors' in self.doc:
         for i, m in zip(self.doc['SplitLines'], self.doc['SplitLineColors']):

@@ -1,7 +1,6 @@
 == Major ==
 
 * Convert waypoints & tracks when saving to GPX.
-* Add font properties (bold, italic, etc.).
 * Map of the track.
 * Edit coordinates, altidude (geonames.org), time.
 * Speed graphs.

@@ -51,6 +51,8 @@ class SettingsDialog(QDialog):
     self.ui.useSystemThemeCheckBox.setChecked(self.settings['UseSystemTheme'])
     self.ui.fontFamilyBox.setCurrentText(self.settings['FontFamily'])
     self.ui.fontSizeSpinBox.setValue(self.settings['FontSize'])
+    self.ui.boldFontCheckBox.setChecked(self.settings['BoldFont'])
+    self.ui.italicFontCheckBox.setChecked(self.settings['ItalicFont'])
     self.ui.distanceCoeffSpinBox.setValue(self.settings['DistanceCoefficient'])
     self.ui.showCoefficientCheckBox.setChecked(self.settings['ShowDistanceCoefficient'])
     self.ui.timezoneSpinBox.setValue(self.settings['TimeZoneOffset'])
@@ -76,6 +78,8 @@ class SettingsDialog(QDialog):
     self.ui.useSystemThemeCheckBox.toggled[bool].connect(self.setUseSystemTheme)
     self.ui.fontFamilyBox.currentTextChanged.connect(self.setFontFamily)
     self.ui.fontSizeSpinBox.valueChanged.connect(self.setFontSize)
+    self.ui.boldFontCheckBox.toggled[bool].connect(self.setBoldFont)
+    self.ui.italicFontCheckBox.toggled[bool].connect(self.setItalicFont)
     self.ui.distanceCoeffSpinBox.valueChanged.connect(self.setDistanceCoefficient)
     self.ui.showCoefficientCheckBox.toggled[bool].connect(self.setShowDistanceCoefficient)
     self.ui.timezoneSpinBox.valueChanged.connect(self.setTimeZoneOffset)
@@ -144,6 +148,14 @@ class SettingsDialog(QDialog):
   @pyqtSlot()
   def setFontSize(self):
     self.settings['FontSize'] = self.ui.fontSizeSpinBox.value()
+
+  @pyqtSlot(bool)
+  def setBoldFont(self, enabled):
+    self.settings['BoldFont'] = enabled
+
+  @pyqtSlot(bool)
+  def setItalicFont(self, enabled):
+    self.settings['ItalicFont'] = enabled
 
   @pyqtSlot()
   def setDistanceCoefficient(self):

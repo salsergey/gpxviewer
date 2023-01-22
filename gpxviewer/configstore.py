@@ -78,6 +78,8 @@ class ConfigStore(configparser.ConfigParser):
                                  'AbsoluteTime': False,
                                  'UseSystemTheme': False,
                                  'FontSize': 12,
+                                 'BoldFont': False,
+                                 'ItalicFont': False,
                                  'DistanceCoefficient': 1.0,
                                  'ShowDistanceCoefficient': True,
                                  'TimeZoneOffset': 420,
@@ -97,6 +99,10 @@ class ConfigStore(configparser.ConfigParser):
                                'CaptionRotation': 90,
                                'CaptionSizeEnabled': True,
                                'CaptionSize': 12,
+                               'CaptionBoldEnabled': True,
+                               'CaptionBold': False,
+                               'CaptionItalicEnabled': True,
+                               'CaptionItalic': False,
                                'SplitLineColorEnabled': True,
                                'SplitLineColor': qRgba(255, 0, 0, 150),
                                'SplitLineStyleEnabled': True,
@@ -131,8 +137,8 @@ class ConfigStore(configparser.ConfigParser):
         return int(self['ProfileStyle'][key])
       elif key in {'ProfileWidth', 'DistanceCoefficient'}:
         return float(self['ProfileStyle'][key])
-      elif key in {'SelectedPointsOnly', 'StartFromZero', 'AutoscaleAltitudes', 'ShowHours',
-                   'AbsoluteTime', 'UseSystemTheme', 'ShowDistanceCoefficient', 'SortByTime'}:
+      elif key in {'SelectedPointsOnly', 'StartFromZero', 'AutoscaleAltitudes', 'ShowHours', 'AbsoluteTime',
+                   'BoldFont', 'ItalicFont', 'UseSystemTheme', 'ShowDistanceCoefficient', 'SortByTime'}:
         return self['ProfileStyle'].getboolean(key)
       else:
         return self['ProfileStyle'][key]
@@ -145,6 +151,7 @@ class ConfigStore(configparser.ConfigParser):
         return float(self['PointStyle'][key])
       elif key in {'MarkerColorEnabled', 'MarkerStyleEnabled', 'MarkerSizeEnabled',
                    'CaptionPositionEnabled', 'CaptionRotationEnabled', 'CaptionSizeEnabled',
+                   'CaptionBoldEnabled', 'CaptionBold', 'CaptionItalicEnabled', 'CaptionItalic',
                    'SplitLineColorEnabled', 'SplitLineStyleEnabled', 'SplitLineWidthEnabled'}:
         return self['PointStyle'].getboolean(key)
       else:
