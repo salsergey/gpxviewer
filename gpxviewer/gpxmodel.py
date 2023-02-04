@@ -905,6 +905,17 @@ class GpxParser(QObject):
     with open(filename, 'w', encoding='utf-8') as file:
       file.write('<?xml version="1.0" encoding="UTF-8"?>\n' + etree.tostring(root, encoding='unicode', pretty_print=True))
 
+  def writePointToKML(self, root, point, name=None, ele=None):
+    place = etree.SubElement(root, 'Placemark')
+    etree.SubElement(place, 'name').text = self.wptmodel.index(point['ID'], NAME).data() if name is None else name
+    if point[TIME] != '':
+      ts = etree.SubElement(place, 'TimeStamp')
+      etree.SubElement(ts, 'when').text = point[TIME].isoformat() + 'Z'
+    p = etree.SubElement(place, 'Point')
+    etree.SubElement(p, 'coordinates').text = '{},{},{}'.format(str(point[LON]),
+                                                                str(point[LAT]),
+                                                                self.wptmodel.index(point['ID'], ALT).data() if ele is None else ele)
+
   def writeKMLFile(self, filename):
     ns = {
       None: 'http://www.opengis.net/kml/2.2',
@@ -939,42 +950,75 @@ class GpxParser(QObject):
     trkfolder = etree.SubElement(document, 'Folder')
     etree.SubElement(trkfolder, 'name').text = 'Tracks'
 
-    for point, state in zip(self.wptmodel.waypoints, self.wptmodel.includeStates):
-      if state:
-        place = etree.SubElement(wptfolder, 'Placemark')
-        etree.SubElement(place, 'name').text = self.wptmodel.index(point['ID'], NAME).data()
-        if point[TIME] != '':
-          ts = etree.SubElement(place, 'TimeStamp')
-          etree.SubElement(ts, 'when').text = point[TIME].isoformat() + 'Z'
-        p = etree.SubElement(place, 'Point')
-        etree.SubElement(p, 'coordinates').text = str(point[LON]) + ',' + str(point[LAT]) + ',' + self.wptmodel.index(point['ID'], ALT).data()
+    if not TheConfig.getValue('ProfileStyle', 'DeletePoints'):
+      for point, state in zip(self.wptmodel.waypoints, self.wptmodel.includeStates):
+        if state:
+          self.writePointToKML(wptfolder, point)
 
-    for tnum, track, state in zip(range(len(self.trkmodel.tracks)), self.trkmodel.tracks, self.trkmodel.includeStates):
-      if state:
-        place = etree.SubElement(trkfolder, 'Placemark')
-        etree.SubElement(place, 'name').text = track[TRKNAME]
-        etree.SubElement(place, 'styleUrl').text = '#track'
-
-        if track[TRKTIME] != '':
-          tr = etree.SubElement(place, '{%(gx)s}Track' % ns)
-          times = []
-          coords = []
-          for snum, seg in enumerate(track['SEGMENTS']):
+    if TheConfig.getValue('ProfileStyle', 'TracksToPoints'):
+      num = self.wptmodel.rowCount() - len(self.wptmodel.getSkippedPoints())
+      for tnum, state in zip(range(len(self.trkmodel.tracks)), self.trkmodel.includeStates):
+        if state:
+          for snum, seg in enumerate(self.trkmodel.tracks[tnum]['SEGMENTS']):
             for i, point in enumerate(seg):
-              times += [point[TIME].isoformat() + 'Z']
-              coords += [str(point[LON]) + ' ' + str(point[LAT]) + ' ' + str(self.trkmodel.getPointData(tnum, snum, i, ALT))]
-          for t in times:
-            etree.SubElement(tr, 'when').text = t
-          for c in coords:
-            etree.SubElement(tr, '{%(gx)s}coord' % ns).text = c
+              num += 1
+              self.writePointToKML(wptfolder, point,
+                                   name='WPT{}'.format(num),
+                                   ele=str(self.trkmodel.getPointData(tnum, snum, i, ALT)))
 
-        else:
-          tr = etree.SubElement(place, 'LineString')
-          coords = []
-          for snum, seg in enumerate(track['SEGMENTS']):
-            for i, point in enumerate(seg):
-              coords += [str(point[LON]) + ',' + str(point[LAT]) + ',' + str(self.trkmodel.getPointData(tnum, snum, i, ALT))]
-          etree.SubElement(tr, 'coordinates').text = ' '.join(coords)
+    if not TheConfig.getValue('ProfileStyle', 'DeleteTracks'):
+      for tnum, track, state in zip(range(len(self.trkmodel.tracks)), self.trkmodel.tracks, self.trkmodel.includeStates):
+        if state:
+          place = etree.SubElement(trkfolder, 'Placemark')
+          etree.SubElement(place, 'name').text = track[TRKNAME]
+          etree.SubElement(place, 'styleUrl').text = '#track'
+
+          if track[TRKTIME] != '':
+            tr = etree.SubElement(place, '{%(gx)s}Track' % ns)
+            times = []
+            coords = []
+            for snum, seg in enumerate(track['SEGMENTS']):
+              for i, point in enumerate(seg):
+                times += [point[TIME].isoformat() + 'Z']
+                coords += ['{} {} {}'.format(str(point[LON]), str(point[LAT]), str(self.trkmodel.getPointData(tnum, snum, i, ALT)))]
+            for t in times:
+              etree.SubElement(tr, 'when').text = t
+            for c in coords:
+              etree.SubElement(tr, '{%(gx)s}coord' % ns).text = c
+
+          else:  # track[TRKTIME] == ''
+            tr = etree.SubElement(place, 'LineString')
+            coords = []
+            for snum, seg in enumerate(track['SEGMENTS']):
+              for i, point in enumerate(seg):
+                coords += ['{},{},{}'.format(str(point[LON]), str(point[LAT]), str(self.trkmodel.getPointData(tnum, snum, i, ALT)))]
+            etree.SubElement(tr, 'coordinates').text = ' '.join(coords)
+
+    if TheConfig.getValue('ProfileStyle', 'PointsToTrack'):
+      place = etree.SubElement(trkfolder, 'Placemark')
+      etree.SubElement(place, 'name').text = self.tr('Waypoints')
+      etree.SubElement(place, 'styleUrl').text = '#track'
+
+      if self.wptmodel.waypoints[0][TIME] != '':
+        tr = etree.SubElement(place, '{%(gx)s}Track' % ns)
+        times = []
+        coords = []
+        for point, state in zip(self.wptmodel.waypoints, self.wptmodel.includeStates):
+          if state:
+            times += [point[TIME].isoformat() + 'Z']
+            coords += ['{} {} {}'.format(str(point[LON]), str(point[LAT]), self.wptmodel.index(point['ID'], ALT).data())]
+        for t in times:
+          etree.SubElement(tr, 'when').text = t
+        for c in coords:
+          etree.SubElement(tr, '{%(gx)s}coord' % ns).text = c
+
+      else:  # self.wptmodel.waypoints[0][TIME] == ''
+        tr = etree.SubElement(place, 'LineString')
+        coords = []
+        for point, state in zip(self.wptmodel.waypoints, self.wptmodel.includeStates):
+          if state:
+            coords += ['{},{},{}'.format(str(point[LON]), str(point[LAT]), self.wptmodel.index(point['ID'], ALT).data())]
+        etree.SubElement(tr, 'coordinates').text = ' '.join(coords)
 
     with open(filename, 'w', encoding='utf-8') as file:
       file.write('<?xml version="1.0" encoding="UTF-8"?>\n' + etree.tostring(root, encoding='unicode', pretty_print=True))
