@@ -598,6 +598,11 @@ NOTE: Some files can be overwritten.</source>
         <source> is an invalid file.</source>
         <translation> повреждённый файл.</translation>
     </message>
+    <message>
+        <location filename="../../gpxviewer/gpxmodel.py" line="899"/>
+        <source>Waypoints</source>
+        <translation>Маршрутные точки</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -1473,17 +1478,17 @@ Probably the given format isn&apos;t supported by the system.</source>
         <translation>Толщина профиля</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="233"/>
+        <location filename="../../ui/settingsdialog.ui" line="250"/>
         <source>Minimum altitude</source>
         <translation>Минимальная высота</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="256"/>
+        <location filename="../../ui/settingsdialog.ui" line="296"/>
         <source>Maximum altitude</source>
         <translation>Максимальная высота</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="122"/>
+        <location filename="../../ui/settingsdialog.ui" line="145"/>
         <source>Use only selected points</source>
         <translation>Только выделенные точки</translation>
     </message>
@@ -1493,196 +1498,246 @@ Probably the given format isn&apos;t supported by the system.</source>
         <translation>Стиль профиля</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="506"/>
+        <location filename="../../ui/settingsdialog.ui" line="563"/>
         <source>Distance coefficient</source>
         <translation>Коэффициент расстояния</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="519"/>
+        <location filename="../../ui/settingsdialog.ui" line="597"/>
         <source>Calculate distance with additional coefficient</source>
         <translation>Вычислять расстояние с дополнительным коэффициентом</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="590"/>
+        <location filename="../../ui/settingsdialog.ui" line="670"/>
         <source>Time zone offset</source>
         <translation>Сдвиг часового пояса</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="603"/>
+        <location filename="../../ui/settingsdialog.ui" line="704"/>
         <source>The difference between your time zone and UTC (used in GPX-files)</source>
         <translation>Разница между вашим часовым поясом и UTC (используется в GPX-файлах)</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="606"/>
+        <location filename="../../ui/settingsdialog.ui" line="707"/>
         <source> min</source>
         <translation> мин</translation>
     </message>
     <message>
         <location filename="../../ui/settingsdialog.ui" line="489"/>
         <source>GPX settings</source>
-        <translation>Настройки GPX</translation>
+        <translation type="obsolete">Настройки GPX</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="691"/>
+        <location filename="../../ui/settingsdialog.ui" line="794"/>
         <source>Coordinate format</source>
         <translation>Формат координат</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="698"/>
+        <location filename="../../ui/settingsdialog.ui" line="801"/>
         <source>Decimal degrees</source>
         <translation>Градусы с десятичными долями</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="708"/>
+        <location filename="../../ui/settingsdialog.ui" line="811"/>
         <source>Degrees, minutes, seconds</source>
         <translation>Градусы, минуты, секунды</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="671"/>
+        <location filename="../../ui/settingsdialog.ui" line="774"/>
         <source>Name</source>
         <translation>Название</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="676"/>
+        <location filename="../../ui/settingsdialog.ui" line="779"/>
         <source>Comment</source>
         <translation>Комментарий</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="681"/>
+        <location filename="../../ui/settingsdialog.ui" line="784"/>
         <source>Description</source>
         <translation>Описание</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="654"/>
+        <location filename="../../ui/settingsdialog.ui" line="757"/>
         <source>Point names are in tag</source>
         <translation>Названия точек в теге</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="703"/>
+        <location filename="../../ui/settingsdialog.ui" line="806"/>
         <source>Degrees with minutes</source>
         <translation>Градусы и минуты</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="667"/>
+        <location filename="../../ui/settingsdialog.ui" line="770"/>
         <source>Read point names from one of the tags in GPX file: &lt;name&gt;, &lt;cmt&gt;, &lt;desc&gt;</source>
         <translation>Читать названия точек из одного из тегов в GPX файле: &amp;lt;name&amp;gt;, &amp;lt;cmt&amp;gt;, &amp;lt;desc&amp;gt;</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="141"/>
+        <location filename="../../ui/settingsdialog.ui" line="164"/>
         <source>Plot profiles taking into account only selected points and tracks</source>
         <translation>Строить профили, учитывая только выделенные точки и треки</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="301"/>
+        <location filename="../../ui/settingsdialog.ui" line="364"/>
         <source>Automatically scale minimum/maximum altitudes when plotting profile</source>
         <translation>Автоматически масштабировать минимальную/максимальную высоту при рисовании профиля</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="282"/>
+        <location filename="../../ui/settingsdialog.ui" line="345"/>
         <source>Autoscale altitudes</source>
         <translation>Автомасштабирование высоты</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="379"/>
+        <location filename="../../ui/settingsdialog.ui" line="442"/>
         <source>Axes labels font</source>
         <translation>Шрифт подписей к осям</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="398"/>
+        <location filename="../../ui/settingsdialog.ui" line="461"/>
         <source>Font size</source>
         <translation>Размер шрифта</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="109"/>
+        <location filename="../../ui/settingsdialog.ui" line="132"/>
         <source>Use system color theme instead of default light theme</source>
         <translation>Использовать системную цветовую схему вместо применяемой по умолчанию светлой темы</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="90"/>
+        <location filename="../../ui/settingsdialog.ui" line="113"/>
         <source>Use system theme</source>
         <translation>Использовать системные цвета</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="172"/>
+        <location filename="../../ui/settingsdialog.ui" line="195"/>
         <source>Start from zero</source>
         <translation>Начинать с нуля</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="577"/>
+        <location filename="../../ui/settingsdialog.ui" line="657"/>
         <source>Show distance coefficient under the X axis</source>
         <translation>Показывать коэффициент расстояния под осью X</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="556"/>
+        <location filename="../../ui/settingsdialog.ui" line="636"/>
         <source>Show coefficient</source>
         <translation>Показывать коэффициент</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="193"/>
+        <location filename="../../ui/settingsdialog.ui" line="216"/>
         <source>Always start X axis from zero when plotting profile for selected points</source>
         <translation>Всегда начинать ось X с нуля при построении профиля по выделенным точкам</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="219"/>
+        <location filename="../../ui/settingsdialog.ui" line="242"/>
         <source>Axes style</source>
         <translation>Стиль осей</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="315"/>
+        <location filename="../../ui/settingsdialog.ui" line="378"/>
         <source>Show hours</source>
         <translation>Показывать часы</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="367"/>
+        <location filename="../../ui/settingsdialog.ui" line="430"/>
         <source>Show absolute time of track instead of track duration</source>
         <translation>Показывать абсолютное время трека вместо продолжительности трека</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="370"/>
+        <location filename="../../ui/settingsdialog.ui" line="411"/>
         <source>Absolute time</source>
         <translation>Абсолютное время</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="334"/>
+        <location filename="../../ui/settingsdialog.ui" line="397"/>
         <source>Allow showing hours along with days under the X axis.
 Otherwise only days or hours are shown.</source>
         <translation>Разрешать показывать часы наряду с днями под осью X.
 Иначе показываются только дни или часы.</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="385"/>
+        <location filename="../../ui/settingsdialog.ui" line="448"/>
         <source>The font family used for axes labels and points captions</source>
         <translation>Семейство шрифта, используемого в подписях к осям и точкам</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="622"/>
+        <location filename="../../ui/settingsdialog.ui" line="725"/>
         <source>Sort by time</source>
         <translation>Сортировать по времени</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="641"/>
+        <location filename="../../ui/settingsdialog.ui" line="744"/>
         <source>Sort imported points by time</source>
         <translation>Сортировать импортируемые точки по времени</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="411"/>
+        <location filename="../../ui/settingsdialog.ui" line="474"/>
         <source>Bold font</source>
         <translation>Жирный</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="443"/>
+        <location filename="../../ui/settingsdialog.ui" line="506"/>
         <source>Italic font</source>
         <translation>Курсив</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="430"/>
+        <location filename="../../ui/settingsdialog.ui" line="493"/>
         <source>Whether to use bold font for axes labels</source>
         <translation>Использовать ли жирный шрифт для подписей к осям</translation>
     </message>
     <message>
-        <location filename="../../ui/settingsdialog.ui" line="462"/>
+        <location filename="../../ui/settingsdialog.ui" line="525"/>
         <source>Whether to use italic font for axes labels</source>
         <translation>Использовать ли курсив для подписей к осям</translation>
+    </message>
+    <message>
+        <location filename="../../ui/settingsdialog.ui" line="552"/>
+        <source>Import settings</source>
+        <translation>Настройки импорта</translation>
+    </message>
+    <message>
+        <location filename="../../ui/settingsdialog.ui" line="872"/>
+        <source>Convert waypoints to track when exporting</source>
+        <translation>Преобразовать маршрутные точки в трек при экспорте</translation>
+    </message>
+    <message>
+        <location filename="../../ui/settingsdialog.ui" line="853"/>
+        <source>Convert points to track</source>
+        <translation>Преобразовать точки в трек</translation>
+    </message>
+    <message>
+        <location filename="../../ui/settingsdialog.ui" line="904"/>
+        <source>Delete waypoints when exporting</source>
+        <translation>Удалить маршрутные точки при экспорте</translation>
+    </message>
+    <message>
+        <location filename="../../ui/settingsdialog.ui" line="885"/>
+        <source>Delete points</source>
+        <translation>Удалить точки</translation>
+    </message>
+    <message>
+        <location filename="../../ui/settingsdialog.ui" line="936"/>
+        <source>Convert tracks to waypoints when exporting</source>
+        <translation>Преобразовать треки в маршрутные точки при экспорте</translation>
+    </message>
+    <message>
+        <location filename="../../ui/settingsdialog.ui" line="917"/>
+        <source>Convert tracks to points</source>
+        <translation>Преобразовать треки в точки</translation>
+    </message>
+    <message>
+        <location filename="../../ui/settingsdialog.ui" line="968"/>
+        <source>Delete tracks when exporting</source>
+        <translation>Удалить треки при экспорте</translation>
+    </message>
+    <message>
+        <location filename="../../ui/settingsdialog.ui" line="949"/>
+        <source>Delete tracks</source>
+        <translation>Удалить треки</translation>
+    </message>
+    <message>
+        <location filename="../../ui/settingsdialog.ui" line="836"/>
+        <source>Export settings</source>
+        <translation>Настройки экспорта</translation>
     </message>
 </context>
 </TS>

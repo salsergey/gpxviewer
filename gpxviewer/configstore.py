@@ -85,7 +85,11 @@ class ConfigStore(configparser.ConfigParser):
                                  'TimeZoneOffset': 420,
                                  'SortByTime': False,
                                  'ReadNameFromTag': 0,
-                                 'CoordinateFormat': 0},
+                                 'CoordinateFormat': 0,
+                                 'PointsToTrack': False,
+                                 'DeletePoints': False,
+                                 'TracksToPoints': False,
+                                 'DeleteTracks': False},
                 'PointStyle': {'MarkerColorEnabled': True,
                                'MarkerColor': qRgba(255, 0, 0, 200),
                                'MarkerStyleEnabled': True,
@@ -138,7 +142,8 @@ class ConfigStore(configparser.ConfigParser):
       elif key in {'ProfileWidth', 'DistanceCoefficient'}:
         return float(self['ProfileStyle'][key])
       elif key in {'SelectedPointsOnly', 'StartFromZero', 'AutoscaleAltitudes', 'ShowHours', 'AbsoluteTime',
-                   'BoldFont', 'ItalicFont', 'UseSystemTheme', 'ShowDistanceCoefficient', 'SortByTime'}:
+                   'BoldFont', 'ItalicFont', 'UseSystemTheme', 'ShowDistanceCoefficient', 'SortByTime',
+                   'PointsToTrack', 'DeletePoints', 'TracksToPoints', 'DeleteTracks'}:
         return self['ProfileStyle'].getboolean(key)
       else:
         return self['ProfileStyle'][key]

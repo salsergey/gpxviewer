@@ -59,6 +59,10 @@ class SettingsDialog(QDialog):
     self.ui.sortByTimeCheckBox.setChecked(self.settings['SortByTime'])
     self.ui.nameTagBox.setCurrentIndex(self.settings['ReadNameFromTag'])
     self.ui.coordinateBox.setCurrentIndex(self.settings['CoordinateFormat'])
+    self.ui.pointsToTrackCheckBox.setChecked(self.settings['PointsToTrack'])
+    self.ui.deletePointsCheckBox.setChecked(self.settings['DeletePoints'])
+    self.ui.tracksToPointsCheckBox.setChecked(self.settings['TracksToPoints'])
+    self.ui.deleteTracksCheckBox.setChecked(self.settings['DeleteTracks'])
 
     self.ui.startFromZeroCheckBox.setEnabled(self.settings['SelectedPointsOnly'])
     self.ui.startFromZeroLabel.setEnabled(self.settings['SelectedPointsOnly'])
@@ -86,6 +90,10 @@ class SettingsDialog(QDialog):
     self.ui.sortByTimeCheckBox.toggled[bool].connect(self.setSortByTime)
     self.ui.nameTagBox.currentIndexChanged.connect(self.setNameTag)
     self.ui.coordinateBox.currentIndexChanged.connect(self.setCoordinateFormat)
+    self.ui.pointsToTrackCheckBox.toggled[bool].connect(self.setPointsToTrack)
+    self.ui.deletePointsCheckBox.toggled[bool].connect(self.setDeletePoints)
+    self.ui.tracksToPointsCheckBox.toggled[bool].connect(self.setTracksToPoints)
+    self.ui.deleteTracksCheckBox.toggled[bool].connect(self.setDeleteTracks)
 
   def accept(self):
     super(SettingsDialog, self).accept()
@@ -182,3 +190,19 @@ class SettingsDialog(QDialog):
   @pyqtSlot()
   def setCoordinateFormat(self):
     self.settings['CoordinateFormat'] = self.ui.coordinateBox.currentIndex()
+
+  @pyqtSlot(bool)
+  def setPointsToTrack(self, enabled):
+    self.settings['PointsToTrack'] = enabled
+
+  @pyqtSlot(bool)
+  def setDeletePoints(self, enabled):
+    self.settings['DeletePoints'] = enabled
+
+  @pyqtSlot(bool)
+  def setTracksToPoints(self, enabled):
+    self.settings['TracksToPoints'] = enabled
+
+  @pyqtSlot(bool)
+  def setDeleteTracks(self, enabled):
+    self.settings['DeleteTracks'] = enabled

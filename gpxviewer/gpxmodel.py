@@ -826,53 +826,81 @@ class GpxParser(QObject):
     TheConfig['ProfileStyle']['MaximumAltitude'] = str(int(round(self.maxalt, -3) + 500 if round(self.maxalt, -3) < self.maxalt
                                                            else round(self.maxalt, -3)))
 
+  def writePointToGPX(self, root, point, name=None, ele=None):
+    element = etree.SubElement(root, 'wpt', lat=str(point[LAT]), lon=str(point[LON]))
+    etree.SubElement(element, 'ele').text = self.wptmodel.index(point['ID'], ALT).data() if ele is None else ele
+    self.minlat = min(self.minlat, point[LAT])
+    self.minlon = min(self.minlon, point[LON])
+    self.maxlat = max(self.maxlat, point[LAT])
+    self.maxlon = max(self.maxlon, point[LON])
+    if point[TIME] != '':
+      etree.SubElement(element, 'time').text = point[TIME].isoformat() + 'Z'
+    etree.SubElement(element, 'name').text = self.wptmodel.index(point['ID'], NAME).data() if name is None else name
+
+    if 'CMT' in point and point['CMT'] is not None:
+      etree.SubElement(element, 'cmt').text = point['CMT']
+    if 'DESC' in point and point['DESC'] is not None:
+      etree.SubElement(element, 'desc').text = point['DESC']
+    if 'SYM' in point and point['SYM'] is not None:
+      etree.SubElement(element, 'sym').text = point['SYM']
+
+  def writePointToGPXTrack(self, root, point, ele):
+    element = etree.SubElement(root, 'trkpt', lat=str(point[LAT]), lon=str(point[LON]))
+    etree.SubElement(element, 'ele').text = ele
+    self.minlat = min(self.minlat, point[LAT])
+    self.minlon = min(self.minlon, point[LON])
+    self.maxlat = max(self.maxlat, point[LAT])
+    self.maxlon = max(self.maxlon, point[LON])
+    if point[TIME] != '':
+      etree.SubElement(element, 'time').text = point[TIME].isoformat() + 'Z'
+
   def writeGPXFile(self, filename):
     ns = {None: 'http://www.topografix.com/GPX/1/1'}
     root = etree.Element('gpx', nsmap=ns, version='1.1', creator='GPX Viewer - https://osdn.net/projects/gpxviewer')
     metadata = etree.SubElement(root, 'metadata')
 
-    minlat = 90
-    minlon = 180
-    maxlat = -90
-    maxlon = -180
+    self.minlat = 90
+    self.minlon = 180
+    self.maxlat = -90
+    self.maxlon = -180
 
-    for point, state in zip(self.wptmodel.waypoints, self.wptmodel.includeStates):
-      if state:
-        element = etree.SubElement(root, 'wpt', lat=str(point[LAT]), lon=str(point[LON]))
-        etree.SubElement(element, 'ele').text = self.wptmodel.index(point['ID'], ALT).data()
-        minlat = min(minlat, point[LAT])
-        minlon = min(minlon, point[LON])
-        maxlat = max(maxlat, point[LAT])
-        maxlon = max(maxlon, point[LON])
-        if point[TIME] != '':
-          etree.SubElement(element, 'time').text = point[TIME].isoformat() + 'Z'
-        etree.SubElement(element, 'name').text = self.wptmodel.index(point['ID'], NAME).data()
+    if not TheConfig.getValue('ProfileStyle', 'DeletePoints'):
+      for point, state in zip(self.wptmodel.waypoints, self.wptmodel.includeStates):
+        if state:
+          self.writePointToGPX(root, point)
 
-        if 'CMT' in point and point['CMT'] is not None:
-          etree.SubElement(element, 'cmt').text = point['CMT']
-        if 'DESC' in point and point['DESC'] is not None:
-          etree.SubElement(element, 'desc').text = point['DESC']
-        if 'SYM' in point and point['SYM'] is not None:
-          etree.SubElement(element, 'sym').text = point['SYM']
+    if TheConfig.getValue('ProfileStyle', 'TracksToPoints'):
+      num = self.wptmodel.rowCount() - len(self.wptmodel.getSkippedPoints())
+      for tnum, state in zip(range(len(self.trkmodel.tracks)), self.trkmodel.includeStates):
+        if state:
+          for snum, seg in enumerate(self.trkmodel.tracks[tnum]['SEGMENTS']):
+            for i, point in enumerate(seg):
+              num += 1
+              self.writePointToGPX(root, point,
+                                   name='WPT{}'.format(num),
+                                   ele=str(self.trkmodel.getPointData(tnum, snum, i, ALT)))
 
-    for tnum, track, state in zip(range(len(self.trkmodel.tracks)), self.trkmodel.tracks, self.trkmodel.includeStates):
-      if state:
-        elTrk = etree.SubElement(root, 'trk')
-        etree.SubElement(elTrk, 'name').text = track[TRKNAME]
-        for snum, seg in enumerate(track['SEGMENTS']):
-          elSeg = etree.SubElement(elTrk, 'trkseg')
-          for i, point in enumerate(seg):
-            elP = etree.SubElement(elSeg, 'trkpt', lat=str(point[LAT]), lon=str(point[LON]))
-            etree.SubElement(elP, 'ele').text = str(self.trkmodel.getPointData(tnum, snum, i, ALT))
-            minlat = min(minlat, point[LAT])
-            minlon = min(minlon, point[LON])
-            maxlat = max(maxlat, point[LAT])
-            maxlon = max(maxlon, point[LON])
-            if point[TIME] != '':
-              etree.SubElement(elP, 'time').text = point[TIME].isoformat() + 'Z'
+    if not TheConfig.getValue('ProfileStyle', 'DeleteTracks'):
+      for tnum, state in zip(range(len(self.trkmodel.tracks)), self.trkmodel.includeStates):
+        if state:
+          elTrk = etree.SubElement(root, 'trk')
+          track = self.trkmodel.tracks[tnum]
+          etree.SubElement(elTrk, 'name').text = track[TRKNAME]
+          for snum, seg in enumerate(track['SEGMENTS']):
+            elSeg = etree.SubElement(elTrk, 'trkseg')
+            for i, point in enumerate(seg):
+              self.writePointToGPXTrack(elSeg, point, ele=str(self.trkmodel.getPointData(tnum, snum, i, ALT)))
+
+    if TheConfig.getValue('ProfileStyle', 'PointsToTrack'):
+      elTrk = etree.SubElement(root, 'trk')
+      etree.SubElement(elTrk, 'name').text = self.tr('Waypoints')
+      elSeg = etree.SubElement(elTrk, 'trkseg')
+      for point, state in zip(self.wptmodel.waypoints, self.wptmodel.includeStates):
+        if state:
+          self.writePointToGPXTrack(elSeg, point, ele=self.wptmodel.index(point['ID'], ALT).data())
 
     etree.SubElement(metadata, 'time').text = datetime.utcnow().isoformat() + 'Z'
-    etree.SubElement(metadata, 'bounds', minlat=str(minlat), minlon=str(minlon), maxlat=str(maxlat), maxlon=str(maxlon))
+    etree.SubElement(metadata, 'bounds', minlat=str(self.minlat), minlon=str(self.minlon), maxlat=str(self.maxlat), maxlon=str(self.maxlon))
 
     with open(filename, 'w', encoding='utf-8') as file:
       file.write('<?xml version="1.0" encoding="UTF-8"?>\n' + etree.tostring(root, encoding='unicode', pretty_print=True))
