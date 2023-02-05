@@ -1,3 +1,8 @@
+=== Version 2.4 ===
+* Added posibility to set bold or italic fonts for axes labels and point captions.
+* Added options to convert waypoints to tracks and vice versa when exporting to GPX/KML files.
+* Initial steps for compatibility with PyQt6.
+
 === Version 2.3 ===
 * Added posibility to select multiple points in profile window.
 * Added "go to main window" button in the profile window.
