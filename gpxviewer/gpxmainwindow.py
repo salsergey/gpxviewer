@@ -755,7 +755,7 @@ class GpxMainWindow(QMainWindow):
   def openedFileNotFound(self, file):
     result = QMessageBox.warning(self, self.tr('File read error'),
                                  self.tr('The file ') + file + self.tr(' doesn\'t exist.\n\nDo you want to choose another location of this file?'),
-                                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.StandardButton.YesToAll | QMessageBox.StandardButton.No, QMessageBox.StandardButton.Yes)
+                                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.YesToAll | QMessageBox.StandardButton.No, QMessageBox.StandardButton.Yes)
     if result in (QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.YesToAll):
       filename = QFileDialog.getOpenFileName(self, self.tr('Open GPX file') + ' ' + QFileInfo(file).fileName(), TheConfig['MainWindow']['LoadGPXDirectory'],
                                              self.tr('GPX XML (*.gpx *.GPX);;All files (*)'))[0]

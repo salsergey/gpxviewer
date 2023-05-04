@@ -1,5 +1,5 @@
 === Version 2.4 ===
-* Added posibility to set bold or italic fonts for axes labels and point captions.
+* Added possibility to set bold or italic fonts for axes labels and point captions.
 * Added options to convert waypoints to tracks and vice versa when exporting to GPX/KML files.
 * Initial steps for compatibility with PyQt6.
 
