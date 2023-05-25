@@ -471,12 +471,13 @@ class GpxParser(QObject):
         name = p.findtext(('{%(ns)s}' + tag) % self.ns)
         ele = p.findtext('{%(ns)s}ele' % self.ns)
         time = p.findtext('{%(ns)s}time' % self.ns)
+
         point = {
           NAME: name.strip() if name is not None else '',
           LAT: float(p.get('lat')),
           LON: float(p.get('lon')),
           ALT: float(ele) if ele is not None else 0,
-          TIME: datetime.fromisoformat(time[0:-1]) if time is not None else '',
+          TIME: datetime.fromisoformat(time[0:-1]).replace(microsecond=0) if time is not None else '',
           # Additional fields
           'CMT': p.findtext('{%(ns)s}cmt' % self.ns),
           'DESC': p.findtext('{%(ns)s}desc' % self.ns),
