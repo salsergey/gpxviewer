@@ -1,3 +1,6 @@
+=== Version 2.4.1 ===
+* Fixed reading GPX files with millisecond accuracy.
+
 === Version 2.4 ===
 * Added possibility to set bold or italic fonts for axes labels and point captions.
 * Added options to convert waypoints to tracks and vice versa when exporting to GPX/KML files.
