@@ -534,7 +534,11 @@ class GpxParser(QObject):
                               self.tr('is invalid and will be skipped.', 'Track'))
 
   def parseKMLDocument(self, root):
+    tag = 'name'
+    if TheConfig.getValue('ProfileStyle', 'ReadNameFromTag') == 2:  # Description
+      tag = 'description'
     name = None
+
     for element in root.iterchildren():
       if element.tag == '{%(ns)s}Folder' % self.ns:
         self.parseKMLDocument(element)
@@ -542,11 +546,13 @@ class GpxParser(QObject):
       elif element.tag == '{%(ns)s}Placemark' % self.ns:
         if element.find('{%(ns)s}Point' % self.ns) is not None:  # waypoint
           try:
-            name = element.findtext('{%(ns)s}name' % self.ns)
+            name = element.findtext(('{%(ns)s}' + tag) % self.ns)
             time = element.findtext('.//{%(ns)s}when' % self.ns)
             point = {
               NAME: name.strip() if name is not None else '',
               TIME: datetime.fromisoformat(time[0:-1]) if time is not None else '',
+              # Additional fields
+              'DESC': element.findtext('{%(ns)s}description' % self.ns),
             }
             point[LON], point[LAT], point[ALT] = [float(n) for n in element.findtext('.//{%(ns)s}coordinates' % self.ns).split(',')]
 
@@ -909,6 +915,8 @@ class GpxParser(QObject):
   def writePointToKML(self, root, point, name=None, ele=None):
     place = etree.SubElement(root, 'Placemark')
     etree.SubElement(place, 'name').text = self.wptmodel.index(point['ID'], NAME).data() if name is None else name
+    if 'DESC' in point and point['DESC'] is not None:
+      etree.SubElement(place, 'description').text = point['DESC']
     if point[TIME] != '':
       ts = etree.SubElement(place, 'TimeStamp')
       etree.SubElement(ts, 'when').text = point[TIME].isoformat() + 'Z'
