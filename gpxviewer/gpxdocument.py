@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2024 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -19,7 +19,7 @@ import os
 import shutil
 from tempfile import mkdtemp
 import zipfile
-from PyQt5.QtCore import Qt, QCoreApplication, QFileInfo, QObject, pyqtSignal
+from PyQt6.QtCore import Qt, QCoreApplication, QFileInfo, QObject, pyqtSignal
 import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import GpxConfigParser, TheConfig
 

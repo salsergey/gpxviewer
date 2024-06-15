@@ -1,2 +1,5 @@
+gpxviewer.egg*
 dist
 __pycache__
+/.idea/
+build*

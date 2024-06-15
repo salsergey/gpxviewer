@@ -1,0 +1,49 @@
+[build-system]
+requires = ['setuptools >= 61.0']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = 'gpxviewer'
+version = '3.0'
+description='GPX Viewer is an application for viewing GPX files and plotting altitude profiles'
+readme = 'README.md'
+urls.homepage = 'https://github.com/salsergey/gpxviewer'
+requires-python = '>=3.7'
+license = {text = 'GNU PL3'}
+keywords = ['PyQt', 'QCustomPlot', 'GPX']
+authors = [
+    {email = 'salsergey@gmail.com'},
+    {name = 'Sergey Salnikov'}
+]
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Environment :: X11 Applications :: Qt',
+    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+    'Operating System :: POSIX :: Linux',
+    'Operating System :: Microsoft :: Windows',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Topic :: Software Development :: User Interfaces'
+]
+dependencies = [
+    'lxml',
+    'PyQt6',
+    'QCustomPlot_PyQt6'
+]
+
+[project.gui-scripts]
+gpxv = "gpxviewer:main"
+
+[tool.setuptools]
+packages = ['gpxviewer']
+
+[tool.setuptools.data-files]
+'share/applications' = ['data/gpxviewer.desktop']
+'share/mime/packages' = ['data/gpxviewer.xml']
+'share/pixmaps' = ['data/icons/gpxviewer.png']
+'share/icons/hicolor/128x128/mimetypes' = ['data/icons/gpxviewer.png']

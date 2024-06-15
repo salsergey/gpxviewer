@@ -187,6 +187,12 @@
            </item>
            <item>
             <widget class="QSpinBox" name="markerSizeSpinBox">
+             <property name="minimumSize">
+              <size>
+               <width>70</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string>The size of the marker</string>
              </property>
@@ -260,6 +266,12 @@
            </item>
            <item>
             <widget class="QSpinBox" name="captionPositionXSpinBox">
+             <property name="minimumSize">
+              <size>
+               <width>70</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string>The position of the caption</string>
              </property>
@@ -273,6 +285,12 @@
            </item>
            <item>
             <widget class="QSpinBox" name="captionPositionYSpinBox">
+             <property name="minimumSize">
+              <size>
+               <width>70</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string>The position of the caption</string>
              </property>
@@ -337,6 +355,12 @@
            </item>
            <item>
             <widget class="QSpinBox" name="captionRotationSpinBox">
+             <property name="minimumSize">
+              <size>
+               <width>70</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string>The rotation angle of the caption in degrees</string>
              </property>
@@ -401,6 +425,12 @@
            </item>
            <item>
             <widget class="QSpinBox" name="captionSizeSpinBox">
+             <property name="minimumSize">
+              <size>
+               <width>70</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string>The size of the caption</string>
              </property>
@@ -705,6 +735,12 @@
            </item>
            <item>
             <widget class="QDoubleSpinBox" name="lineWidthSpinBox">
+             <property name="minimumSize">
+              <size>
+               <width>70</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string>The width of the split line</string>
              </property>

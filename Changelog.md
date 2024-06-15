@@ -1,3 +1,7 @@
+=== Version 3.0 ===
+* Ported to PyQt6.
+* Moved to pyproject.toml instead of setup.py to configure setuptools.
+
 === Version 2.4.1 ===
 * Fixed reading GPX files with millisecond accuracy.
 

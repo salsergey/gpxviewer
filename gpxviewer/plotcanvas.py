@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2024 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -16,10 +16,10 @@
 
 import webbrowser
 from datetime import timedelta
-from PyQt5.QtCore import Qt, QCoreApplication, QDate, QDateTime, QFileSelector, QLocale, QMargins, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QColor, QCursor, QFont, QFontMetrics, QGuiApplication, QIcon, QKeySequence, QPen
-from PyQt5.QtWidgets import QAction, QDialog, QInputDialog, QLineEdit, QMenu, QMessageBox
-from QCustomPlot_PyQt5 import (QCP, QCustomPlot, QCPAxisTickerDateTime, QCPAxisTickerFixed, QCPDataRange, QCPDataSelection,
+from PyQt6.QtCore import Qt, QCoreApplication, QDate, QDateTime, QFileSelector, QLocale, QMargins, pyqtSignal, pyqtSlot
+from PyQt6.QtGui import QAction, QColor, QCursor, QFont, QFontMetrics, QGuiApplication, QIcon, QKeySequence, QPen
+from PyQt6.QtWidgets import QDialog, QInputDialog, QLineEdit, QMenu, QMessageBox
+from QCustomPlot_PyQt6 import (QCP, QCustomPlot, QCPAxisTickerDateTime, QCPAxisTickerFixed, QCPDataRange, QCPDataSelection,
                                QCPGraph, QCPItemPosition, QCPItemText, QCPItemTracer, QCPScatterStyle, QCPTextElement)
 import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import TheConfig
@@ -379,36 +379,36 @@ class PlotCanvas(QCustomPlot):
 
   def mouseMoveEvent(self, event):
     # Show information
-    if self.showInfo and self.axisRect().rect().contains(event.pos()):
+    if self.showInfo and self.axisRect().rect().contains(event.position().toPoint()):
       for profile in self.layer('profile').children():
-        if profile.getKeyRange()[0].contains(self.xAxis.pixelToCoord(event.pos().x())):
+        if profile.getKeyRange()[0].contains(self.xAxis.pixelToCoord(event.position().x())):
           self.tracer.setGraph(profile)
-      self.tracer.setGraphKey(self.xAxis.pixelToCoord(event.pos().x()))
+      self.tracer.setGraphKey(self.xAxis.pixelToCoord(event.position().x()))
       if len(self.selectedElements) == 0:
         self.updateLegend()
 
-    self.updateCursorShape(event.pos())
+    self.updateCursorShape(event.position())
     self.replot()
 
     # Move caption
     if self.moveCaption and QGuiApplication.mouseButtons() == Qt.MouseButton.LeftButton:
       x = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSX]
       y = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSY]
-      delta = event.pos() - self.prevPos
+      delta = event.position() - self.prevPos
       TheDocument.wptmodel.setPointStyle([self.currentSelection.idx], gpx.CAPTION_POSX, x + delta.x())
       TheDocument.wptmodel.setPointStyle([self.currentSelection.idx], gpx.CAPTION_POSY, y - delta.y())
       self.replot()
     else:  # no caption is selected
       super(PlotCanvas, self).mouseMoveEvent(event)
 
-    self.prevPos = event.pos()
+    self.prevPos = event.position()
 
   def mousePressEvent(self, event):
     if event.button() == Qt.MouseButton.LeftButton:
-      if self.plottableAt(event.pos(), True) is None and self.itemAt(event.pos(), True) is None:
+      if self.plottableAt(event.position(), True) is None and self.itemAt(event.position(), True) is None:
         self.setCursor(QCursor(Qt.CursorShape.ClosedHandCursor))
 
-      item = self.itemAt(event.pos(), True)
+      item = self.itemAt(event.position(), True)
       if type(item) == CaptionItem and item in self.selectedElements and event.modifiers() != self.multiSelectModifier():
         self.moveCaption = True
         self.deselectAll()
@@ -425,12 +425,12 @@ class PlotCanvas(QCustomPlot):
 
   def mouseReleaseEvent(self, event):
     if event.button() == Qt.MouseButton.LeftButton:
-      self.updateCursorShape(event.pos())
+      self.updateCursorShape(event.position())
 
     if event.button() == Qt.MouseButton.RightButton:
-      item = self.itemAt(event.pos(), True)
+      item = self.itemAt(event.position(), True)
       if item is None:
-        item = self.plottableAt(event.pos(), True)
+        item = self.plottableAt(event.position(), True)
 
       if item is not None and item not in self.selectedElements or item is None:
         self.deselectAll(updateSelection=False)
@@ -448,9 +448,9 @@ class PlotCanvas(QCustomPlot):
 
   def wheelEvent(self, event):
     # Outside the axes rect
-    if event.pos().x() < self.axisRect().rect().left():
+    if event.position().x() < self.axisRect().rect().left():
       if event.modifiers() == Qt.KeyboardModifier.NoModifier:
-        if event.pos().y() < self.axisRect().rect().center().y():
+        if event.position().y() < self.axisRect().rect().center().y():
           self.maxalt = max(self.maxalt + (100 if event.angleDelta().y() > 0 else -100), self.minalt + 100)
         else:
           self.minalt = min(self.minalt + (100 if event.angleDelta().y() > 0 else -100), self.maxalt - 100)
@@ -470,7 +470,7 @@ class PlotCanvas(QCustomPlot):
       self.setCursor(QCursor(Qt.CursorShape.ClosedHandCursor))
     else:
       # Inside the axes rect
-      if self.axisRect().rect().contains(pos):
+      if self.axisRect().rect().contains(pos.toPoint()):
         if self.plottableAt(pos, True) is None and self.itemAt(pos, True) is None:
           self.setCursor(QCursor(Qt.CursorShape.CrossCursor if self.showInfo else Qt.CursorShape.OpenHandCursor))
         else:

@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2024 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -15,8 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from PyQt5.QtCore import QCoreApplication, QLocale, QTranslator
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtCore import QCoreApplication, QLocale, QTranslator
+from PyQt6.QtWidgets import QApplication
 from gpxviewer.configstore import TheConfig
 import gpxviewer.rc_gpxviewer
 
@@ -24,7 +24,7 @@ import gpxviewer.rc_gpxviewer
 def main():
   app = QApplication(sys.argv)
   QCoreApplication.setApplicationName('GPX Viewer')
-  QCoreApplication.setApplicationVersion('2.4.1')
+  QCoreApplication.setApplicationVersion('3.0')
 
   if app.palette().window().color().lightness() < app.palette().windowText().color().lightness():
     TheConfig['MainWindow']['ColorTheme'] = 'dark_theme'

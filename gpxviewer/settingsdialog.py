@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2024 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -15,8 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QDialog
+from PyQt6.QtCore import pyqtSlot
+from PyQt6.QtWidgets import QDialog
 from gpxviewer.configstore import TheConfig
 import gpxviewer.ui_settingsdialog
 
@@ -27,9 +27,6 @@ class SettingsDialog(QDialog):
     self.ui = gpxviewer.ui_settingsdialog.Ui_settingsDialog()
     self.ui.setupUi(self)
     self.setMinimumWidth(260)
-    if os.name == 'nt':
-      self.ui.useSystemThemeLabel.hide()
-      self.ui.useSystemThemeCheckBox.hide()
 
     self.settings = {}
     for option in TheConfig['ProfileStyle'].keys():

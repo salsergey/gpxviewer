@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2024 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -16,8 +16,8 @@
 
 import configparser
 import os
-from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtGui import qRgba
+from PyQt6.QtCore import QCoreApplication
+from PyQt6.QtGui import qRgba
 
 
 class GpxConfigParser(configparser.ConfigParser):

@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2024 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -18,8 +18,8 @@ from datetime import datetime, timedelta
 from lxml import etree
 from math import acos, cos, modf, pi, sin, sqrt
 import re
-from PyQt5.QtCore import Qt, QAbstractTableModel, QFileInfo, QModelIndex, QObject, QPointF, QSortFilterProxyModel, pyqtSignal
-from PyQt5.QtGui import QColor, QFont, QGuiApplication, QPainter, QPainterPath, QPen, QPixmap, QPolygonF
+from PyQt6.QtCore import Qt, QAbstractTableModel, QFileInfo, QModelIndex, QObject, QPointF, QSortFilterProxyModel, pyqtSignal
+from PyQt6.QtGui import QColor, QFont, QGuiApplication, QPainter, QPainterPath, QPen, QPixmap, QPolygonF
 from gpxviewer.configstore import TheConfig
 
 

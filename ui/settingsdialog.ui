@@ -3,7 +3,7 @@
  <class>settingsDialog</class>
  <widget class="QDialog" name="settingsDialog">
   <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
+   <enum>Qt::WindowModality::WindowModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -50,10 +50,10 @@
        <item>
         <layout class="QFormLayout" name="formLayout_3">
          <property name="labelAlignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
          </property>
          <property name="formAlignment">
-          <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
+          <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTop|Qt::AlignmentFlag::AlignTrailing</set>
          </property>
          <item row="0" column="0">
           <widget class="QLabel" name="profileWidthLabel">
@@ -67,7 +67,7 @@
            <item>
             <spacer name="horizontalSpacer_3">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -132,7 +132,7 @@
             <string>Use system color theme instead of default light theme</string>
            </property>
            <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
+            <enum>Qt::LayoutDirection::RightToLeft</enum>
            </property>
           </widget>
          </item>
@@ -164,7 +164,7 @@
             <string>Plot profiles taking into account only selected points and tracks</string>
            </property>
            <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
+            <enum>Qt::LayoutDirection::RightToLeft</enum>
            </property>
           </widget>
          </item>
@@ -173,10 +173,10 @@
            <item>
             <spacer name="horizontalSpacer">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
+              <enum>QSizePolicy::Policy::Fixed</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -216,7 +216,7 @@
             <string>Always start X axis from zero when plotting profile for selected points</string>
            </property>
            <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
+            <enum>Qt::LayoutDirection::RightToLeft</enum>
            </property>
           </widget>
          </item>
@@ -225,7 +225,7 @@
        <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -244,6 +244,12 @@
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <layout class="QFormLayout" name="formLayout">
+         <property name="labelAlignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+         <property name="formAlignment">
+          <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTop|Qt::AlignmentFlag::AlignTrailing</set>
+         </property>
          <item row="0" column="0">
           <widget class="QLabel" name="minaltLabel">
            <property name="text">
@@ -256,7 +262,7 @@
            <item>
             <spacer name="horizontalSpacer_4">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -302,7 +308,7 @@
            <item>
             <spacer name="horizontalSpacer_5">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -364,7 +370,7 @@
             <string>Automatically scale minimum/maximum altitudes when plotting profile</string>
            </property>
            <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
+            <enum>Qt::LayoutDirection::RightToLeft</enum>
            </property>
           </widget>
          </item>
@@ -398,7 +404,7 @@ Otherwise only days or hours are shown.</string>
 Otherwise only days or hours are shown.</string>
            </property>
            <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
+            <enum>Qt::LayoutDirection::RightToLeft</enum>
            </property>
           </widget>
          </item>
@@ -430,7 +436,7 @@ Otherwise only days or hours are shown.</string>
             <string>Show absolute time of track instead of track duration</string>
            </property>
            <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
+            <enum>Qt::LayoutDirection::RightToLeft</enum>
            </property>
           </widget>
          </item>
@@ -493,7 +499,7 @@ Otherwise only days or hours are shown.</string>
              <string>Whether to use bold font for axes labels</string>
             </property>
             <property name="layoutDirection">
-             <enum>Qt::RightToLeft</enum>
+             <enum>Qt::LayoutDirection::RightToLeft</enum>
             </property>
            </widget>
           </item>
@@ -525,7 +531,7 @@ Otherwise only days or hours are shown.</string>
              <string>Whether to use italic font for axes labels</string>
             </property>
             <property name="layoutDirection">
-             <enum>Qt::RightToLeft</enum>
+             <enum>Qt::LayoutDirection::RightToLeft</enum>
             </property>
            </widget>
           </item>
@@ -535,7 +541,7 @@ Otherwise only days or hours are shown.</string>
        <item>
         <spacer name="verticalSpacer_3">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -554,6 +560,12 @@ Otherwise only days or hours are shown.</string>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <layout class="QFormLayout" name="formLayout_2">
+         <property name="labelAlignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+         <property name="formAlignment">
+          <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTop|Qt::AlignmentFlag::AlignTrailing</set>
+         </property>
          <item row="0" column="0">
           <widget class="QLabel" name="label_8">
            <property name="toolTip">
@@ -569,7 +581,7 @@ Otherwise only days or hours are shown.</string>
            <item>
             <spacer name="horizontalSpacer_6">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -589,7 +601,7 @@ Otherwise only days or hours are shown.</string>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>120</width>
                <height>16777215</height>
               </size>
              </property>
@@ -614,10 +626,10 @@ Otherwise only days or hours are shown.</string>
            <item>
             <spacer name="horizontalSpacer_2">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
+              <enum>QSizePolicy::Policy::Fixed</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -657,7 +669,7 @@ Otherwise only days or hours are shown.</string>
             <string>Show distance coefficient under the X axis</string>
            </property>
            <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
+            <enum>Qt::LayoutDirection::RightToLeft</enum>
            </property>
           </widget>
          </item>
@@ -676,7 +688,7 @@ Otherwise only days or hours are shown.</string>
            <item>
             <spacer name="horizontalSpacer_7">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -696,7 +708,7 @@ Otherwise only days or hours are shown.</string>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>120</width>
                <height>16777215</height>
               </size>
              </property>
@@ -744,7 +756,7 @@ Otherwise only days or hours are shown.</string>
             <string>Sort imported points by time</string>
            </property>
            <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
+            <enum>Qt::LayoutDirection::RightToLeft</enum>
            </property>
           </widget>
          </item>
@@ -819,7 +831,7 @@ Otherwise only days or hours are shown.</string>
        <item>
         <spacer name="verticalSpacer_2">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -839,10 +851,10 @@ Otherwise only days or hours are shown.</string>
        <item>
         <layout class="QFormLayout" name="formLayout_4">
          <property name="labelAlignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
          </property>
          <property name="formAlignment">
-          <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
+          <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTop|Qt::AlignmentFlag::AlignTrailing</set>
          </property>
          <item row="0" column="0">
           <widget class="QLabel" name="pointsToTrackLabel">
@@ -872,7 +884,7 @@ Otherwise only days or hours are shown.</string>
             <string>Convert waypoints to track when exporting</string>
            </property>
            <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
+            <enum>Qt::LayoutDirection::RightToLeft</enum>
            </property>
           </widget>
          </item>
@@ -904,7 +916,7 @@ Otherwise only days or hours are shown.</string>
             <string>Delete waypoints when exporting</string>
            </property>
            <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
+            <enum>Qt::LayoutDirection::RightToLeft</enum>
            </property>
           </widget>
          </item>
@@ -936,7 +948,7 @@ Otherwise only days or hours are shown.</string>
             <string>Convert tracks to waypoints when exporting</string>
            </property>
            <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
+            <enum>Qt::LayoutDirection::RightToLeft</enum>
            </property>
           </widget>
          </item>
@@ -968,7 +980,7 @@ Otherwise only days or hours are shown.</string>
             <string>Delete tracks when exporting</string>
            </property>
            <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
+            <enum>Qt::LayoutDirection::RightToLeft</enum>
            </property>
           </widget>
          </item>
@@ -977,7 +989,7 @@ Otherwise only days or hours are shown.</string>
        <item>
         <spacer name="verticalSpacer_4">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -994,10 +1006,10 @@ Otherwise only days or hours are shown.</string>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
      </property>
     </widget>
    </item>

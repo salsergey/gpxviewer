@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2024 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -14,9 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5.QtCore import Qt, QFileInfo, QFileSelector, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QIcon, QKeySequence
-from PyQt5.QtWidgets import QFileDialog, QHBoxLayout, QLabel, QMainWindow, QSizePolicy, QSpacerItem, QSpinBox, QWidget
+from PyQt6.QtCore import Qt, QFileInfo, QFileSelector, pyqtSignal, pyqtSlot
+from PyQt6.QtGui import QIcon, QKeySequence
+from PyQt6.QtWidgets import QFileDialog, QHBoxLayout, QLabel, QMainWindow, QSizePolicy, QSpacerItem, QSpinBox, QWidget
 from gpxviewer.configstore import TheConfig
 import gpxviewer.ui_plotwindow
 
@@ -43,9 +43,11 @@ class PlotWindow(QMainWindow):
     wdg.layout().addItem(QSpacerItem(40, 20, QSizePolicy.Policy.Expanding))
     wdg.layout().addWidget(QLabel(self.tr('Set size for export:')))
     self.widthSpinBox = QSpinBox()
+    self.widthSpinBox.setMinimumWidth(100)
     self.widthSpinBox.setMaximum(10000)
     self.widthSpinBox.setValue(int(TheConfig['PlotWindow']['SaveProfileWidth']))
     self.heightSpinBox = QSpinBox()
+    self.heightSpinBox.setMinimumWidth(100)
     self.heightSpinBox.setMaximum(10000)
     self.heightSpinBox.setValue(int(TheConfig['PlotWindow']['SaveProfileHeight']))
     wdg.layout().addWidget(self.widthSpinBox)

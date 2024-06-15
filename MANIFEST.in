@@ -1,5 +1,6 @@
 graft data
 graft ui
+include build_dep.py
 include Changelog.md
 include gpxv.py
 include pynsist.cfg

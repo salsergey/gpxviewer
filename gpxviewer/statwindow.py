@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2017-2023 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2017-2024 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -15,9 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import timedelta
-from PyQt5.QtCore import Qt, QRegularExpression, pyqtSlot
-from PyQt5.QtGui import QGuiApplication, QIcon
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QMainWindow, QSizePolicy, QSpacerItem, QTableWidgetItem, QWidget
+from PyQt6.QtCore import Qt, QRegularExpression, pyqtSlot
+from PyQt6.QtGui import QGuiApplication, QIcon
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QMainWindow, QSizePolicy, QSpacerItem, QTableWidgetItem, QWidget
 import gpxviewer.gpxmodel as gpx
 from gpxviewer.configstore import TheConfig
 from gpxviewer.gpxdocument import TheDocument

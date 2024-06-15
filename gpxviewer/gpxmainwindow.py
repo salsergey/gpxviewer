@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2024 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -17,10 +17,10 @@
 import sys
 import re
 import webbrowser
-from PyQt5.QtCore import Qt, QCoreApplication, QEvent, QFileInfo, QFileSelector, QUrl, QT_VERSION, QT_VERSION_STR, PYQT_VERSION_STR, pyqtSlot
-from PyQt5.QtGui import QCursor, QIcon, QKeySequence
-from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
-from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QDialogButtonBox, QFileDialog, QHBoxLayout, QLabel, QLineEdit,
+from PyQt6.QtCore import Qt, QCoreApplication, QEvent, QFileInfo, QFileSelector, QUrl, QT_VERSION, QT_VERSION_STR, PYQT_VERSION_STR, pyqtSlot
+from PyQt6.QtGui import QAction, QCursor, QIcon, QKeySequence
+from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
+from PyQt6.QtWidgets import (QApplication, QDialog, QDialogButtonBox, QFileDialog, QHBoxLayout, QLabel, QLineEdit,
                              QMainWindow, QMenu, QMessageBox, QSizePolicy, QSpacerItem, QSpinBox, QVBoxLayout, QWidget)
 import gpxviewer.gpxmodel as gpx
 import gpxviewer.statwindow as stat
@@ -361,7 +361,7 @@ class GpxMainWindow(QMainWindow):
                 self.tr('Using') + ' Python ' + str(sys.version_info.major) + '.' + str(sys.version_info.minor) + '.' + str(sys.version_info.micro) + ', ' + \
                 'PyQt' + PYQT_VERSION_STR[0] + ' ' + PYQT_VERSION_STR + ', ' + \
                 'Qt ' + QT_VERSION_STR + '<br><br>' + \
-                'Copyright 2016-2023 Sergey Salnikov <a href=mailto:salsergey@gmail.com>&lt;salsergey@gmail.com&gt;</a><br><br>' + \
+                'Copyright 2016-2024 Sergey Salnikov <a href=mailto:salsergey@gmail.com>&lt;salsergey@gmail.com&gt;</a><br><br>' + \
                 self.tr('License:') + ' <a href=http://www.gnu.org/licenses/gpl.html>GNU General Public License, version 3</a>'
     QMessageBox.about(self, self.tr('About GPX Viewer'), aboutText)
 

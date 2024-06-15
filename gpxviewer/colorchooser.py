@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2023 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2024 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -14,15 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5.QtCore import Qt, QRect, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import qAlpha, QColor, QPainter
-from PyQt5.QtWidgets import QColorDialog, QDialog, QPushButton, QStyle, QStyleOptionButton
+from PyQt6.QtCore import Qt, QRect, pyqtSignal, pyqtSlot
+from PyQt6.QtGui import qAlpha, QColor, QPainter
+from PyQt6.QtWidgets import QColorDialog, QDialog, QPushButton, QStyle, QStyleOptionButton
 
 
 class ColorChooser(QPushButton):
   def __init__(self, parent=None):
     super(ColorChooser, self).__init__(parent)
-    self.buttonWidth = 60
+    self.buttonWidth = 70
     self.clicked.connect(self.openColorDialog)
 
   def mousePressEvent(self, e):
