@@ -16,7 +16,7 @@
 
 import webbrowser
 from datetime import timedelta
-from PyQt6.QtCore import Qt, QCoreApplication, QDate, QDateTime, QFileSelector, QLocale, QMargins, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import Qt, QCoreApplication, QDateTime, QFileSelector, QLocale, QMargins, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QAction, QColor, QCursor, QFont, QFontMetrics, QGuiApplication, QIcon, QKeySequence, QPen
 from PyQt6.QtWidgets import QDialog, QInputDialog, QLineEdit, QMenu, QMessageBox
 from QCustomPlot_PyQt6 import (QCP, QCustomPlot, QCPAxisTickerDateTime, QCPAxisTickerFixed, QCPDataRange, QCPDataSelection,
@@ -249,6 +249,7 @@ class PlotCanvas(QCustomPlot):
 
     if self.column == gpx.TIME:
       self.xAxis.setTickLabelRotation(-90)
+      self.xTicker.setTickOrigin(QCPAxisTickerDateTime.dateTimeToKey(QCPAxisTickerDateTime.keyToDateTime(self.xx[0]).date()))
     else:
       self.xAxis.setTickLabelRotation(0)
 
@@ -698,10 +699,6 @@ class AxisTicker(QCPAxisTickerFixed):
 
   def setType(self, type):
     self.type = type
-    if self.type == gpx.TIME:
-      self.setTickOrigin(QCPAxisTickerDateTime.dateTimeToKey(QDate(2019, 1, 1)))
-    else:
-      self.setTickOrigin(0)
 
   def getTickStep(self, range):
     if self.orientation == Qt.Orientation.Horizontal:
