@@ -395,14 +395,14 @@ class PlotCanvas(QCustomPlot):
     if self.moveCaption and QGuiApplication.mouseButtons() == Qt.MouseButton.LeftButton:
       x = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSX]
       y = TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.CaptionStyleRole)[gpx.CAPTION_POSY]
-      delta = event.position() - self.prevPos
+      delta = event.position().toPoint() - self.prevPos
       TheDocument.wptmodel.setPointStyle([self.currentSelection.idx], gpx.CAPTION_POSX, x + delta.x())
       TheDocument.wptmodel.setPointStyle([self.currentSelection.idx], gpx.CAPTION_POSY, y - delta.y())
       self.replot()
     else:  # no caption is selected
       super(PlotCanvas, self).mouseMoveEvent(event)
 
-    self.prevPos = event.position()
+    self.prevPos = event.position().toPoint()
 
   def mousePressEvent(self, event):
     if event.button() == Qt.MouseButton.LeftButton:
