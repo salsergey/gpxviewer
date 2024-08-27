@@ -1,3 +1,8 @@
+=== Version 3.1 ===
+* Added possibility to convert names to upper/lower/camel cases.
+* Added tooltips for waypoints.
+* Several fixes.
+
 === Version 3.0 ===
 * Ported to PyQt6.
 * Moved to pyproject.toml instead of setup.py to configure setuptools.
