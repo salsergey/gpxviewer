@@ -449,6 +449,8 @@ class GpxMainWindow(QMainWindow):
   @pyqtSlot()
   def renamePoints(self):
     indexes = [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()]
+    if len(indexes) == 0:
+      return
     indexes.sort()
     first_name = TheDocument.wptmodel.index(indexes[0], gpx.NAME).data()
 
@@ -601,8 +603,11 @@ class GpxMainWindow(QMainWindow):
 
   @pyqtSlot()
   def pointStyle(self):
-    dlg = PointConfigDialog(self, self.ui.wptView.currentIndex().data(gpx.IDRole),
-                            [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()])
+    indexes = [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()]
+    if len(indexes) == 0:
+      return
+
+    dlg = PointConfigDialog(self, self.ui.wptView.currentIndex().data(gpx.IDRole), indexes)
     dlg.exec()
 
   @pyqtSlot()

@@ -645,6 +645,9 @@ class PlotCanvas(QCustomPlot):
 
   def onPointStyle(self):
     indexes = [el.idx for el in self.selectedElements]
+    if len(indexes) == 0:
+      return
+
     dlg = PointConfigDialog(self, self.currentSelection.idx, indexes)
     if dlg.exec() == QDialog.DialogCode.Accepted:
       for point in self.markers + self.captions + self.splitLines:
