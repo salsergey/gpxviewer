@@ -106,6 +106,8 @@ class WptModel(QAbstractTableModel):
         return _markerIcon(index.data(MarkerStyleRole)[MARKER_STYLE], index.data(MarkerStyleRole)[MARKER_COLOR])
       else:
         return self.pix
+    elif role == Qt.ItemDataRole.ToolTipRole:
+      return self.getToolTip(index)
     elif role == ValueRole:
       return self.waypoints[index.row()][index.column()]
     elif role == IDRole:
@@ -178,6 +180,29 @@ class WptModel(QAbstractTableModel):
       return QModelIndex()
     else:
       return super(WptModel, self).parent()
+
+  def getToolTip(self, index):
+    toolTip = self.tr('Name: ') + self.index(index.row(), NAME).data()
+    cmt = self.waypoints[index.row()]['CMT']
+    if cmt is not None:
+      toolTip += self.tr('\nComment: ') + str(cmt)
+    desc = self.waypoints[index.row()]['DESC']
+    if desc is not None:
+      toolTip += self.tr('\nDescription: ') + str(desc)
+
+    lat = self.waypoints[index.row()][LAT]
+    lon = self.waypoints[index.row()][LON]
+    toolTip += (self.tr('\nCoordinates: ') + ('N ' if lat > 0 else 'S ') + self.index(index.row(), LAT).data() + ', ' +
+                                             ('E ' if lon > 0 else 'W ') + self.index(index.row(), LON).data())
+
+    toolTip += self.tr('\nAltitude: ') + self.index(index.row(), ALT).data() + self.tr(' m')
+    toolTip += self.tr('\nDistance: ') + self.index(index.row(), DIST).data() + self.tr(' km')
+
+    time = self.index(index.row(), TIME).data()
+    if time != '':
+      toolTip += self.tr('\nTime: ') + time
+
+    return toolTip
 
   def copyToClipboard(self, IDs):
     if len(IDs) > 0:
