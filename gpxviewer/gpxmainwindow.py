@@ -167,37 +167,17 @@ class GpxMainWindow(QMainWindow):
     self.actNeglect.triggered.connect(self.neglectDistance)
     self.addAction(self.actNeglect)
 
-    self.actReset = QAction(QIcon(self.themeSelector.select(':/icons/edit-clear-all.svg')), self.tr('Reset appearance'), self)
-    self.actReset.setStatusTip(self.tr('Reset appearance of these waypoints'))
-    self.actReset.triggered.connect(self.resetPoints)
-    self.addAction(self.actReset)
-
     self.actRename = QAction(QIcon(self.themeSelector.select(':/icons/edit-rename.svg')), self.tr('Rename...'), self)
     self.actRename.setStatusTip(self.tr('Rename these waypoints'))
     self.actRename.setShortcut(QKeySequence(Qt.Key.Key_F2))
     self.actRename.triggered.connect(self.renamePoints)
     self.addAction(self.actRename)
 
-    self.actResetName = QAction(QIcon(self.themeSelector.select(':/icons/edit-clear.svg')), self.tr('Reset name'), self)
-    self.actResetName.setStatusTip(self.tr('Reset the names of these waypoints'))
-    self.actResetName.triggered.connect(self.resetPointNames)
-    self.addAction(self.actResetName)
-
     self.actStyle = QAction(QIcon(self.themeSelector.select(':/icons/configure.svg')), self.tr('Point style'), self)
     self.actStyle.setStatusTip(self.tr('Change the style of these waypoints when plotting profiles'))
     self.actStyle.setShortcut(QKeySequence(Qt.Modifier.ALT | Qt.Key.Key_Return))
     self.actStyle.triggered.connect(self.pointStyle)
     self.addAction(self.actStyle)
-
-    self.actGetAltitude = QAction(QIcon(self.themeSelector.select(':/icons/download.svg')), self.tr('Get altitudes from SRTM'), self)
-    self.actGetAltitude.setStatusTip(self.tr('Get altitudes from online SRTM data'))
-    self.actGetAltitude.triggered.connect(self.requestAltitudes)
-    self.addAction(self.actGetAltitude)
-
-    self.actResetAltitude = QAction(QIcon(self.themeSelector.select(':/icons/edit-clear.svg')), self.tr('Reset altitude'), self)
-    self.actResetAltitude.setStatusTip(self.tr('Reset the altitudes of these waypoints'))
-    self.actResetAltitude.triggered.connect(self.resetAltitudes)
-    self.addAction(self.actResetAltitude)
 
     self.actSkipTracks = QAction(QIcon(self.themeSelector.select(':/icons/waypoint-skip.svg')), self.tr('Skip tracks'), self)
     self.actSkipTracks.setStatusTip(self.tr('Skip these tracks when plotting profiles or calculating statistics'))
@@ -260,22 +240,33 @@ class GpxMainWindow(QMainWindow):
       self.actSplit.setChecked(self.ui.wptView.currentIndex().data(gpx.SplitLineRole))
       self.actNeglect.setChecked(self.ui.wptView.currentIndex().data(gpx.NeglectRole))
 
-      menu = QMenu(self)
-      menu.addAction(self.actMarker)
-      menu.addAction(self.actCaption)
-      menu.addAction(self.actSplit)
-      menu.addAction(self.actNeglect)
-      menu.addAction(self.actReset)
-      menu.addSeparator()
-      menu.addAction(self.actSkipPoints)
-      menu.addSeparator()
-      menu.addAction(self.actRename)
-      menu.addAction(self.actResetName)
-      menu.addSeparator()
-      menu.addAction(self.actStyle)
-      menu.addSeparator()
-      menu.addAction(self.actGetAltitude)
-      menu.addAction(self.actResetAltitude)
+      actReset = QAction(QIcon(self.themeSelector.select(':/icons/edit-clear-all.svg')), self.tr('Reset appearance'), self)
+      actReset.setStatusTip(self.tr('Reset appearance of these waypoints'))
+      actReset.triggered.connect(self.resetPoints)
+
+      actResetName = QAction(QIcon(self.themeSelector.select(':/icons/edit-clear.svg')), self.tr('Reset name'), self)
+      actResetName.setStatusTip(self.tr('Reset the names of these waypoints'))
+      actResetName.triggered.connect(self.resetPointNames)
+
+      actCamelCase = QAction(self.tr('Camel Case'), self)
+      actCamelCase.setStatusTip(self.tr('Convert the names of these waypoints to Camel Case'))
+      actCamelCase.triggered.connect(self.convertCamelCase)
+
+      actUpperCase = QAction(self.tr('UPPER CASE'), self)
+      actUpperCase.setStatusTip(self.tr('Convert the names of these waypoints to UPPER CASE'))
+      actUpperCase.triggered.connect(self.convertUpperCase)
+
+      actLowerCase = QAction(self.tr('lower case'), self)
+      actLowerCase.setStatusTip(self.tr('Convert the names of these waypoints to lower case'))
+      actLowerCase.triggered.connect(self.convertLowerCase)
+
+      actGetAltitude = QAction(QIcon(self.themeSelector.select(':/icons/download.svg')), self.tr('Get altitudes from SRTM'), self)
+      actGetAltitude.setStatusTip(self.tr('Get altitudes from online SRTM data'))
+      actGetAltitude.triggered.connect(self.requestAltitudes)
+
+      actResetAltitude = QAction(QIcon(self.themeSelector.select(':/icons/edit-clear.svg')), self.tr('Reset altitude'), self)
+      actResetAltitude.setStatusTip(self.tr('Reset the altitudes of these waypoints'))
+      actResetAltitude.triggered.connect(self.resetAltitudes)
 
       actShowGoogleMap = QAction(QIcon(':/icons/googlemaps.png'), self.tr('Google Maps'), self)
       actShowGoogleMap.setStatusTip(self.tr('Show this waypoint on the website maps.google.com'))
@@ -288,6 +279,31 @@ class GpxMainWindow(QMainWindow):
       actShowNakarteMap = QAction(QIcon(':/icons/nakarte.png'), self.tr('Nakarte.me'), self)
       actShowNakarteMap.setStatusTip(self.tr('Show this waypoint on the website nakarte.me'))
       actShowNakarteMap.triggered.connect(self.showNakarteMap)
+
+      menu = QMenu(self)
+      menu.addAction(self.actMarker)
+      menu.addAction(self.actCaption)
+      menu.addAction(self.actSplit)
+      menu.addAction(self.actNeglect)
+      menu.addAction(actReset)
+      menu.addSeparator()
+      menu.addAction(self.actSkipPoints)
+      menu.addSeparator()
+
+      menu.addAction(self.actRename)
+      menu.addAction(actResetName)
+      convertNameMenu = QMenu(self.tr('Convert name to'), self)
+      menu.addMenu(convertNameMenu)
+      convertNameMenu.addAction(actCamelCase)
+      convertNameMenu.addAction(actUpperCase)
+      convertNameMenu.addAction(actLowerCase)
+      menu.addSeparator()
+
+      menu.addAction(self.actStyle)
+      menu.addSeparator()
+
+      menu.addAction(actGetAltitude)
+      menu.addAction(actResetAltitude)
 
       showMapMenu = QMenu(self.tr('Show on map'), self)
       showMapMenu.setIcon(QIcon(self.themeSelector.select(':/icons/internet-services.svg')))
@@ -489,6 +505,24 @@ class GpxMainWindow(QMainWindow):
   @pyqtSlot()
   def resetPointNames(self):
     TheDocument.wptmodel.resetNames([i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()])
+
+  @pyqtSlot()
+  def convertCamelCase(self):
+    for ind in [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()]:
+      name = TheDocument.wptmodel.index(ind, gpx.NAME).data()
+      TheDocument.wptmodel.setData(TheDocument.wptmodel.index(ind, gpx.NAME), name.title(), Qt.ItemDataRole.EditRole)
+
+  @pyqtSlot()
+  def convertUpperCase(self):
+    for ind in [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()]:
+      name = TheDocument.wptmodel.index(ind, gpx.NAME).data()
+      TheDocument.wptmodel.setData(TheDocument.wptmodel.index(ind, gpx.NAME), name.upper(), Qt.ItemDataRole.EditRole)
+
+  @pyqtSlot()
+  def convertLowerCase(self):
+    for ind in [i.data(gpx.IDRole) for i in self.ui.wptView.selectionModel().selectedRows()]:
+      name = TheDocument.wptmodel.index(ind, gpx.NAME).data()
+      TheDocument.wptmodel.setData(TheDocument.wptmodel.index(ind, gpx.NAME), name.lower(), Qt.ItemDataRole.EditRole)
 
   @pyqtSlot()
   def requestAltitudes(self):

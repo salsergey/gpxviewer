@@ -154,7 +154,7 @@ class WptModel(QAbstractTableModel):
     return None
 
   def setData(self, index, value, role):
-    if index.isValid() and role == Qt.ItemDataRole.EditRole and index.column() == NAME and value != self.waypoints[index.row()][NAME]:
+    if index.isValid() and role == Qt.ItemDataRole.EditRole and index.column() == NAME and value != index.data(NAME):
       self.changedNames[index.row()] = value
       self.dataChanged.emit(index, index)
       self.wptDataChanged.emit()

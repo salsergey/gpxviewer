@@ -119,10 +119,6 @@ class PlotCanvas(QCustomPlot):
     self.actRename.triggered.connect(self.onRenamePoints)
     self.addAction(self.actRename)
 
-    self.actResetName = QAction(QIcon(self.themeSelector.select(':/icons/edit-clear.svg')), self.tr('Reset name'), self)
-    self.actResetName.triggered.connect(self.onResetPointNames)
-    self.addAction(self.actResetName)
-
     self.actStyle = QAction(QIcon(self.themeSelector.select(':/icons/configure.svg')), self.tr('Point style'), self)
     self.actStyle.setShortcut(QKeySequence(Qt.Modifier.ALT | Qt.Key.Key_Return))
     self.actStyle.triggered.connect(self.onPointStyle)
@@ -509,6 +505,18 @@ class PlotCanvas(QCustomPlot):
     self.actNeglect.setChecked(TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.NeglectRole))
     self.actSkip.setChecked(not TheDocument.wptmodel.index(self.currentSelection.idx, gpx.NAME).data(gpx.IncludeRole))
 
+    actResetName = QAction(QIcon(self.themeSelector.select(':/icons/edit-clear.svg')), self.tr('Reset name'), self)
+    actResetName.triggered.connect(self.onResetPointNames)
+
+    actCamelCase = QAction(self.tr('Camel Case'), self)
+    actCamelCase.triggered.connect(self.onConvertCamelCase)
+
+    actUpperCase = QAction(self.tr('UPPER CASE'), self)
+    actUpperCase.triggered.connect(self.onConvertUpperCase)
+
+    actLowerCase = QAction(self.tr('lower case'), self)
+    actLowerCase.triggered.connect(self.onConvertLowerCase)
+
     menu = QMenu(self)
     menu.addAction(self.actMarker)
     menu.addAction(self.actCaption)
@@ -520,7 +528,12 @@ class PlotCanvas(QCustomPlot):
 
     if type(self.currentSelection) == CaptionItem:
       menu.addAction(self.actRename)
-      menu.addAction(self.actResetName)
+      menu.addAction(actResetName)
+      convertNameMenu = QMenu(self.tr('Convert name to'), self)
+      menu.addMenu(convertNameMenu)
+      convertNameMenu.addAction(actCamelCase)
+      convertNameMenu.addAction(actUpperCase)
+      convertNameMenu.addAction(actLowerCase)
       menu.addSeparator()
 
     menu.addAction(self.actStyle)
@@ -641,6 +654,30 @@ class PlotCanvas(QCustomPlot):
     TheDocument.wptmodel.resetNames([el.idx for el in self.selectedItems()])
     for el in self.selectedItems():
       el.setText(TheDocument.wptmodel.index(el.idx, gpx.NAME).data())
+    self.replot()
+
+  @pyqtSlot()
+  def onConvertCamelCase(self):
+    item = self.selectedItems()[0]
+    name = item.text().title()
+    TheDocument.wptmodel.setData(TheDocument.wptmodel.index(item.idx, gpx.NAME), name, Qt.ItemDataRole.EditRole)
+    item.setText(name)
+    self.replot()
+
+  @pyqtSlot()
+  def onConvertUpperCase(self):
+    item = self.selectedItems()[0]
+    name = item.text().upper()
+    TheDocument.wptmodel.setData(TheDocument.wptmodel.index(item.idx, gpx.NAME), name, Qt.ItemDataRole.EditRole)
+    item.setText(name)
+    self.replot()
+
+  @pyqtSlot()
+  def onConvertLowerCase(self):
+    item = self.selectedItems()[0]
+    name = item.text().lower()
+    TheDocument.wptmodel.setData(TheDocument.wptmodel.index(item.idx, gpx.NAME), name, Qt.ItemDataRole.EditRole)
+    item.setText(name)
     self.replot()
 
   def onPointStyle(self):
