@@ -160,6 +160,11 @@ class GpxDocument(QObject):
       if type(self.doc['GPXFile']) == str:
         self.doc['GPXFile'] = [self.doc['GPXFile']]
 
+      # Set import settings before actual import
+      for option in TheConfig['ProfileStyle'].keys():
+        if option in self.doc:
+          TheConfig['ProfileStyle'][option] = self.doc[option]
+
       self.applyToAll = False
       for i, file in enumerate(self.doc['GPXFile']):
         if self.projectType == TYPE_GPXV:
@@ -197,10 +202,6 @@ class GpxDocument(QObject):
         self.wptmodel.setNeglectStates(self.doc['NeglectDistances'], True, False)
       if 'SkipTracks' in self.doc:
         self.trkmodel.setIncludeStates(self.doc['SkipTracks'], False, False)
-
-      for option in TheConfig['ProfileStyle'].keys():
-        if option in self.doc:
-          TheConfig['ProfileStyle'][option] = self.doc[option]
 
       # After distance coefficient is set
       self.gpxparser.updatePoints()
