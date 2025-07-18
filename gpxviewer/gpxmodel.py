@@ -183,15 +183,14 @@ class WptModel(QAbstractTableModel):
 
   def getToolTip(self, index):
     toolTip = self.tr('Name: ') + self.index(index.row(), NAME).data()
-    cmt = self.waypoints[index.row()]['CMT']
-    if cmt is not None:
-      toolTip += self.tr('\nComment: ') + str(cmt)
-    desc = self.waypoints[index.row()]['DESC']
-    if desc is not None:
-      toolTip += self.tr('\nDescription: ') + str(desc)
+    point = self.waypoints[index.row()]
+    if 'CMT' in point and point['CMT'] is not None:
+      toolTip += self.tr('\nComment: ') + str(point['CMT'])
+    if 'DESC' in point and point['DESC'] is not None:
+      toolTip += self.tr('\nDescription: ') + str(point['DESC'])
 
-    lat = self.waypoints[index.row()][LAT]
-    lon = self.waypoints[index.row()][LON]
+    lat = point[LAT]
+    lon = point[LON]
     toolTip += (self.tr('\nCoordinates: ') + ('N ' if lat > 0 else 'S ') + self.index(index.row(), LAT).data() + ', ' +
                                              ('E ' if lon > 0 else 'W ') + self.index(index.row(), LON).data())
 
