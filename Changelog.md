@@ -1,3 +1,7 @@
+=== Version 3.1.1 ===
+* Fixed reading import settings.
+* Fixed showing tooltips if some fields are absent.
+
 === Version 3.1 ===
 * Added possibility to convert names to upper/lower/camel cases.
 * Added tooltips for waypoints.
