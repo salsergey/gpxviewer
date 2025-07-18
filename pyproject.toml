@@ -4,7 +4,7 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = 'gpxviewer'
-version = '3.1'
+version = '3.1.1'
 description='GPX Viewer is an application for viewing GPX files and plotting altitude profiles'
 readme = 'README.md'
 urls.homepage = 'https://github.com/salsergey/gpxviewer'
