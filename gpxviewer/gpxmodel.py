@@ -887,7 +887,7 @@ class GpxParser(QObject):
 
   def writeGPXFile(self, filename):
     ns = {None: 'http://www.topografix.com/GPX/1/1'}
-    root = etree.Element('gpx', nsmap=ns, version='1.1', creator='GPX Viewer - https://osdn.net/projects/gpxviewer')
+    root = etree.Element('gpx', nsmap=ns, version='1.1', creator='GPX Viewer - https://github.com/salsergey/gpxviewer')
     metadata = etree.SubElement(root, 'metadata')
 
     self.minlat = 90
@@ -956,7 +956,7 @@ class GpxParser(QObject):
       'kml': 'http://www.opengis.net/kml/2.2',
       'atom': 'http://www.w3.org/2005/Atom'
     }
-    root = etree.Element('kml', nsmap=ns, creator='GPX Viewer - https://osdn.net/projects/gpxviewer')
+    root = etree.Element('kml', nsmap=ns, creator='GPX Viewer - https://github.com/salsergey/gpxviewer')
     document = etree.SubElement(root, 'Document')
     etree.SubElement(document, 'name').text = QFileInfo(filename).fileName()
     etree.SubElement(document, 'snippet').text = 'Created ' + datetime.utcnow().ctime()
