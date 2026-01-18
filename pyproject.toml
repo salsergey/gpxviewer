@@ -4,12 +4,12 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = 'gpxviewer'
-version = '3.1.1'
+version = '3.1.2'
 description='GPX Viewer is an application for viewing GPX files and plotting altitude profiles'
 readme = 'README.md'
 urls.homepage = 'https://github.com/salsergey/gpxviewer'
 requires-python = '>=3.7'
-license = {text = 'GNU PL3'}
+license = 'GPL-3.0-or-later'
 keywords = ['PyQt', 'QCustomPlot', 'GPX']
 authors = [
     {email = 'salsergey@gmail.com'},
@@ -18,7 +18,6 @@ authors = [
 classifiers = [
     'Development Status :: 5 - Production/Stable',
     'Environment :: X11 Applications :: Qt',
-    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
     'Operating System :: POSIX :: Linux',
     'Operating System :: Microsoft :: Windows',
     'Programming Language :: Python :: 3',
@@ -28,6 +27,8 @@ classifiers = [
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Programming Language :: Python :: 3.14',
     'Topic :: Software Development :: User Interfaces'
 ]
 dependencies = [

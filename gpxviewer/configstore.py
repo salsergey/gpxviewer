@@ -1,6 +1,6 @@
 # gpxviewer
 #
-# Copyright (C) 2016-2024 Sergey Salnikov <salsergey@gmail.com>
+# Copyright (C) 2016-2026 Sergey Salnikov <salsergey@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3
@@ -83,7 +83,7 @@ class ConfigStore(configparser.ConfigParser):
                                  'DistanceCoefficient': 1.0,
                                  'ShowDistanceCoefficient': True,
                                  'TimeZoneOffset': 420,
-                                 'SortByTime': False,
+                                 'SortByTime': True,
                                  'ReadNameFromTag': 0,
                                  'CoordinateFormat': 0,
                                  'PointsToTrack': False,
